@@ -51,3 +51,12 @@ def register():
         flash('Congratulations, you are now a registered user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+#GUESS THE NUMBER GAME
+
+@app.route('/')
+@app.route('/guessthenumberhome')
+@login_required
+def guessthenumberhome():
+    
+    return render_template("guessthenumberhome.html", title='Guess The Number')
