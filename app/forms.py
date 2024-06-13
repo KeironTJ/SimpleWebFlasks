@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateField, IntegerField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 import sqlalchemy as sa
 from app import db
@@ -30,3 +30,9 @@ class RegistrationForm(FlaskForm):
             User.email == email.data))
         if user is not None:
             raise ValidationError('Please use a different email address.')
+        
+
+class TransactionForm(FlaskForm):
+    transaction_date = DateField('Transaction Date', validators=[DataRequired()])
+    account_id = IntegerField('Account', validators=[DataRequired()])
+    submit = SubmitField('Add Transaction')

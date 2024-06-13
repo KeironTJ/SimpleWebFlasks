@@ -12,11 +12,11 @@ def load_user(id):
 
 class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True,
-                                                unique=True)
-    email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True,
-                                             unique=True)
+    username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
+    email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
+    transactions: so.WriteOnlyMapped["Transaction"] = so.relationship()
+
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -27,16 +27,17 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
-class AccountTable(db.Model):
+class Account(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     account_name: so.Mapped[str] = so.mapped_column(sa.String(64))
-    transactions: so.WriteOnlyMapped["Transactions"] = so.relationship()
+    transactions: so.WriteOnlyMapped["Transaction"] = so.relationship()
 
     
-class Transactions(db.Model):
+class Transaction(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     transaction_date: so.Mapped[datetime] = so.mapped_column(sa.DateTime)
-    account_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(AccountTable.id))
+    account_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Account.id))
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
 
 
 
