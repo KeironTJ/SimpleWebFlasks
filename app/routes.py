@@ -60,3 +60,11 @@ def register():
 def guessthenumberhome():
     
     return render_template("guessthenumberhome.html", title='Guess The Number')
+
+
+@app.route('/')
+@app.route('/pfhome')
+@login_required
+def pfhome():
+    
+    return render_template("pfhome.html", title='Personal Finance - Home')
