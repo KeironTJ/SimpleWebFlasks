@@ -1,9 +1,9 @@
 from datetime import datetime, timezone
 from typing import Optional
-import sqlalchemy as sa
-import sqlalchemy.orm as so
+import sqlalchemy as sa # type: ignore
+import sqlalchemy.orm as so # type: ignore
 from app import db, login
-from flask_login import UserMixin
+from flask_login import UserMixin # type: ignore
 from werkzeug.security import generate_password_hash, check_password_hash
 
 @login.user_loader
@@ -16,6 +16,7 @@ class User(UserMixin, db.Model):
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     transactions: so.WriteOnlyMapped["Transaction"] = so.relationship()
+    accounts: so.WriteOnlyMapped["Account"] = so.relationship()
 
 
     def __repr__(self):
@@ -31,8 +32,9 @@ class Account(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     account_name: so.Mapped[str] = so.mapped_column(sa.String(64))
     transactions: so.WriteOnlyMapped["Transaction"] = so.relationship()
-
+    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id, name="fk_user_id"))
     
+
 class Transaction(db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     transaction_date: so.Mapped[datetime] = so.mapped_column(sa.DateTime)

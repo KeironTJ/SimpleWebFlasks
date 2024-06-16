@@ -1,7 +1,7 @@
-from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateField, IntegerField
-from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
-import sqlalchemy as sa
+from flask_wtf import FlaskForm # type: ignore
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateField, IntegerField # type: ignore
+from wtforms.validators import ValidationError, DataRequired, Email, EqualTo # type: ignore
+import sqlalchemy as sa # type: ignore
 from app import db
 from app.models import User
 
@@ -35,4 +35,8 @@ class RegistrationForm(FlaskForm):
 class TransactionForm(FlaskForm):
     transaction_date = DateField('Transaction Date', validators=[DataRequired()])
     account_id = IntegerField('Account', validators=[DataRequired()])
+    submit = SubmitField('Add Transaction')
+
+class AccountForm(FlaskForm):
+    account_name = StringField('Name of Account', validators=[DataRequired()])
     submit = SubmitField('Add Transaction')

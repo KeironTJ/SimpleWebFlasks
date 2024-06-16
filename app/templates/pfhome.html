@@ -6,26 +6,34 @@
     <h1> Personal Finance</h1>
 </div>
 
+<hr> 
+
 <div>
-    Trasnaction Table:
+
+    <h1>Add Transaction:</h1>
+
+    <form action="" method="post" novalidate>
+        {{ transactionform.hidden_tag() }}
+        <p>
+            {{ transactionform.transaction_date.label }}<br>
+            {{ transactionform.transaction_date(size=32) }}
+        </p>
+        <p>
+            {{ transactionform.account_id.label }}<br>
+            {{ transactionform.account_id(size=32) }}
+        </p>
+    
+    
+        <p>{{ transactionform.submit() }}</p>
+    </form>
 </div>
 
-<form action="" method="post" novalidate>
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.transaction_date.label }}<br>
-        {{ form.transaction_date(size=32) }}
-    </p>
-    <p>
-        {{ form.account_id.label }}<br>
-        {{ form.account_id(size=32) }}
-    </p>
-
-
-    <p>{{ form.submit() }}</p>
-</form>
+<hr> 
 
 <div>
+
+    <h1>Transaction Table:</h1>
+
     <table class="table table-striped">
         <thead>
             <th>ID</th>
@@ -48,5 +56,48 @@
     </table>
 </div>
 
+<hr> 
+
+<div>
+
+    <h1>Add Account:</h1>
+
+    <form action="" method="post" novalidate>
+        {{ accountform.hidden_tag() }}
+        <p>
+            {{ accountform.account_name.label }}<br>
+            {{ accountform.account_name(size=32) }}
+        </p> 
+        <p>{{ accountform.submit() }}</p>
+    </form>
+</div>
+
+<hr> 
+
+<div>
+
+    <h1>Account Table:</h1>
+
+    <table class="table table-striped">
+        <thead>
+            <th>ID</th>
+            <th>Account Name</th>
+            <th>User ID</th>
+        </thead>
+        <tbody>
+            {% for account in accounts %}
+            <tr>
+                <td>{{ account.id }}</td>
+                <td>{{ account.account_name }}</td>
+                <td>{{ account.user_id }}</td>
+            </tr>
+            {% endfor %}
+
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<hr> 
 
 {% endblock %}
