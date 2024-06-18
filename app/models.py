@@ -13,6 +13,12 @@ def load_user(id):
 class User(UserMixin, db.Model):
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
     username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
+    firstname: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_firstname", nullable=True)
+    surname: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_surname", nullable=True)
+    dob: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime, name="fk_dob", nullable=True)
+    firstlineaddress: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_firstlineaddress", nullable=True)
+    city: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_city", nullable=True)
+    postcode: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_postcode", nullable=True)
     email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
     password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
     transactions: so.WriteOnlyMapped["Transaction"] = so.relationship()
