@@ -14,6 +14,7 @@ def index():
     
     return render_template("index.html", title='Home Page')
 
+#USER ROUTES
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -52,6 +53,17 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
+
+@app.route('/')
+@app.route('/userprofile<username>')
+@login_required
+def userprofile(username): 
+
+    user = db.first_or_404(sa.select(User).where(User.username == username))
+    
+    return render_template("userprofile.html", title='User Profile', user=user)
+
+
 #GUESS THE NUMBER GAME
 
 @app.route('/guessthenumberhome', methods=['GET', 'POST'])
@@ -60,6 +72,7 @@ def guessthenumberhome():
     
     return render_template("guessthenumberhome.html", title='Guess The Number')
 
+#PERSONAL ROUTES
 
 @app.route('/pfhome', methods=['GET', 'POST'])
 @login_required

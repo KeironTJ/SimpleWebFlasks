@@ -28,7 +28,7 @@
             </li>
 
             <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url_for('pfhome') }}">Personal Finance - Home</a>
+              <a class="nav-link" aria-current="page" href="{{ url_for('pfhome') }}">Personal</a>
             </li>
 
             <li class="nav-item">
@@ -38,11 +38,16 @@
           </ul>
           <ul class="navbar-nav mb-2 mb-lg-0">
             {% if current_user.is_anonymous %}
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url_for('login') }}">Login</a>
-            </li>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{{ url_for('login') }}">Login</a>
+              </li>
             {% else %}
             <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="{{ url_for('userprofile', username=current_user.username) }}">Profile</a>
+            </li>
+
+            <li class="nav-item">
+
               <a class="nav-link" aria-current="page" href="{{ url_for('logout') }}">Logout</a>
             </li>
             {% endif %}
