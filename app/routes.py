@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, request, url_for
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm
+from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm
 from app.models import User, Account, Transaction
 from flask_login import login_required, current_user, login_user, logout_user # type: ignore
 import sqlalchemy as sa # type: ignore
@@ -43,7 +43,9 @@ def logout():
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+    
     form = RegistrationForm()
+
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
         user.set_password(form.password.data)
@@ -60,8 +62,9 @@ def register():
 def userprofile(username): 
 
     user = db.first_or_404(sa.select(User).where(User.username == username))
+    profileform = ProfileForm()
     
-    return render_template("userprofile.html", title='User Profile', user=user)
+    return render_template("userprofile.html", title='User Profile', user=user, profileform=profileform)
 
 
 #GUESS THE NUMBER GAME

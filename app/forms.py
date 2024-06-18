@@ -40,3 +40,14 @@ class TransactionForm(FlaskForm):
 class AccountForm(FlaskForm):
     account_name = StringField('Name of Account', validators=[DataRequired()])
     submit = SubmitField('Add Transaction')
+
+class ProfileForm(FlaskForm):
+    first_name = StringField('First Name')
+    surname = StringField('Surname')
+    dob = DateField('Transaction Date')
+    firstlineaddress = StringField('First Line Address')
+    city = StringField('Town/City')
+    postcode = StringField('Post Code')
+    submit = SubmitField()
+
+                  

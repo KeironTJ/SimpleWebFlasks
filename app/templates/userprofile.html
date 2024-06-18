@@ -4,6 +4,51 @@
 
 <h1> User Profile: {{ user.username }} </h1>
 
-
+<form action="" method="post">
+    {{ profileform.hidden_tag() }}
+    <p>
+        {{ profileform.first_name.label }}<br>
+        {{ profileform.first_name(size=32) }}<br>
+        {% for error in profileform.first_name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ profileform.surname.label }}<br>
+        {{ profileform.surname(size=32) }}<br>
+        {% for error in profileform.surname.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ profileform.dob.label }}<br>
+        {{ profileform.dob(size=32) }}<br>
+        {% for error in profileform.dob.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ profileform.firstlineaddress.label }}<br>
+        {{ profileform.firstlineaddress(size=32) }}<br>
+        {% for error in profileform.firstlineaddress.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ profileform.city.label }}<br>
+        {{ profileform.city(size=32) }}<br>
+        {% for error in profileform.city.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ profileform.postcode.label }}<br>
+        {{ profileform.postcode(size=32) }}<br>
+        {% for error in profileform.postcode.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ profileform.submit() }}</p>
+</form>
 
 {% endblock %}
