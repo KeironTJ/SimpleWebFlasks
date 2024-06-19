@@ -37,6 +37,7 @@ class Account(db.Model):
     transactions = db.relationship("Transaction", back_populates="account")
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
+
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     transaction_date = db.Column(db.DateTime)
@@ -45,6 +46,16 @@ class Transaction(db.Model):
     amount = db.Column(db.Float, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     account = db.relationship("Account", back_populates="transactions")
+
+
+class TransactionCategory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    category_name = db.Column(db.String(64))
+    parent_id = db.Column(db.Integer, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+
+
+
 
 
 
