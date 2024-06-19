@@ -83,43 +83,50 @@ def pfhome():
     transactionform = TransactionForm(request.form)
     accountform = AccountForm(request.form)
     
+    # Query to return user specific transactions
     transactions = []
     try:
         print("Executing view all transactions function")
-        transactions = db.session.query(Transaction).all()
+        transactions = db.session.query(Transaction).filter_by(user_id=current_user.id).all()
         print("complete")
     except Exception as e:
         print("Error in view all transactions, e")
 
-
+    # Process Transaction Form and update the database
     if request.method == 'POST' and transactionform.validate():
         transaction = Transaction(transaction_date=transactionform.transaction_date.data, 
                                   account_id=transactionform.account_id.data, 
-                                  user_id=current_user.id)
+                                  user_id=current_user.id,
+                                  item_name=transactionform.item_name.data,
+                                  amount=transactionform.amount.data)
         db.session.add(transaction)
         db.session.commit()
         flash("Transaction Added")
+
         return redirect(url_for('pfhome'))
     
+    # Query to return user specific accounts
     accounts = []
     try:
-        print("Executing view all transactions function")
-        accounts = db.session.query(Account).all()
+        print("Executing view all accounts function")
+        accounts = db.session.query(Account).filter_by(user_id=current_user.id).all()
         print("complete")
     except Exception as e:
-        print("Error in view all transactions, e")
+        print("Error in view all accounts, e")
     
+    # Process Account Form and update the database
     if request.method == 'POST' and accountform.validate():
         account = Account(account_name=accountform.account_name.data, 
                                   user_id=current_user.id)
         db.session.add(account)
         db.session.commit()
         flash("Account Added")
+
         return redirect(url_for('pfhome'))
     
     
     return render_template("pfhome.html", 
-                           title='Personal Finance - Home', 
+                           title='Personal Finance', 
                            transactionform=transactionform, 
                            transactions=transactions,
                            accountform=accountform,

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Optional
-import sqlalchemy as sa # type: ignore
+from sqlalchemy import Column, Integer, String, DateTime # type: ifnore
 import sqlalchemy.orm as so # type: ignore
 from app import db, login
 from flask_login import UserMixin # type: ignore
@@ -11,19 +11,16 @@ def load_user(id):
     return db.session.get(User, int(id))
 
 class User(UserMixin, db.Model):
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    username: so.Mapped[str] = so.mapped_column(sa.String(64), index=True, unique=True)
-    firstname: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_firstname", nullable=True)
-    surname: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_surname", nullable=True)
-    dob: so.Mapped[Optional[datetime]] = so.mapped_column(sa.DateTime, name="fk_dob", nullable=True)
-    firstlineaddress: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_firstlineaddress", nullable=True)
-    city: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_city", nullable=True)
-    postcode: so.Mapped[Optional[str]] = so.mapped_column(sa.String(64), name="fk_postcode", nullable=True)
-    email: so.Mapped[str] = so.mapped_column(sa.String(120), index=True, unique=True)
-    password_hash: so.Mapped[Optional[str]] = so.mapped_column(sa.String(256))
-    transactions: so.WriteOnlyMapped["Transaction"] = so.relationship()
-    accounts: so.WriteOnlyMapped["Account"] = so.relationship()
-
+    id = db.Column(Integer, primary_key=True)
+    username = db.Column(String(64), index=True, unique=True)
+    firstname = db.Column(String(64), nullable=True)
+    surname = db.Column(String(64), nullable=True)
+    dob = db.Column(DateTime, nullable=True)
+    firstlineaddress = db.Column(String(64), nullable=True)
+    city = db.Column(String(64), nullable=True)
+    postcode = db.Column(String(64), nullable=True)
+    email = db.Column(String(120), index=True, unique=True)
+    password_hash = db.Column(String(256))
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -35,17 +32,19 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
     
 class Account(db.Model):
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    account_name: so.Mapped[str] = so.mapped_column(sa.String(64))
-    transactions: so.WriteOnlyMapped["Transaction"] = so.relationship()
-    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id, name="fk_user_id"))
-    
+    id = db.Column(db.Integer, primary_key=True)
+    account_name = db.Column(db.String(64))
+    transactions = db.relationship("Transaction", back_populates="account")
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
 
 class Transaction(db.Model):
-    id: so.Mapped[int] = so.mapped_column(primary_key=True)
-    transaction_date: so.Mapped[datetime] = so.mapped_column(sa.DateTime)
-    account_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(Account.id))
-    user_id: so.Mapped[int] = so.mapped_column(sa.ForeignKey(User.id))
+    id = db.Column(db.Integer, primary_key=True)
+    transaction_date = db.Column(db.DateTime)
+    account_id = db.Column(db.Integer, db.ForeignKey("account.id"))
+    item_name = db.Column(db.String(64), nullable=True)
+    amount = db.Column(db.Float, nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    account = db.relationship("Account", back_populates="transactions")
 
 
 

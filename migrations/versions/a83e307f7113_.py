@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 4e61c10ea67e
+Revision ID: a83e307f7113
 Revises: 
-Create Date: 2024-06-18 08:13:28.323184
+Create Date: 2024-06-19 11:21:18.936241
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4e61c10ea67e'
+revision = 'a83e307f7113'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,12 +21,12 @@ def upgrade():
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=64), nullable=False),
-    sa.Column('fk_firstname', sa.String(length=64), nullable=False),
-    sa.Column('fk_surname', sa.String(length=64), nullable=False),
-    sa.Column('fk_dob', sa.DateTime(), nullable=False),
-    sa.Column('fk_firstlineaddress', sa.String(length=64), nullable=False),
-    sa.Column('fk_city', sa.String(length=64), nullable=False),
-    sa.Column('fk_postcode', sa.String(length=64), nullable=False),
+    sa.Column('fk_firstname', sa.String(length=64), nullable=True),
+    sa.Column('fk_surname', sa.String(length=64), nullable=True),
+    sa.Column('fk_dob', sa.DateTime(), nullable=True),
+    sa.Column('fk_firstlineaddress', sa.String(length=64), nullable=True),
+    sa.Column('fk_city', sa.String(length=64), nullable=True),
+    sa.Column('fk_postcode', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('password_hash', sa.String(length=256), nullable=True),
     sa.PrimaryKeyConstraint('id')
@@ -46,6 +46,8 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('transaction_date', sa.DateTime(), nullable=False),
     sa.Column('account_id', sa.Integer(), nullable=False),
+    sa.Column('item_name', sa.String(length=64), nullable=True),
+    sa.Column('amount', sa.Float(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['account_id'], ['account.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),

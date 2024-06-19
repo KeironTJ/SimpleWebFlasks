@@ -14,13 +14,41 @@
 
     <form action="" method="post" novalidate>
         {{ transactionform.hidden_tag() }}
+
         <p>
-            {{ transactionform.transaction_date.label }}<br>
+            {{ transactionform.transaction_date.label }} <br>
             {{ transactionform.transaction_date(size=32) }}
+            {% for error in transactionform.transaction_date.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
+
         <p>
             {{ transactionform.account_id.label }}<br>
-            {{ transactionform.account_id(size=32) }}
+            <select name="account_id">
+                {% for account in accounts %}
+                    <option value="{{ account.id }}">{{ account.account_name }}</option>
+                {% endfor %}
+            </select>
+            {% for error in transactionform.account_id.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{ transactionform.item_name.label }}<br>
+            {{ transactionform.item_name(size=32) }}
+            {% for error in transactionform.item_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+
+        <p>
+            {{ transactionform.amount.label }}<br>
+            {{ transactionform.amount(size=32) }}
+            {% for error in transactionform.item_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
         </p>
     
     
@@ -39,15 +67,17 @@
             <th>ID</th>
             <th>Transaction Date</th>
             <th>Account Name</th>
-            <th>User ID</th>
+            <th>Item</th>
+            <th>Amount</th>
         </thead>
         <tbody>
             {% for transaction in transactions %}
             <tr>
                 <td>{{ transaction.id }}</td>
                 <td>{{ transaction.transaction_date.strftime('%d-%m-%Y') }}</td>
-                <td>{{ transaction.account_id }}</td>
-                <td>{{ transaction.user_id }}</td>
+                <td>{{ transaction.account.account_name}}</td>
+                <td>{{ transaction.item_name }}</td>
+                <td>{{ transaction.amount }}</td>
             </tr>
             {% endfor %}
 
@@ -80,16 +110,12 @@
 
     <table class="table table-striped">
         <thead>
-            <th>ID</th>
             <th>Account Name</th>
-            <th>User ID</th>
         </thead>
         <tbody>
             {% for account in accounts %}
             <tr>
-                <td>{{ account.id }}</td>
                 <td>{{ account.account_name }}</td>
-                <td>{{ account.user_id }}</td>
             </tr>
             {% endfor %}
 
