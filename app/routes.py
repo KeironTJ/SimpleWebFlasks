@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, request, url_for
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm
-from app.models import User, Account, Transaction
+from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm, TransactionCategoryForm
+from app.models import User, Account, Transaction, TransactionCategory
 from flask_login import login_required, current_user, login_user, logout_user # type: ignore
 import sqlalchemy as sa # type: ignore
 from urllib.parse import urlsplit
@@ -82,19 +82,19 @@ def guessthenumberhome():
 def pfhome():
     transactionform = TransactionForm(request.form)
     accountform = AccountForm(request.form)
+    transactioncategoryform = TransactionCategoryForm(request.form)
     
     # Query to return user specific transactions
     transactions = []
     try:
-        print("Executing view all transactions function")
         transactions = db.session.query(Transaction).filter_by(user_id=current_user.id).all()
-        print("complete")
     except Exception as e:
-        print("Error in view all transactions, e")
+        print("Error in view all transactions",e )
 
     # Process Transaction Form and update the database
     if request.method == 'POST' and transactionform.validate():
-        transaction = Transaction(transaction_date=transactionform.transaction_date.data, 
+        transaction = Transaction(transaction_date=transactionform.transaction_date.data,
+                                  category_id=transactionform.category_id.data, 
                                   account_id=transactionform.account_id.data, 
                                   user_id=current_user.id,
                                   item_name=transactionform.item_name.data,
@@ -108,11 +108,9 @@ def pfhome():
     # Query to return user specific accounts
     accounts = []
     try:
-        print("Executing view all accounts function")
         accounts = db.session.query(Account).filter_by(user_id=current_user.id).all()
-        print("complete")
     except Exception as e:
-        print("Error in view all accounts, e")
+        print("Error in view all accounts", e)
     
     # Process Account Form and update the database
     if request.method == 'POST' and accountform.validate():
@@ -124,10 +122,29 @@ def pfhome():
 
         return redirect(url_for('pfhome'))
     
+    categories = []
+    try:
+        categories = db.session.query(TransactionCategory).filter_by(user_id=current_user.id).all()
+    except Exception as e:
+        print("Error in categories", e)
+
+    # Process Transaction Form and update the database
+    if request.method == 'POST' and transactioncategoryform.validate():
+        category = TransactionCategory(category_name=transactioncategoryform.category_name.data,
+                                       user_id=current_user.id)
+        db.session.add(category)
+        db.session.commit()
+        flash("Category Added")
+
+        return redirect(url_for('pfhome'))
+
+    
     
     return render_template("pfhome.html", 
                            title='Personal Finance', 
                            transactionform=transactionform, 
                            transactions=transactions,
                            accountform=accountform,
-                           accounts=accounts)
+                           accounts=accounts,
+                           transactioncategoryform=transactioncategoryform,
+                           categories=categories)

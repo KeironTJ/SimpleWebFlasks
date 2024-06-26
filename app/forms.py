@@ -1,9 +1,10 @@
 from flask_wtf import FlaskForm # type: ignore
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateField, IntegerField, FloatField # type: ignore
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateField, IntegerField, FloatField, SelectField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo # type: ignore
 import sqlalchemy as sa # type: ignore
 from app import db
-from app.models import User
+from app.models import User, TransactionCategory
+from flask_login import current_user
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -30,15 +31,19 @@ class RegistrationForm(FlaskForm):
             User.email == email.data))
         if user is not None:
             raise ValidationError('Please use a different email address.')
-        
+
 
 class TransactionForm(FlaskForm):
     transaction_date = DateField('Transaction Date', validators=[DataRequired()])
     account_id = IntegerField('Account', validators=[DataRequired()])
+    category_id = IntegerField('Category', validators=[DataRequired()])
     item_name = StringField('Item', validators=[DataRequired()] )
     amount = FloatField('Amount', validators=[DataRequired()])
     submit = SubmitField('Add Transaction')
 
+class TransactionCategoryForm(FlaskForm):
+    category_name = StringField('Category Name', validators=[DataRequired()])
+    submit = SubmitField('Add Category')
 
 class AccountForm(FlaskForm):
     account_name = StringField('Name of Account', validators=[DataRequired()])

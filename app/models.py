@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Optional
-from sqlalchemy import Column, Integer, String, DateTime # type: ifnore
+from sqlalchemy import Column, Integer, String, DateTime # type: ignore
 import sqlalchemy.orm as so # type: ignore
 from app import db, login
 from flask_login import UserMixin # type: ignore
@@ -42,10 +42,12 @@ class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     transaction_date = db.Column(db.DateTime)
     account_id = db.Column(db.Integer, db.ForeignKey("account.id"))
+    category_id = db.Column(db.Integer, db.ForeignKey("transaction_category.id"), nullable=True)
     item_name = db.Column(db.String(64), nullable=True)
     amount = db.Column(db.Float, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     account = db.relationship("Account", back_populates="transactions")
+    category = db.relationship("TransactionCategory", back_populates="transactions")
 
 
 class TransactionCategory(db.Model):
@@ -53,6 +55,7 @@ class TransactionCategory(db.Model):
     category_name = db.Column(db.String(64))
     parent_id = db.Column(db.Integer, nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    transactions = db.relationship("Transaction", back_populates="category")
 
 
 
