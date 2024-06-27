@@ -67,9 +67,11 @@ class GTNSettings(db.Model):
 class GTNHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user = db.relationship("User")
     entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     startrange = db.Column(db.Integer)
     endrange = db.Column(db.Integer)
+    number = db.Column(db.Integer)
     guesses = db.Column(db.Integer)
 
 

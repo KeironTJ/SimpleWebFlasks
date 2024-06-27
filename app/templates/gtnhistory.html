@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="Jumbotron">
+
+    <h1>Guess the Number - Game History</h1>
+
+</div>
+
+ <hr>
+
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Game ID</th>
+                <th>Date</th>
+                <th>Username</th>
+                <th>Start Range</th>
+                <th>End Range</th>
+                <th>Number</th>
+                <th>Guesses</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for game in gamehistory %}
+            <tr>
+                <td>{{ game.id }}</td>
+                <td>{{ game.user.username }}</td>
+                <td>{{ game.entry_date.strftime('%d-%m-%Y @ %H:%M') }}</td>
+                <td>{{ game.startrange }}</td>
+                <td>{{ game.endrange }}</td>
+                <td>{{ game.number }}</td>
+                <td>{{ game.guesses }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+
+
+
+
+{% endblock %}

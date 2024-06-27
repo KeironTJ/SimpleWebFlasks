@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, request, url_for, jsonify, session, current_app
 from app import app, db
 from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm, TransactionCategoryForm, GuessTheNumberResetForm, GuessTheNumberForm, GuessTheNumberRangeForm
-from app.models import User, Account, Transaction, TransactionCategory
+from app.models import User, Account, Transaction, TransactionCategory, GTNHistory, GTNSettings
 from flask_login import login_required, current_user, login_user, logout_user # type: ignore
 import sqlalchemy as sa # type: ignore
 from urllib.parse import urlsplit
@@ -58,7 +58,6 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
-@app.route('/')
 @app.route('/userprofile<username>')
 @login_required
 def userprofile(username): 
@@ -123,6 +122,13 @@ def guessthenumberhome():
             gamereply = "Congratulations! You guessed the number!"
             flash(gamereply, "success")
             flash("The number was: " + str(ainumber) + " it took you this many guesses: " + str(len(userguesses)))
+            gtnhistory = GTNHistory(user_id=current_user.id,
+                                    startrange=startrange,
+                                      endrange=endrange,
+                                      number=ainumber,
+                                      guesses=len(userguesses))
+            db.session.add(gtnhistory)
+            db.session.commit()
             reset_game_session()
             
         elif userguess < ainumber:
@@ -149,6 +155,11 @@ def guessthenumberhome():
                            gtnrangeform=gtnrangeform,
                            gtnresetform=gtnresetform)
 
+@app.route('/gtnhistory', methods=['GET', 'POST'])
+@login_required
+def gtnhistory():
+    gamehistory = db.session.query(GTNHistory).all()
+    return render_template("gtnhistory.html", gamehistory=gamehistory)
 
 
 #PERSONAL ROUTES
