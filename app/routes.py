@@ -1,10 +1,12 @@
-from flask import render_template, flash, redirect, request, url_for
+from flask import render_template, flash, redirect, request, url_for, jsonify, session, current_app
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm, TransactionCategoryForm
+from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm, TransactionCategoryForm, GuessTheNumberResetForm, GuessTheNumberForm, GuessTheNumberRangeForm
 from app.models import User, Account, Transaction, TransactionCategory
 from flask_login import login_required, current_user, login_user, logout_user # type: ignore
 import sqlalchemy as sa # type: ignore
 from urllib.parse import urlsplit
+
+import random
 
 
 @app.route('/')
@@ -69,17 +71,92 @@ def userprofile(username):
 
 #GUESS THE NUMBER GAME
 
+def reset_game_session():
+    session['ainumber'] = 0
+    session['userguesses'] = []
+    session['startrange'] = 1
+    session['endrange'] = 100
+
 @app.route('/guessthenumberhome', methods=['GET', 'POST'])
 @login_required
 def guessthenumberhome():
+    gtnform = GuessTheNumberForm(request.form)
+    gtnrangeform = GuessTheNumberRangeForm(request.form)
+    gtnresetform = GuessTheNumberResetForm(request.form)
+
+    if 'startrange' not in session:
+        session['startrange'] = 1  
+    if 'endrange' not in session:
+        session['endrange'] = 100  
+    if 'ainumber' not in session:
+        session['ainumber'] = 0  
+    if 'userguesses' not in session:
+        session['userguesses'] = []  
+
+
+    # Process the range form
+    if request.method == 'POST' and gtnrangeform.validate():
+        session['startrange'] = gtnrangeform.startrange.data
+        session['endrange'] = gtnrangeform.endrange.data
+        session['ainumber'] = 0  # Reset AI number
+        session['userguesses'] = []  # Clear user guesses
+        return redirect(url_for('guessthenumberhome'))
     
-    return render_template("guessthenumberhome.html", title='Guess The Number')
+    # Check and create random number if not already created
+    if 'ainumber' not in session or session['ainumber'] == 0:
+        session['ainumber'] = random.randint(session['startrange'], session['endrange'])
+        session['userguesses'] = []
+
+
+    startrange = session['startrange']
+    endrange = session['endrange']
+    ainumber = session['ainumber']
+    userguesses = session['userguesses']
+    gamereply = ""
+
+    if request.method == 'POST' and gtnform.validate():
+        userguess = gtnform.guess.data
+        userguesses.append(userguess)  # Update the guesses list
+        session['userguesses'] = userguesses  # Save updated list back to session
+
+        if userguess == ainumber:
+            gamereply = "Congratulations! You guessed the number!"
+            flash(gamereply, "success")
+            flash("The number was: " + str(ainumber) + " it took you this many guesses: " + str(len(userguesses)))
+            reset_game_session()
+            
+        elif userguess < ainumber:
+            gamereply = "Your guess is too low. Try again!"
+            flash(gamereply, "warning")
+        elif userguess > ainumber:
+            gamereply = "Your guess is too high. Try again!"
+            flash(gamereply, "warning")
+
+        return redirect(url_for('guessthenumberhome'))
+    
+    if request.method == 'POST' and gtnresetform.validate():
+        reset_game_session()
+        return redirect(url_for('guessthenumberhome'))
+    
+
+    return render_template("guessthenumberhome.html", 
+                           gtnform=gtnform, 
+                           ainumber=ainumber, 
+                           userguesses=userguesses, 
+                           gamereply=gamereply, 
+                           startrange=startrange, 
+                           endrange=endrange,
+                           gtnrangeform=gtnrangeform,
+                           gtnresetform=gtnresetform)
+
+
 
 #PERSONAL ROUTES
 
 @app.route('/pfhome', methods=['GET', 'POST'])
 @login_required
 def pfhome():
+
     transactionform = TransactionForm(request.form)
     accountform = AccountForm(request.form)
     transactioncategoryform = TransactionCategoryForm(request.form)
@@ -122,13 +199,14 @@ def pfhome():
 
         return redirect(url_for('pfhome'))
     
+    # Query to return user specific categories
     categories = []
     try:
         categories = db.session.query(TransactionCategory).filter_by(user_id=current_user.id).all()
     except Exception as e:
         print("Error in categories", e)
 
-    # Process Transaction Form and update the database
+    # Process TransactionCategory Form and update the database
     if request.method == 'POST' and transactioncategoryform.validate():
         category = TransactionCategory(category_name=transactioncategoryform.category_name.data,
                                        user_id=current_user.id)

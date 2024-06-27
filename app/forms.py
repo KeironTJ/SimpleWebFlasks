@@ -31,6 +31,19 @@ class RegistrationForm(FlaskForm):
             User.email == email.data))
         if user is not None:
             raise ValidationError('Please use a different email address.')
+        
+
+class GuessTheNumberForm(FlaskForm):
+    guess = IntegerField('Guess', validators=[DataRequired()])
+    submit = SubmitField('Submit Guess')
+
+class GuessTheNumberRangeForm(FlaskForm):
+    startrange = IntegerField('Start Range', validators=[DataRequired()])
+    endrange = IntegerField('End Range', validators=[DataRequired()])
+    submit = SubmitField('Submit Range')
+
+class GuessTheNumberResetForm(FlaskForm):
+    submit = SubmitField('Reset Game')
 
 
 class TransactionForm(FlaskForm):

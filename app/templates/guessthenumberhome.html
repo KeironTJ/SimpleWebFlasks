@@ -2,6 +2,64 @@
 
 {% block content %}
 
+<div class="Jumbotron">
+    <h1>Guess the Number</h1>
+</div>
 
+<hr>
+
+<div>
+    <p>Guess the number between {{ startrange }} and {{ endrange }}:</p>
+
+    <form action="" method="post" novalidate>
+
+        {{ gtnform.hidden_tag() }}
+
+        <p>
+            {{ gtnform.guess.label }}<br>
+            {{ gtnform.guess(size=32) }}
+        </p> 
+
+        <p>{{ gtnform.submit() }}</p>
+
+    </form>
+    {% if userguesses|length != 0 %}
+        <p>User Guesses {{ userguesses }}</p>
+    {% endif %}
+
+</div>
+
+<hr>
+<hr>
+
+
+<div>
+    <h1>Configure:</h1>
+
+    <form action="" method="post" novalidate>
+
+        {{ gtnrangeform.hidden_tag() }}
+
+        <p>
+            {{ gtnrangeform.startrange.label }}<br>
+            {{ gtnrangeform.startrange(size=32) }}
+        </p> 
+
+        <p>
+            {{ gtnrangeform.endrange.label }}<br>
+            {{ gtnrangeform.endrange(size=32) }}
+        </p> 
+
+        <p>{{ gtnrangeform.submit() }}</p>
+</div>
+
+<div>
+    <form action="" method="post" novalidate>
+        {{ gtnresetform.hidden_tag() }}
+        <p>{{ gtnresetform.submit() }}</p>
+    </form>
+</div>>
+
+{{ainumber}}
 
 {% endblock %}
