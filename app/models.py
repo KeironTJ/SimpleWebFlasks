@@ -58,6 +58,20 @@ class TransactionCategory(db.Model):
     transactions = db.relationship("Transaction", back_populates="category")
 
 
+class GTNSettings(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    startrange = db.Column(db.Integer, default=1)
+    endrange = db.Column(db.Integer, default=100)
+    
+class GTNHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    startrange = db.Column(db.Integer)
+    endrange = db.Column(db.Integer)
+    guesses = db.Column(db.Integer)
+
 
 
 
