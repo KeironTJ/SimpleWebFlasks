@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, request, url_for, jsonify, session, current_app
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm, TransactionCategoryForm, GuessTheNumberResetForm, GuessTheNumberForm, GuessTheNumberRangeForm
+from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm, TransactionCategoryForm, GuessTheNumberResetForm, GuessTheNumberForm, GuessTheNumberSettingsForm
 from app.models import User, Account, Transaction, TransactionCategory, GTNHistory, GTNSettings
 from flask_login import login_required, current_user, login_user, logout_user # type: ignore
 import sqlalchemy as sa # type: ignore
@@ -54,6 +54,12 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash('Congratulations, you are now a registered user!')
+        
+        # Create default GTNSettings for the user
+        gtnsettings = GTNSettings(user_id=user.id, startrange=1, endrange=100)
+        db.session.add(gtnsettings)
+        db.session.commit()
+        
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
@@ -73,74 +79,71 @@ def userprofile(username):
 def reset_game_session():
     session['ainumber'] = 0
     session['userguesses'] = []
-    session['startrange'] = 1
-    session['endrange'] = 100
 
 @app.route('/guessthenumberhome', methods=['GET', 'POST'])
 @login_required
 def guessthenumberhome():
+
+    # Initialize forms
     gtnform = GuessTheNumberForm(request.form)
-    gtnrangeform = GuessTheNumberRangeForm(request.form)
-    gtnresetform = GuessTheNumberResetForm(request.form)
-
-    if 'startrange' not in session:
-        session['startrange'] = 1  
-    if 'endrange' not in session:
-        session['endrange'] = 100  
-    if 'ainumber' not in session:
-        session['ainumber'] = 0  
-    if 'userguesses' not in session:
-        session['userguesses'] = []  
-
-
-    # Process the range form
-    if request.method == 'POST' and gtnrangeform.validate():
-        session['startrange'] = gtnrangeform.startrange.data
-        session['endrange'] = gtnrangeform.endrange.data
-        session['ainumber'] = 0  # Reset AI number
-        session['userguesses'] = []  # Clear user guesses
-        return redirect(url_for('guessthenumberhome'))
     
+    # Initialize database queries
+    gtnsettings = db.session.query(GTNSettings).filter_by(user_id=current_user.id).first()
+
     # Check and create random number if not already created
     if 'ainumber' not in session or session['ainumber'] == 0:
         session['ainumber'] = random.randint(session['startrange'], session['endrange'])
         session['userguesses'] = []
 
-
-    startrange = session['startrange']
-    endrange = session['endrange']
+    startrange = gtnsettings.startrange
+    endrange = gtnsettings.endrange
     ainumber = session['ainumber']
     userguesses = session['userguesses']
     gamereply = ""
 
-    if request.method == 'POST' and gtnform.validate():
+    #Process the Guess Form
+    if request.method == 'POST' and 'submit_guess' in request.form and gtnform.validate():
+
         userguess = gtnform.guess.data
-        userguesses.append(userguess)  # Update the guesses list
-        session['userguesses'] = userguesses  # Save updated list back to session
+        
+        if userguess == None or userguess > endrange or userguess < startrange:
+            flash("Please enter a valid guess.", "danger")
+            return redirect(url_for('guessthenumberhome'))
+        
+        else:
+            userguesses.append(userguess)  # Update the guesses list
+            session['userguesses'] = userguesses  # Save updated list back to session
 
-        if userguess == ainumber:
-            gamereply = "Congratulations! You guessed the number!"
-            flash(gamereply, "success")
-            flash("The number was: " + str(ainumber) + " it took you this many guesses: " + str(len(userguesses)))
-            gtnhistory = GTNHistory(user_id=current_user.id,
-                                    startrange=startrange,
-                                      endrange=endrange,
-                                      number=ainumber,
-                                      guesses=len(userguesses))
-            db.session.add(gtnhistory)
-            db.session.commit()
-            reset_game_session()
-            
-        elif userguess < ainumber:
-            gamereply = "Your guess is too low. Try again!"
-            flash(gamereply, "warning")
-        elif userguess > ainumber:
-            gamereply = "Your guess is too high. Try again!"
-            flash(gamereply, "warning")
+            if userguess == ainumber:
+                gamereply = "Congratulations! You guessed the number!"
+                flash(gamereply, "success")
+                flash("The number was: " + str(ainumber) + " it took you this many guesses: " + str(len(userguesses)))
+                gtnhistory = GTNHistory(user_id=current_user.id,
+                                        startrange=startrange,
+                                        endrange=endrange,
+                                        number=ainumber,
+                                        guesses=len(userguesses))
+                db.session.add(gtnhistory)
+                db.session.commit()
+                reset_game_session()
+                return redirect(url_for('guessthenumberhome'))
 
-        return redirect(url_for('guessthenumberhome'))
-    
-    if request.method == 'POST' and gtnresetform.validate():
+            elif userguess < ainumber:
+                gamereply = "Your guess is too low. Try again!"
+                flash(gamereply, "warning")
+                return redirect(url_for('guessthenumberhome'))
+            elif userguess > ainumber:
+                gamereply = "Your guess is too high. Try again!"
+                flash(gamereply, "warning")
+                return redirect(url_for('guessthenumberhome'))
+
+        print(gtnform.guess.data)
+
+    # Process the Reset Form
+    gtnresetform = GuessTheNumberResetForm(request.form)
+
+    if request.method == 'POST' and 'submit_reset' in request.form and gtnresetform.validate():
+        print("reset")
         reset_game_session()
         return redirect(url_for('guessthenumberhome'))
     
@@ -152,7 +155,6 @@ def guessthenumberhome():
                            gamereply=gamereply, 
                            startrange=startrange, 
                            endrange=endrange,
-                           gtnrangeform=gtnrangeform,
                            gtnresetform=gtnresetform)
 
 @app.route('/gtnhistory', methods=['GET', 'POST'])
@@ -161,6 +163,43 @@ def gtnhistory():
     gamehistory = db.session.query(GTNHistory).all()
     return render_template("gtnhistory.html", gamehistory=gamehistory)
 
+@app.route('/gtnsettings', methods=['GET', 'POST'])
+@login_required
+def gtnsettings():
+
+    # Inistialize forms
+    gtnrangeform = GuessTheNumberSettingsForm(request.form)
+
+    # Initialize Queries
+    gtnsettings = db.session.query(GTNSettings).filter_by(user_id=current_user.id).first()
+
+    # Process the range form
+    if request.method == 'POST' and gtnrangeform.validate():
+
+        if  gtnrangeform.startrange.data == None or gtnrangeform.startrange.data < 0:
+            flash("Please enter a start range value above 0.", "danger")
+            return redirect(url_for('gtnsettings'))
+        
+        if  gtnrangeform.endrange.data == None or gtnrangeform.endrange.data <= gtnrangeform.startrange.data:
+            flash("Please enter a valid end range greater than the start range.", "danger")
+            return redirect(url_for('gtnsettings'))
+
+        # Update the session
+        session['startrange'] = gtnrangeform.startrange.data
+        session['endrange'] = gtnrangeform.endrange.data
+        session['ainumber'] = 0  # Reset AI number
+        session['userguesses'] = []  # Clear user guesses
+
+        # Update the database
+        gtnsettings.startrange = gtnrangeform.startrange.data
+        gtnsettings.endrange = gtnrangeform.endrange.data
+        db.session.commit()
+
+        return redirect(url_for('guessthenumberhome'))
+    
+    return render_template("gtnsettings.html", 
+                           gtnrangeform=gtnrangeform,
+                           gtnsettings=gtnsettings)
 
 #PERSONAL ROUTES
 

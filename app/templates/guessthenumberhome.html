@@ -12,54 +12,38 @@
     <p>Guess the number between {{ startrange }} and {{ endrange }}:</p>
 
     <form action="" method="post" novalidate>
-
         {{ gtnform.hidden_tag() }}
-
         <p>
             {{ gtnform.guess.label }}<br>
             {{ gtnform.guess(size=32) }}
-        </p> 
+            {% for error in gtnform.guess.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
 
-        <p>{{ gtnform.submit() }}</p>
-
+        <p>{{ gtnform.submit_guess() }}</p>
     </form>
+
     {% if userguesses|length != 0 %}
-        <p>User Guesses {{ userguesses }}</p>
+        <p>User Guesses: {{ userguesses }}</p>
     {% endif %}
-
+    
 </div>
 
+<a href="/gtnhistory" class="">View Game History</a> <br>
+<a href="/gtnsettings" class="">Settings</a>
+
 <hr>
-<hr>
-
-
-<div>
-    <h1>Configure:</h1>
-
-    <form action="" method="post" novalidate>
-
-        {{ gtnrangeform.hidden_tag() }}
-
-        <p>
-            {{ gtnrangeform.startrange.label }}<br>
-            {{ gtnrangeform.startrange(size=32) }}
-        </p> 
-
-        <p>
-            {{ gtnrangeform.endrange.label }}<br>
-            {{ gtnrangeform.endrange(size=32) }}
-        </p> 
-
-        <p>{{ gtnrangeform.submit() }}</p>
-</div>
 
 <div>
     <form action="" method="post" novalidate>
         {{ gtnresetform.hidden_tag() }}
-        <p>{{ gtnresetform.submit() }}</p>
-    </form>
-</div>>
 
-{{ainumber}}
+        <p>{{ gtnresetform.submit_reset() }}</p>
+        
+    </form>
+</div>
+
+{{ ainumber }}
 
 {% endblock %}

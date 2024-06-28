@@ -34,16 +34,16 @@ class RegistrationForm(FlaskForm):
         
 
 class GuessTheNumberForm(FlaskForm):
-    guess = IntegerField('Guess', validators=[DataRequired()])
-    submit = SubmitField('Submit Guess')
+    guess = IntegerField('Guess')
+    submit_guess = SubmitField('Submit Guess')
 
-class GuessTheNumberRangeForm(FlaskForm):
+class GuessTheNumberSettingsForm(FlaskForm):
     startrange = IntegerField('Start Range', validators=[DataRequired()])
     endrange = IntegerField('End Range', validators=[DataRequired()])
-    submit = SubmitField('Submit Range')
+    submit_settings = SubmitField('Save Settings')
 
 class GuessTheNumberResetForm(FlaskForm):
-    submit = SubmitField('Reset Game')
+    submit_reset = SubmitField('Reset Game')
 
 
 class TransactionForm(FlaskForm):
