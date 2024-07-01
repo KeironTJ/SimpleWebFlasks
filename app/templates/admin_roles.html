@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="Jumbotron">
+
+    <h1>Admin - Roles</h1>
+
+</div>
+
+<hr>
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Role ID</th>
+                        <th>Role Name</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for role in roles %}
+                    <tr>
+                        <td>{{ role.id }}</td>
+                        <td>{{ role.name }}</td>
+                        <td>
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<h2>Create Role</h2>
+
+<form action="" method="post">
+    {{ roleform.hidden_tag() }}
+    <p>
+        {{ roleform.role_name.label }}<br>
+        {{ roleform.role_name(size=32) }}<br>
+        {% for error in roleform.role_name.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ roleform.submit() }}</p>
+</form>
+
+
+
+
+
+{% endblock %}

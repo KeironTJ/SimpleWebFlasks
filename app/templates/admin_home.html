@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="Jumbotron">
+
+    <h1>Admin - Home</h1>
+
+</div>
+
+<hr>
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-md-4">
+
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Users</h5>
+                    <p class="card-text">View and manage users</p>
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-primary">Users</a>
+                </div>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Roles</h5>
+                    <p class="card-text">View and manage roles</p>
+                    <a href="{{ url_for('admin_roles') }}" class="btn btn-primary">Roles</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

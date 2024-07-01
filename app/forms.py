@@ -3,8 +3,11 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField, DateF
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo # type: ignore
 import sqlalchemy as sa # type: ignore
 from app import db
-from app.models import User, TransactionCategory
+from app.models import User, TransactionCategory, Role
 from flask_login import current_user
+
+
+## User Forms 
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -32,7 +35,24 @@ class RegistrationForm(FlaskForm):
         if user is not None:
             raise ValidationError('Please use a different email address.')
         
+## Admin Forms
 
+class CreateRoleForm(FlaskForm):
+    role_name = StringField('Role Name', validators=[DataRequired()])
+    submit = SubmitField('Create Role')
+
+class AssignRoleForm(FlaskForm):
+    user_id = SelectField('User ID', coerce=int)
+    role_id = SelectField('Role ID', coerce=int)
+    submit = SubmitField('Assign Role')
+
+    def __init__(self, *args, **kwargs):
+        super(AssignRoleForm, self).__init__(*args, **kwargs)
+        self.user_id.choices = [(user.id, user.username) for user in User.query.all()]  # Assuming User model has id and name fields
+        self.role_id.choices = [(role.id, role.name) for role in Role.query.all()]  # Assuming Role model has id and name fields
+
+
+## Guess the Number Forms
 class GuessTheNumberForm(FlaskForm):
     guess = IntegerField('Guess')
     submit_guess = SubmitField('Submit Guess')
@@ -46,6 +66,7 @@ class GuessTheNumberResetForm(FlaskForm):
     submit_reset = SubmitField('Reset Game')
 
 
+## Finance Forms
 class TransactionForm(FlaskForm):
     transaction_date = DateField('Transaction Date', validators=[DataRequired()])
     account_id = IntegerField('Account', validators=[DataRequired()])

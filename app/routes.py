@@ -1,20 +1,31 @@
 from flask import render_template, flash, redirect, request, url_for, jsonify, session, current_app
 from app import app, db
-from app.forms import LoginForm, RegistrationForm, TransactionForm, AccountForm, ProfileForm, TransactionCategoryForm, GuessTheNumberResetForm, GuessTheNumberForm, GuessTheNumberSettingsForm
-from app.models import User, Account, Transaction, TransactionCategory, GTNHistory, GTNSettings
+from app.forms import LoginForm, RegistrationForm, AssignRoleForm, CreateRoleForm, TransactionForm, AccountForm, ProfileForm, TransactionCategoryForm, GuessTheNumberResetForm, GuessTheNumberForm, GuessTheNumberSettingsForm
+from app.models import User, Account, Transaction, TransactionCategory, GTNHistory, GTNSettings, Role, UserRoles
 from flask_login import login_required, current_user, login_user, logout_user # type: ignore
 import sqlalchemy as sa # type: ignore
 from urllib.parse import urlsplit
+from functools import wraps
 
 import random
-
 
 @app.route('/')
 @app.route('/index')
 @login_required
 def index():
-    
     return render_template("index.html", title='Home Page')
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not user_has_admin(current_user.id):
+            return redirect(url_for('not_admin'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def user_has_admin(user_id):
+    admin_role = db.session.query(Role).join(UserRoles, UserRoles.role_id == Role.id).filter(Role.name == 'admin', UserRoles.user_id == user_id).first()
+    return admin_role is not None
 
 # USER ROUTES
 
@@ -64,7 +75,7 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
-@app.route('/userprofile<username>')
+@app.route('/userprofile<username>', methods=['GET', 'POST'])
 @login_required
 def userprofile(username): 
 
@@ -73,6 +84,64 @@ def userprofile(username):
     
     return render_template("userprofile.html", title='User Profile', user=user, profileform=profileform)
 
+
+## Admin Routes
+
+@app.route('/admin_home', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_home():
+
+
+    return render_template("admin_home.html", title='Admin Home')
+
+@app.route('/admin_users', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_users():
+
+    user_roles = db.session.query(UserRoles).all()
+    users = db.session.query(User).all()
+    roles= db.session.query(Role).all()
+
+    assign_role_form = AssignRoleForm()
+
+    if request.method == 'POST' and assign_role_form.validate():
+
+        assign_role = UserRoles(user_id=assign_role_form.user_id.data, 
+                                role_id=assign_role_form.role_id.data)
+        db.session.add(assign_role)
+        db.session.commit()
+        flash("Role Assigned")
+        return redirect(url_for('admin_users'))
+
+    return render_template("admin_users.html", 
+                           title='Admin Users', 
+                           users=users, 
+                           assign_role_form=assign_role_form, 
+                           roles=roles,
+                           user_roles=user_roles)
+
+@app.route('/admin_roles', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_roles():
+    roles = db.session.query(Role).all()
+    roleform = CreateRoleForm()
+
+    if request.method == 'POST' and roleform.validate():
+        role = Role(name=roleform.role_name.data)
+        db.session.add(role)
+        db.session.commit()
+        flash("Role Added")
+        return redirect(url_for('admin_roles'))
+
+    return render_template("admin_roles.html", title='Admin Roles', roles=roles, roleform=roleform)
+
+@app.route('/not_admin', methods=['GET', 'POST'])
+@login_required
+def not_admin():
+    return render_template("not_admin.html", title='Not Admin')
 
 # GUESS THE NUMBER GAME
 

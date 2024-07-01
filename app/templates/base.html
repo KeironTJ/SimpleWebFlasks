@@ -44,6 +44,9 @@
               </li>
             {% else %}
             <li class="nav-item">
+              <a class="nav-link" aria-current="page" href="{{ url_for('admin_home') }}">Admin</a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" aria-current="page" href="{{ url_for('userprofile', username=current_user.username) }}">Profile</a>
             </li>
 

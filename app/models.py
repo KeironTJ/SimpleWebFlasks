@@ -6,6 +6,9 @@ from app import db, login
 from flask_login import UserMixin # type: ignore
 from werkzeug.security import generate_password_hash, check_password_hash
 
+
+## USER RELATED MODELS
+
 @login.user_loader
 def load_user(id):
     return db.session.get(User, int(id))
@@ -21,6 +24,7 @@ class User(UserMixin, db.Model):
     postcode = db.Column(String(64), nullable=True)
     email = db.Column(String(120), index=True, unique=True)
     password_hash = db.Column(String(256))
+    role=so.relationship("Role", secondary="user_roles")
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -31,6 +35,25 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
     
+# Define the Role data-model
+class Role(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(50), unique=True)
+
+    def __repr__(self):
+        return '<Role {}>'.format(self.name)
+
+# Define the UserRoles association table
+class UserRoles(db.Model):
+    __tablename__ = 'user_roles'
+    id = db.Column(db.Integer(), primary_key=True)
+    user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
+    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
+    
+
+
+## FINANCE APP RELATED MODELS
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     account_name = db.Column(db.String(64))
@@ -58,6 +81,8 @@ class TransactionCategory(db.Model):
     transactions = db.relationship("Transaction", back_populates="category")
 
 
+
+## GUESS THE NUMBER RELATED MODELS
 class GTNSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))

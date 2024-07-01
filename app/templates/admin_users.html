@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="Jumbotron">
+
+    <h1>Admin - Users</h1>
+
+</div>
+
+<hr>
+
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td>{% for role in user.role %}
+                                {{ role.name }} <br>
+                            {% else %}
+                                No Roles Assigned
+                            {% endfor %}</td>
+                        <td>
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>
+
+<h2>Assign role</h2>
+
+<form action="" method="post" novalidate>
+    {{ assign_role_form.hidden_tag() }}
+    <p>
+        {{ assign_role_form.user_id.label }}<br>
+        {{ assign_role_form.user_id(class="form-control") }}
+        {% for error in assign_role_form.user_id.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ assign_role_form.role_id.label }}<br>
+        {{ assign_role_form.role_id(class="form-control") }}
+        {% for error in assign_role_form.role_id.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ assign_role_form.submit() }}</p>
+</form>
+
+
+
+{% endblock %}
