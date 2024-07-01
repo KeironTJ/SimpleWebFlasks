@@ -36,7 +36,11 @@
                             {% endfor %}</td>
                         <td>{{ user.active }}</td>
                         <td>
-                            <a href="{{ url_for('deactivate_user', user_id=user.id) }}" class="btn btn-danger">Deactivate</a>                            
+                            {% if user.active %}
+                                <a href="{{ url_for('deactivate_user', user_id=user.id) }}" class="btn btn-danger">Deactivate</a>
+                            {% else %}
+                                <a href="{{ url_for('activate_user', user_id=user.id) }}" class="btn btn-success">Activate</a>
+                            {% endif %}                            
                         </td>
                     </tr>
                     {% endfor %}

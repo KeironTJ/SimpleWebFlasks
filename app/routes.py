@@ -61,22 +61,7 @@ def reactivate_account(user_id):
 
     return render_template('reactivate_account.html', title='Re-activate Account', user=user)
 
-@app.route('/activate_account/<user_id>', methods=['GET', 'POST'])
-def activate_account(user_id):
-    user = db.session.query(User).get(user_id)
-    if user:
-        user.active = True
-        # Assuming GTNSettings and UserRoles are related to the user and need to be updated/created as well.
-        gtnsettings = GTNSettings(user_id=user_id, startrange=1, endrange=100)
-        assign_user_role = UserRoles(user_id=user_id, role_id=2)
-        db.session.add(gtnsettings)
-        db.session.add(assign_user_role)
-        db.session.commit()
-        flash("Account Reactivated")
-        return redirect(url_for('login'))
-    else:
-        flash("User not found.")
-        return redirect(url_for('index'))
+
 
 @app.route('/logout')
 def logout():
@@ -100,7 +85,9 @@ def register():
         # Create default GTNSettings for the user
         gtnsettings = GTNSettings(user_id=user.id, startrange=1, endrange=100)
         assign_user_role = UserRoles(user_id=user.id, role_id=2)
-        db.session.add(gtnsettings, assign_user_role)
+        print(assign_user_role.role_id)
+        db.session.add(gtnsettings)
+        db.session.add(assign_user_role)
         db.session.commit()
         
         return redirect(url_for('login'))
@@ -181,8 +168,43 @@ def deactivate_user(user_id):
 
     return redirect(url_for('admin_users'))
 
+# This route is used to reactivate a user account
+@app.route('/activate_user/<user_id>', methods=['GET', 'POST'])
+def activate_user(user_id):
 
+    user = db.session.query(User).get(user_id)
 
+    # Check if the user exists and is inactive
+    if user:
+        user.active = True
+
+        # Create default GTNSettings for the user
+        gtnsettings = GTNSettings(user_id=user_id, startrange=1, endrange=100)
+
+        # Assign the user the default role
+        assign_user_role = UserRoles(user_id=user_id, role_id=2)
+
+        db.session.add(gtnsettings)
+        db.session.add(assign_user_role)
+        db.session.commit()
+        flash("Account Reactivated")
+
+        # Redirect to the login page (or admin users if admin)
+        try:
+            for role in current_user.role:
+                if role.name == 'admin':
+                    return redirect(url_for('admin_users'))
+            return redirect(url_for('login'))
+        except Exception as e:
+            # Log the error if logging is set up
+            print(f"Error: {e}")  # Replace with logging if applicable
+            return redirect(url_for('login'))
+        
+    # If the user does not exist or is already active
+    else:
+        return redirect(url_for('index'))
+
+# This route is used to render a page that denies access to an admin page
 @app.route('/not_admin', methods=['GET', 'POST'])
 @login_required
 def not_admin():
