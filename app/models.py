@@ -25,6 +25,7 @@ class User(UserMixin, db.Model):
     email = db.Column(String(120), index=True, unique=True)
     password_hash = db.Column(String(256))
     role=so.relationship("Role", secondary="user_roles")
+    active = db.Column(db.Boolean(), default=True)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)

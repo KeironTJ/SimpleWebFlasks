@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>TEST - ACCOUNT REACTIVATION</h1>
+
+    <p>Click the button below to re-activate your account.</p>
+
+    <a href="{{ url_for('activate_account', user_id=user.id) }}" class="btn btn-primary">Reactivate Account</a>
+
+{% endblock %}

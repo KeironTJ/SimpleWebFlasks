@@ -33,6 +33,7 @@ def user_has_admin(user_id):
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('index'))
+    
     form = LoginForm()
     if form.validate_on_submit():
         user = db.session.scalar(
@@ -40,12 +41,42 @@ def login():
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
             return redirect(url_for('login'))
+        
+        # Check if the user is active
+        if not user.active:
+            return redirect(url_for('reactivate_account', user_id=user.id))
+        
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
+
         if not next_page or urlsplit(next_page).netloc != '':
             next_page = url_for('index')
         return redirect(next_page)
+    
     return render_template('login.html', title='Sign In', form=form)
+
+@app.route('/reactivate_account<user_id>', methods=['GET', 'POST'])
+def reactivate_account(user_id):
+    user = db.session.query(User).get(user_id)
+
+    return render_template('reactivate_account.html', title='Re-activate Account', user=user)
+
+@app.route('/activate_account/<user_id>', methods=['GET', 'POST'])
+def activate_account(user_id):
+    user = db.session.query(User).get(user_id)
+    if user:
+        user.active = True
+        # Assuming GTNSettings and UserRoles are related to the user and need to be updated/created as well.
+        gtnsettings = GTNSettings(user_id=user_id, startrange=1, endrange=100)
+        assign_user_role = UserRoles(user_id=user_id, role_id=2)
+        db.session.add(gtnsettings)
+        db.session.add(assign_user_role)
+        db.session.commit()
+        flash("Account Reactivated")
+        return redirect(url_for('login'))
+    else:
+        flash("User not found.")
+        return redirect(url_for('index'))
 
 @app.route('/logout')
 def logout():
@@ -68,7 +99,8 @@ def register():
         
         # Create default GTNSettings for the user
         gtnsettings = GTNSettings(user_id=user.id, startrange=1, endrange=100)
-        db.session.add(gtnsettings)
+        assign_user_role = UserRoles(user_id=user.id, role_id=2)
+        db.session.add(gtnsettings, assign_user_role)
         db.session.commit()
         
         return redirect(url_for('login'))
@@ -138,10 +170,25 @@ def admin_roles():
 
     return render_template("admin_roles.html", title='Admin Roles', roles=roles, roleform=roleform)
 
+@app.route('/deactivate_user<user_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def deactivate_user(user_id):
+    user = db.session.query(User).get(user_id)
+    user.active = False # Deactivate the user
+    db.session.commit()
+    flash("User Deactivated")
+
+    return redirect(url_for('admin_users'))
+
+
+
 @app.route('/not_admin', methods=['GET', 'POST'])
 @login_required
 def not_admin():
     return render_template("not_admin.html", title='Not Admin')
+
+
 
 # GUESS THE NUMBER GAME
 
