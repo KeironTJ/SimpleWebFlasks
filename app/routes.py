@@ -266,7 +266,7 @@ def guessthenumberhome():
             if userguess == ainumber:
                 gamereply = "Congratulations! You guessed the number!"
                 flash(gamereply, "success")
-                flash("The number was: " + str(ainumber) + " it took you this many guesses: " + str(len(userguesses)))
+                flash("The number was: " + str(ainumber) + " it took you " + str(len(userguesses)) + " guesses.", "info")
                 gtnhistory = GTNHistory(user_id=current_user.id,
                                         startrange=startrange,
                                         endrange=endrange,

@@ -11,11 +11,13 @@
 <div>
     <p>Guess the number between {{ startrange }} and {{ endrange }}:</p>
 
+    <p>Guess Number: {{ userguesses|length + 1 }} </p>
+
     <form action="" method="post" novalidate>
         {{ gtnform.hidden_tag() }}
         <p>
             {{ gtnform.guess.label }}<br>
-            {{ gtnform.guess(size=32) }}
+            {{ gtnform.guess(size=32, autofocus=True) }}
             {% for error in gtnform.guess.errors %}
             <span style="color: red;">[{{ error }}]</span>
             {% endfor %}
@@ -27,6 +29,8 @@
     {% if userguesses|length != 0 %}
         <p>User Guesses: {{ userguesses }}</p>
     {% endif %}
+
+    
     
 </div>
 
