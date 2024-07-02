@@ -11,6 +11,7 @@ from app.main import bp
 @bp.route('/index')
 @login_required
 def index():
+    print(current_user.activetestgame)
     return render_template("index.html", title='Home Page')
 
 

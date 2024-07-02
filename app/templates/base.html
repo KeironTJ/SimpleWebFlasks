@@ -36,11 +36,17 @@
               <a class="nav-link" aria-current="page" href="{{ url_for('gtn.guessthenumberhome') }}">Guess the Number</a>
             </li>
 
-            <li class="nav-item">
-              <a class="nav-link" aria-current="page" href="{{ url_for('testgame.tg_startmenu') }}">Game Idea</a>
-            </li>
-
+              {% if not current_user.is_authenticated or current_user.activetestgame == None    %}
+                  <li class="nav-item">
+                      <a class="nav-link" aria-current="page" href="{{ url_for('testgame.tg_startmenu') }}">Game Idea</a>
+                  </li>
+              {% else %}
+                  <li class="nav-item">
+                      <a class="nav-link" aria-current="page" href="{{ url_for('testgame.tg_play', game_id=current_user.activetestgame) }}">Game Idea</a>
+                  </li>
+              {% endif %}
           </ul>
+
           <ul class="navbar-nav mb-2 mb-lg-0">
             {% if current_user.is_anonymous %}
               <li class="nav-item">

@@ -27,6 +27,7 @@ class User(UserMixin, db.Model):
     role=so.relationship("Role", secondary="user_roles")
     active = db.Column(db.Boolean(), default=True)
     testgame = so.relationship("TestGame", back_populates="user")
+    activetestgame = db.Column(db.Integer, nullable=True)
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -111,46 +112,78 @@ class GTNHistory(db.Model):
     guesses = db.Column(db.Integer)
 
 
-
-## TEST GAME RELATED MODELS
-# Define the TestGame data model
+# Model representing a game test case
 class TestGame(db.Model):
-    __tablename__ = 'test_game'  # Ensure the table name is explicitly defined
+    __tablename__ = 'test_game'
+    
+    # Primary key
     id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign key to user
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship("User")
+    
+    # Relationship to User model
+    user = db.relationship("User", backref="test_games")
+    
+    # Basic game information
     game_name = db.Column(db.String(64))
     game_exists = db.Column(db.Boolean, default=False)
     entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    
+    # Game statistics
     xp = db.Column(db.Integer, default=0)
-    level = db.Column(db.Integer, default=0)
-    cash = db.Column(db.Float, default=0.0)
-    testgameventory1 = db.relationship("TestGameInventory1", back_populates="test_game")
+    level = db.Column(db.Integer, default=1)
+    cash = db.Column(db.Float, default=5000)
+    
+    # Relationships to inventory and items
+    inventory = db.relationship("TestGameInventory", back_populates="test_game")
+    items = db.relationship("TestGameItem", backref="test_game")
 
-class TestGameItems(db.Model):
-    __tablename__ = 'test_game_items'  # Ensure the table name is explicitly defined
+
+    
+
+# Model representing items within a game
+class TestGameItem(db.Model):
+    __tablename__ = 'test_game_items'
+    
+    # Primary key
     id = db.Column(db.Integer, primary_key=True)
+    
+    # Item details
     item_name = db.Column(db.String(64))
     item_cost = db.Column(db.Float)
     item_xp = db.Column(db.Integer)
     item_level = db.Column(db.Integer)
     item_type = db.Column(db.String(64))
     item_description = db.Column(db.String(256))
+    
+    # Foreign key to TestGame
     testgame_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
-    # Assuming there's a relationship back to TestGame that's not shown here
 
-
-# Define the TestGameInventory data model
-class TestGameInventory1(db.Model):
-    __tablename__ = 'test_game_inventory_1'  # Ensure the table name is explicitly defined
+# Model representing a user's inventory for a game
+class TestGameInventory(db.Model):
+    __tablename__ = 'test_game_inventory'
+    
+    # Primary key
     id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign key to user
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship("User")
+    
+    # Relationship to User model
+    user = db.relationship("User", backref="inventories")
+    
+    # Foreign key to item
     item_id = db.Column(db.Integer, db.ForeignKey("test_game_items.id"))
-    item = db.relationship("TestGameItems")
+    
+    # Relationship to TestGameItem model
+    item = db.relationship("TestGameItem", backref="inventories")
+    
+    # Inventory details
     quantity = db.Column(db.Integer, default=0)
+    
+    # Foreign key to TestGame
     test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
-    test_game = db.relationship("TestGame", back_populates="testgameventory1")
-
-
-
+    
+    # Relationship to TestGame model
+    test_game = db.relationship("TestGame", back_populates="inventory")

@@ -6,19 +6,25 @@
 
 <hr>
 
-<div>
-    <form action="" method="post" novalidate>
-        {{ loadgameform.hidden_tag() }}
+{% if numberofgames == 0 %}
+    <p>No games found.</p>
+{% else %}
+    <div>
+        <form action="" method="post" novalidate>
+            {{ loadgameform.hidden_tag() }}
 
-        {{ loadgameform.game_id.label }}<br>
-        {{ loadgameform.game_id(class="form-control") }}
-        {% for error in loadgameform.game_id.errors %}
-        <span style="color: red;">[{{ error }}]</span>
-        {% endfor %}
+            <p>
+                {{ loadgameform.game_id.label }}<br>
+                {{ loadgameform.game_id(class="form-control") }}
+                {% for error in loadgameform.game_id.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
 
-        <p>{{ loadgameform.loadgame_button() }}</p>
-    </form>
-</div>
+            <p>{{ loadgameform.loadgame_button() }}</p>
+        </form>
+    </div>
+{% endif %}
 
 <div>
     <form action="" method="post" novalidate>

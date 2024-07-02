@@ -23,6 +23,7 @@
                         <th>Role</th>
                         <th>Active</th>
                         <th>Actions</th>
+                        <th>Active TestGame</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,6 +43,7 @@
                                 <a href="{{ url_for('admin.activate_user', user_id=user.id) }}" class="btn btn-success">Activate</a>
                             {% endif %}                            
                         </td>
+                        <td>{{ user.activetestgame }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
