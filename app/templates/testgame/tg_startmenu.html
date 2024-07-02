@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1> {{ title }} </h1>
+
+<hr>
+
+<div>
+    <form action="" method="post" novalidate>
+        {{ loadgameform.hidden_tag() }}
+
+        {{ loadgameform.game_id.label }}<br>
+        {{ loadgameform.game_id(class="form-control") }}
+        {% for error in loadgameform.game_id.errors %}
+        <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+
+        <p>{{ loadgameform.loadgame_button() }}</p>
+    </form>
+</div>
+
+<div>
+    <form action="" method="post" novalidate>
+        {{ newgameform.hidden_tag() }}
+            
+            {{ newgameform.game_name.label }}<br>
+            {{ newgameform.game_name(class="form-control") }}
+            {% for error in newgameform.game_name.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+
+        <p>{{ newgameform.newgame_button() }}</p>
+    </form>
+</div>
+
+
+
+
+
+{% endblock %}

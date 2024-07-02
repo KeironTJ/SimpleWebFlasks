@@ -26,6 +26,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(String(256))
     role=so.relationship("Role", secondary="user_roles")
     active = db.Column(db.Boolean(), default=True)
+    testgame = so.relationship("TestGame", back_populates="user")
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -39,7 +40,9 @@ class User(UserMixin, db.Model):
     def is_admin(self):
         return 'admin' in [role.name for role in self.role]
     
-# Define the Role data-model
+
+## ADMIN RELATED MODELS
+# Define the Role data model
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer(), primary_key=True)
@@ -55,6 +58,8 @@ class UserRoles(db.Model):
     user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
     
+
+
 
 
 ## FINANCE APP RELATED MODELS
@@ -86,6 +91,8 @@ class TransactionCategory(db.Model):
 
 
 
+
+
 ## GUESS THE NUMBER RELATED MODELS
 class GTNSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -104,6 +111,46 @@ class GTNHistory(db.Model):
     guesses = db.Column(db.Integer)
 
 
+
+## TEST GAME RELATED MODELS
+# Define the TestGame data model
+class TestGame(db.Model):
+    __tablename__ = 'test_game'  # Ensure the table name is explicitly defined
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user = db.relationship("User")
+    game_name = db.Column(db.String(64))
+    game_exists = db.Column(db.Boolean, default=False)
+    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    xp = db.Column(db.Integer, default=0)
+    level = db.Column(db.Integer, default=0)
+    cash = db.Column(db.Float, default=0.0)
+    testgameventory1 = db.relationship("TestGameInventory1", back_populates="test_game")
+
+class TestGameItems(db.Model):
+    __tablename__ = 'test_game_items'  # Ensure the table name is explicitly defined
+    id = db.Column(db.Integer, primary_key=True)
+    item_name = db.Column(db.String(64))
+    item_cost = db.Column(db.Float)
+    item_xp = db.Column(db.Integer)
+    item_level = db.Column(db.Integer)
+    item_type = db.Column(db.String(64))
+    item_description = db.Column(db.String(256))
+    testgame_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
+    # Assuming there's a relationship back to TestGame that's not shown here
+
+
+# Define the TestGameInventory data model
+class TestGameInventory1(db.Model):
+    __tablename__ = 'test_game_inventory_1'  # Ensure the table name is explicitly defined
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user = db.relationship("User")
+    item_id = db.Column(db.Integer, db.ForeignKey("test_game_items.id"))
+    item = db.relationship("TestGameItems")
+    quantity = db.Column(db.Integer, default=0)
+    test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
+    test_game = db.relationship("TestGame", back_populates="testgameventory1")
 
 
 

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1> {{ title }} - {{ current_user.username }} - {{ game.game_name }} </h1>
+
+<hr>
+
+<div style="display: flex; justify-content: space-around;">
+    <p>{{current_user.username}}</p>
+    <p>XP: {{ game.xp }}</p>
+    <p>Level: {{ game.level }}</p>
+    <p>Cash: {{ game.cash }}</p>
+    <p>TestGameventory1: {{ game.testgameventory1 }}</p>
+</div>
+
+{% endblock %}

@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from app import db
-from app.models import User, Role, UserRoles, GTNSettings
+from app.models import User, Role, UserRoles, GTNSettings, TestGame
 from app.admin.forms import AssignRoleForm, CreateRoleForm
 from app.admin.decorators import admin_required
 from app.admin import bp
@@ -112,3 +112,32 @@ def activate_user(user_id):
 @login_required
 def not_admin():
     return render_template("admin/not_admin.html", title='Not Admin')
+
+
+## Test Game Admin
+
+@bp.route('/admin_testgame', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_testgame():
+
+    #Check current user has an active test game account
+    user = db.session.query(User).get(current_user.id)
+    if user.testgame is not None:
+        flash('You do not have a test game account')
+        return redirect(url_for('main.index'))
+
+
+    return render_template("admin/admin_testgame.html", title='Admin Test Game')
+
+@bp.route('/admin_testgame_models', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_testgame_models():
+
+    testgames = db.session.query(TestGame).all()
+
+
+    return render_template("admin/admin_testgame_models.html", 
+                           title='Admin Test Game Users', 
+                           testgames=testgames)
