@@ -7,9 +7,9 @@
 <form action="" method="post">
     {{ profileform.hidden_tag() }}
     <p>
-        {{ profileform.first_name.label }}<br>
-        {{ profileform.first_name(size=32) }}<br>
-        {% for error in profileform.first_name.errors %}
+        {{ profileform.firstname.label }}<br>
+        {{ profileform.firstname(size=32) }}<br>
+        {% for error in profileform.firstname.errors %}
         <span style="color: red;">[{{ error }}]</span>
         {% endfor %}
     </p>
@@ -50,5 +50,10 @@
     </p>
     <p>{{ profileform.submit() }}</p>
 </form>
+
+
+<p>
+    <a href="{{ url_for('main.view_profile', user_id=user.id) }}" class="">Back to Profile</a>
+</p>
 
 {% endblock %}

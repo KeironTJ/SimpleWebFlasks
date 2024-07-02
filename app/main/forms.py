@@ -3,7 +3,7 @@ from wtforms import StringField, DateField, SubmitField
 
 
 class ProfileForm(FlaskForm):
-    first_name = StringField('First Name')
+    firstname = StringField('First Name')
     surname = StringField('Surname')
     dob = DateField('Transaction Date')
     firstlineaddress = StringField('First Line Address')
