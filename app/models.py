@@ -187,3 +187,7 @@ class TestGameInventory(db.Model):
     
     # Relationship to TestGame model
     test_game = db.relationship("TestGame", back_populates="inventory")
+
+
+## TODO: CREATE MODELS FOR QUESTS, QUEST REWARDS, AND QUEST PROGRESS not game_id specific
+

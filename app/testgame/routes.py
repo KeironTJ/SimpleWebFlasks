@@ -50,6 +50,10 @@ def tg_startmenu():
 @login_required
 def tg_play(game_id): 
 
+    # Check if current user is admin or the current user viewing their own profile
+    if not current_user.is_admin() and current_user.activetestgame != int(game_id):
+        return redirect(url_for('admin.not_admin'))
+
     game = TestGame.query.filter_by(id=game_id).first()
 
     return render_template("testgame/tg_play.html", 
