@@ -17,3 +17,11 @@ class LoadGameForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super(LoadGameForm, self).__init__(*args, **kwargs)
         self.game_id.choices = [(game.id, game.game_name) for game in TestGame.query.filter_by(user_id=current_user.id).all()][::-1]
+
+class AddXPForm(FlaskForm):
+    xp = SelectField('XP', coerce=int, choices=[(x, x) for x in range(100, 1000)])
+    addxp_button = SubmitField('Add XP')
+
+class AddCashForm(FlaskForm):
+    cash = SelectField('Cash', coerce=int, choices=[(x, x) for x in range(100, 1000)])
+    addcash_button = SubmitField('Add Cash')

@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.models import User, db, TestGame
-from app.testgame.forms import NewGameForm, LoadGameForm
+from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm
+from app.testgame.game_logic import GameService
 import sqlalchemy as sa
 
 from app.testgame import bp
@@ -54,11 +55,35 @@ def tg_play(game_id):
     if not current_user.is_admin() and current_user.activetestgame != int(game_id):
         return redirect(url_for('admin.not_admin'))
 
+    # Forms
+    addxpform = AddXPForm()
+    addcashform = AddCashForm()
+
+    # Database Queries
     game = TestGame.query.filter_by(id=game_id).first()
+
+    if request.method == 'POST' and addxpform.addxp_button.data:
+        xp = addxpform.xp.data
+        service = GameService(user_id=current_user.id, test_game_id=game_id)
+        service.add_xp(xp)
+        db.session.commit()
+        flash(f'{xp} XP added to {game.game_name}')
+
+    if request.method == 'POST' and addcashform.addcash_button.data:
+        cash = addcashform.cash.data
+        service = GameService(user_id=current_user.id, test_game_id=game_id)
+        service.add_cash(cash)
+        db.session.commit()
+        flash(f'{cash} cash added to {game.game_name}')
+
+
 
     return render_template("testgame/tg_play.html", 
                            title='Test Game - Play',
-                           game=game)
+                           game=game,
+                           addxpform=addxpform,
+                           addcashform=addcashform,
+                           )
     
 
 

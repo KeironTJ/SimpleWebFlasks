@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="Jumbotron">
+
+    <h1>Admin - Test Game - XP Log</h1>
+    
+
+</div>
+
+<div class="container">
+
+    <p>View the XP log for the test game.</p>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Game ID</th>
+                <th>Game Name</th>
+                <th>XP</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for xplog in xplogs %}
+                <tr>
+                    <td>{{ xplog.user.id }}</td>
+                    <td>{{ xplog.user.username }}</td>
+                    <td>{{ xplog.test_game.id }}</td>
+                    <td>{{ xplog.test_game.game_name }}</td>
+                    <td>{{ xplog.xp }}</td>
+                    <td>{{ xplog.entry_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>  
+
+<div class="container">
+
+    <p>View the Cash log for the test game.</p>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Username</th>
+                <th>Game ID</th>
+                <th>Game Name</th>
+                <th>Cash</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cashlog in cashlogs %}
+                <tr>
+                    <td>{{ cashlog.user.id }}</td>
+                    <td>{{ cashlog.user.username }}</td>
+                    <td>{{ cashlog.test_game.id }}</td>
+                    <td>{{ cashlog.test_game.game_name }}</td>
+                    <td>{{ cashlog.cash }}</td>
+                    <td>{{ cashlog.entry_date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div> 
+
+
+
+{% endblock %}

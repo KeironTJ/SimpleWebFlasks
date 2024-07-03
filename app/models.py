@@ -24,10 +24,12 @@ class User(UserMixin, db.Model):
     postcode = db.Column(String(64), nullable=True)
     email = db.Column(String(120), index=True, unique=True)
     password_hash = db.Column(String(256))
-    role=so.relationship("Role", secondary="user_roles")
     active = db.Column(db.Boolean(), default=True)
-    testgame = so.relationship("TestGame", back_populates="user")
     activetestgame = db.Column(db.Integer, nullable=True)
+
+    testgame = so.relationship("TestGame", back_populates="user")
+    role=so.relationship("Role", secondary="user_roles")
+
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
@@ -119,25 +121,22 @@ class TestGame(db.Model):
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
     
-    # Foreign key to user
+    # Foreign keys
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    
-    # Relationship to User model
-    user = db.relationship("User", backref="test_games")
     
     # Basic game information
     game_name = db.Column(db.String(64))
     game_exists = db.Column(db.Boolean, default=False)
     entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    
-    # Game statistics
     xp = db.Column(db.Integer, default=0)
     level = db.Column(db.Integer, default=1)
     cash = db.Column(db.Float, default=5000)
     
-    # Relationships to inventory and items
+    # Relationships
+    user = db.relationship("User", backref="test_games")
     inventory = db.relationship("TestGameInventory", back_populates="test_game")
     items = db.relationship("TestGameItem", backref="test_game")
+    
 
 
     
@@ -148,6 +147,9 @@ class TestGameItem(db.Model):
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
+
+    # Foreign key to TestGame
+    testgame_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
     
     # Item details
     item_name = db.Column(db.String(64))
@@ -157,8 +159,6 @@ class TestGameItem(db.Model):
     item_type = db.Column(db.String(64))
     item_description = db.Column(db.String(256))
     
-    # Foreign key to TestGame
-    testgame_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
 
 # Model representing a user's inventory for a game
 class TestGameInventory(db.Model):
@@ -166,28 +166,57 @@ class TestGameInventory(db.Model):
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
-    
-    # Foreign key to user
+
+    # Foreign keys
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    
-    # Relationship to User model
-    user = db.relationship("User", backref="inventories")
-    
-    # Foreign key to item
-    item_id = db.Column(db.Integer, db.ForeignKey("test_game_items.id"))
-    
-    # Relationship to TestGameItem model
-    item = db.relationship("TestGameItem", backref="inventories")
-    
-    # Inventory details
-    quantity = db.Column(db.Integer, default=0)
-    
-    # Foreign key to TestGame
     test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
     
-    # Relationship to TestGame model
+    # Inventory details
+    item_id = db.Column(db.Integer, db.ForeignKey("test_game_items.id"))
+    quantity = db.Column(db.Integer, default=0)
+    
+    # Relationships
+    user = db.relationship("User", backref="inventories")
+    item = db.relationship("TestGameItem", backref="inventories")
     test_game = db.relationship("TestGame", back_populates="inventory")
 
+
+# Model to log xp transactions
+class TestGameXPLog(db.Model):
+    __tablename__ = 'test_game_xp_log'
+
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
+
+    # XP details
+    xp = db.Column(db.Integer)
+    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+   
+    # Relationships
+    test_game = db.relationship("TestGame", backref="xp_logs")
+    user = db.relationship("User", backref="xp_logs")
+
+class TestGameCashLog(db.Model):
+    __tablename__ = 'test_game_cash_log'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Foreign keys
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
+
+    # Cash details
+    cash = db.Column(db.Float)
+    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+
+    # Relationships
+    test_game = db.relationship("TestGame", backref="cash_logs")
+    user = db.relationship("User", backref="cash_logs")
 
 ## TODO: CREATE MODELS FOR QUESTS, QUEST REWARDS, AND QUEST PROGRESS not game_id specific
 

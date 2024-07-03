@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user
 from app import db
-from app.models import User, Role, UserRoles, GTNSettings, TestGame
+from app.models import User, Role, UserRoles, GTNSettings, TestGame, TestGameXPLog, TestGameCashLog
 from app.admin.forms import AssignRoleForm, CreateRoleForm
 from app.admin.decorators import admin_required
 from app.admin import bp
@@ -116,6 +116,8 @@ def not_admin():
 
 ## Test Game Admin
 
+
+# This route is used to render the admin page for the test game
 @bp.route('/admin_testgame', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -130,6 +132,8 @@ def admin_testgame():
 
     return render_template("admin/admin_testgame.html", title='Admin Test Game')
 
+
+# This route is used to render the admin page for the test game users
 @bp.route('/admin_testgame_models', methods=['GET', 'POST'])
 @login_required
 @admin_required
@@ -141,3 +145,19 @@ def admin_testgame_models():
     return render_template("admin/admin_testgame_models.html", 
                            title='Admin Test Game Users', 
                            testgames=testgames)
+
+
+# This route is used to render the admin page for the test game xp log
+@bp.route('/admin_testgame_resourceslog', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_testgame_resourceslog():
+
+    xplogs = db.session.query(TestGameXPLog).all()
+    cashlogs = db.session.query(TestGameCashLog).all()
+
+
+    return render_template("admin/admin_testgame_resourceslog.html", 
+                           title='Admin Test Game XP Log', 
+                           xplogs=xplogs,
+                           cashlogs=cashlogs)

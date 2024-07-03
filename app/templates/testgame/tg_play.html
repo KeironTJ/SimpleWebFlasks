@@ -4,4 +4,28 @@
 
 <p>Lets add some free xp!</p>>
 
+
+<form action="" method="post">
+
+    {{ addxpform.hidden_tag() }}
+
+    <p>{{ addxpform.xp.label }}</p>
+    <p>{{ addxpform.xp(size=1) }}</p>
+
+    <p>{{ addxpform.addxp_button() }}</p>
+
+</form>
+
+<form action="" method="post">
+
+    {{ addcashform.hidden_tag() }}
+
+    <p>{{ addcashform.cash.label }}</p>
+    <p>{{ addcashform.cash(size=1) }}</p>
+
+    <p>{{ addcashform.addcash_button() }}</p>
+
+
+
+
 {% endblock content2 %}
