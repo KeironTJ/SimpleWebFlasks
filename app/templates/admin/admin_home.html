@@ -19,8 +19,10 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Users</h5>
-                    <p class="card-text">View and manage users</p>
-                    <a href="{{ url_for('admin.admin_users') }}" class="btn btn-primary">Users</a>
+                    <div class="card-body">
+                        <p class="card-text">View and manage users</p>
+                        <a href="{{ url_for('admin.admin_users') }}" class="btn btn-primary">Users</a>
+                    </div>  
                 </div>
             </div>
         </div>
@@ -33,8 +35,11 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Roles</h5>
-                    <p class="card-text">View and manage roles</p>
-                    <a href="{{ url_for('admin.admin_roles') }}" class="btn btn-primary">Roles</a>
+                    <div class="card-body">
+                        <p class="card-text">View and manage roles</p>
+                        <a href="{{ url_for('admin.admin_roles') }}" class="btn btn-primary">Roles</a>
+                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -47,10 +52,25 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Game Admin</h5>
-                    <p class="card-text">View and manage game data</p>
-                    <a href="{{ url_for('admin.admin_testgame_models') }}" class="btn btn-primary">Game Model</a>
-                    <a href="{{ url_for('admin.admin_testgame') }}" class="btn btn-primary">Game Admin</a>
-                    <a href="{{ url_for('admin.admin_testgame_resourceslog') }}" class="btn btn-primary">Resource Logs</a>
+                    <div class="card-body">
+                        <p class="card-text">View and manage USER related game data</p>
+                        <a href="{{ url_for('admin.admin_testgame_models') }}" class="btn btn-primary">Games Log</a>
+                        <a href="{{ url_for('admin.admin_testgame_resourceslog') }}" class="btn btn-primary">Resource Logs</a>
+                    </div>
+
+                    <div class="card-body">
+                        <p class="card-text">View and manage GAME LOGIC related data</p>
+                        <a href="{{ url_for('admin.admin_testgame_levelrequirements') }}" class="btn btn-primary">Maintain Level Requirements</a>
+                        <a href="" class="btn btn-primary">TBC</a>
+                    </div>
+
+                    <div class="card-body">
+                        <p class="card-text">View and manage QUEST LOGIC related data</p>
+                        <a href="" class="btn btn-primary">Maintain Main Quests</a>
+                        <a href="" class="btn btn-primary">Maintain Main Quest Requirements</a>
+                    </div>
+
+
                 </div>
             </div>
         </div>

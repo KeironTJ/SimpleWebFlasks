@@ -218,5 +218,20 @@ class TestGameCashLog(db.Model):
     test_game = db.relationship("TestGame", backref="cash_logs")
     user = db.relationship("User", backref="cash_logs")
 
+
+# Create Model to store level requirements, not specfic to use or game
+class TestGameLevelRequirements(db.Model):
+    __tablename__ = 'test_game_level_requirements'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Level requirements
+    level = db.Column(db.Integer)
+    xp_required = db.Column(db.Integer)
+
+    
+
+
 ## TODO: CREATE MODELS FOR QUESTS, QUEST REWARDS, AND QUEST PROGRESS not game_id specific
 
