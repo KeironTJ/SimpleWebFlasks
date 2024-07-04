@@ -1,5 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request
-from flask_login import login_required, current_user
+from flask_login import login_required, current_user  # type: ignore
 from app import db
 from app.models import User, Role, UserRoles, GTNSettings, TestGame, TestGameXPLog, TestGameCashLog, TestGameLevelRequirements
 from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsForm
