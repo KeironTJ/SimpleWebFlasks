@@ -156,6 +156,25 @@ class TestGameInventory(db.Model):
     inventory_items = db.relationship('TestGameInventoryItems', back_populates="inventory")
 
 
+
+
+class RewardItemAssociation(db.Model):
+    __tablename__ = 'reward_item_association'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    reward_id = db.Column(db.Integer, db.ForeignKey('test_game_rewards.id'))
+    item_id = db.Column(db.Integer, db.ForeignKey('test_game_items.id'))
+    quantity = db.Column(db.Integer, default=1)
+    
+    # Relationships
+    reward = db.relationship("TestGameQuestRewards", backref="reward_items")
+    item = db.relationship("TestGameItem", backref="reward_items")
+
+
+
 class TestGameItem(db.Model):
     __tablename__ = 'test_game_items'
 
@@ -172,6 +191,8 @@ class TestGameItem(db.Model):
 
     # Relationships
     inventory_items = db.relationship('TestGameInventoryItems', back_populates="item")
+    rewards = db.relationship('TestGameQuestRewards', secondary='reward_item_association', back_populates="items")
+    
 
     
 # Model association table to store inventory items
@@ -240,4 +261,64 @@ class TestGameLevelRequirements(db.Model):
     level = db.Column(db.Integer)
     xp_required = db.Column(db.Integer)
 
+    
+
+## TEST GAME QUEST RELATED MODELS
+class TestGameQuest(db.Model):
+    __tablename__ = 'test_game_quests'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+  
+    # Quest details
+    quest_name = db.Column(db.String(64))
+    quest_description = db.Column(db.String(256))
+    quest_type_id = db.Column(db.Integer, db.ForeignKey('test_game_quest_types.id', name='fk_quest_type_id'))
+    
+    # Relationships
+    quest_rewards = db.relationship("TestGameQuestRewards", back_populates="quest")
+    quest_type = db.relationship("TestGameQuestType", back_populates="quests")
+    
+    
+class TestGameQuestType(db.Model):
+    __tablename__ = 'test_game_quest_types'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Quest type details
+    quest_type_name = db.Column(db.String(64))
+    quest_type_description = db.Column(db.String(256))
+    
+    # Relationships
+    quests = db.relationship("TestGameQuest", back_populates="quest_type")
+
+
+
+
+class TestGameQuestRewards(db.Model):
+    __tablename__ = 'test_game_rewards'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    quest_id = db.Column(db.Integer, db.ForeignKey('test_game_quests.id'))
+    
+    # Reward details
+    quest_reward_name = db.Column(db.String(64))
+    quest_reward_description = db.Column(db.String(256))
+    quest_reward_xp = db.Column(db.Integer, default=0)
+    quest_reward_cash = db.Column(db.Float,default=0)
+    quest_reward_item_id = db.Column(db.Integer, db.ForeignKey('test_game_items.id'))
+    
+    # Relationships
+    quest = db.relationship("TestGameQuest", back_populates="quest_rewards")
+    items = db.relationship("TestGameItem", secondary='reward_item_association', back_populates="rewards")
+    
+    
+
+    
+    
+    
     

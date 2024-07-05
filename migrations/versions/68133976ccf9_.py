@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 0b684daf15a8
+Revision ID: 68133976ccf9
 Revises: 
-Create Date: 2024-07-05 09:35:11.066081
+Create Date: 2024-07-05 13:07:54.461564
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '0b684daf15a8'
+revision = '68133976ccf9'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -38,6 +38,12 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('level', sa.Integer(), nullable=True),
     sa.Column('xp_required', sa.Integer(), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('test_game_quest_types',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('quest_type_name', sa.String(length=64), nullable=True),
+    sa.Column('quest_type_description', sa.String(length=256), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('user',
@@ -97,6 +103,14 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('test_game_quests',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('quest_name', sa.String(length=64), nullable=True),
+    sa.Column('quest_description', sa.String(length=256), nullable=True),
+    sa.Column('quest_type_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['quest_type_id'], ['test_game_quest_types.id'], name='quest_type_id'),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('transaction_category',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('category_name', sa.String(length=64), nullable=True),
@@ -125,6 +139,18 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('game_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['game_id'], ['test_game.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('test_game_rewards',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('quest_id', sa.Integer(), nullable=True),
+    sa.Column('quest_reward_name', sa.String(length=64), nullable=True),
+    sa.Column('quest_reward_description', sa.String(length=256), nullable=True),
+    sa.Column('quest_reward_xp', sa.Integer(), nullable=True),
+    sa.Column('quest_reward_cash', sa.Float(), nullable=True),
+    sa.Column('quest_reward_item_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['quest_id'], ['test_game_quests.id'], ),
+    sa.ForeignKeyConstraint(['quest_reward_item_id'], ['test_game_items.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('test_game_xp_log',
@@ -165,10 +191,12 @@ def downgrade():
     op.drop_table('test_game_inventory_items')
     op.drop_table('transaction')
     op.drop_table('test_game_xp_log')
+    op.drop_table('test_game_rewards')
     op.drop_table('test_game_inventory')
     op.drop_table('test_game_cash_log')
     op.drop_table('user_roles')
     op.drop_table('transaction_category')
+    op.drop_table('test_game_quests')
     op.drop_table('test_game')
     op.drop_table('gtn_settings')
     op.drop_table('gtn_history')
@@ -178,6 +206,7 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix_user_email'))
 
     op.drop_table('user')
+    op.drop_table('test_game_quest_types')
     op.drop_table('test_game_level_requirements')
     op.drop_table('test_game_items')
     op.drop_table('roles')
