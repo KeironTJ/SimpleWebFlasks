@@ -191,7 +191,7 @@ class TestGameItem(db.Model):
 
     # Relationships
     inventory_items = db.relationship('TestGameInventoryItems', back_populates="item")
-    rewards = db.relationship('TestGameQuestRewards', secondary='reward_item_association', back_populates="items")
+    rewards = db.relationship('TestGameQuestRewards', secondary='reward_item_association', back_populates="items", overlaps="reward,reward_items, item")
     
 
     
@@ -314,7 +314,8 @@ class TestGameQuestRewards(db.Model):
     
     # Relationships
     quest = db.relationship("TestGameQuest", back_populates="quest_rewards")
-    items = db.relationship("TestGameItem", secondary='reward_item_association', back_populates="rewards")
+    items = db.relationship("TestGameItem", secondary='reward_item_association', back_populates="rewards", overlaps="item,reward_items,reward")
+    
     
     
 

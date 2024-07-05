@@ -16,28 +16,61 @@
             <th>Quest ID</th>
             <th>Quest Name</th>
             <th>Quest Description</th>
-            <th>Quest Type</th>
+            <th>Quest Type ID</th>
+            <th>Quest Type Name</th>
             <th>Quest Rewards</th>
         </tr>
     </thead>
     <tbody>
         {% for quest in quests %}
         <tr>
-            <td>{{ quest.quest_id }}</td>
+            <td>{{ quest.id }}</td>
             <td>{{ quest.quest_name }}</td>
             <td>{{ quest.quest_description }}</td>
-            <td>{{ quest.quest_type }}</td>
-            {% for reward in quest.quest_rewards %}
-                <td>{{ reward.quest_reward_name }}</td>
-                <td>{{ reward.quest_reward_description }}</td>
-                <td>{{ reward.quest_reward_xp }}</td>
-                <td>{{ reward.quest_reward_cash }}</td>
-                {% for item in reward.quest_reward_item %}
-                    <td>{{ item.item_id }}</td>
-                    <td>{{ item.quantity }}</td>
-                {% endfor %}
-
-            {% endfor %}
+            <td>{{ quest.quest_type.id }}</td>
+            <td>{{ quest.quest_type.quest_type_name }}</td>
+            <td>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Reward Name</th>
+                            <th>Reward Description</th>
+                            <th>Reward XP</th>
+                            <th>Reward Cash</th>
+                            <th>Reward Items</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reward in quest.quest_rewards %}
+                        <tr>
+                            <td>{{ reward.quest_reward_name }}</td>
+                            <td>{{ reward.quest_reward_description }}</td>
+                            <td>{{ reward.quest_reward_xp }}</td>
+                            <td>{{ reward.quest_reward_cash }}</td>
+                            <td>
+                                <table class="table">
+                                    <thead>
+                                    <th>Item Name</th>
+                                    <th>Item Description</th>
+                                    <th>Item Quantity</th>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in reward.reward_items %}
+                                        <tr>
+                                            <td>{{ item.item.item_name }}</td>
+                                            <td>{{ item.item.item_description }}</td>
+                                            <td>{{ item.quantity }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                </table>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </td>
+           
+            
         </tr>
         {% endfor %}
 </table>
