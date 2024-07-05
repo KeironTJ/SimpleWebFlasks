@@ -28,6 +28,11 @@ def initialise_game():
 @login_required
 def guessthenumberhome():
 
+    if GTNSettings.query.filter_by(user_id=current_user.id).first() == None:
+        gtnsettings = GTNSettings(user_id=current_user.id)
+        db.session.add(gtnsettings)
+        db.session.commit()
+
     # Initialize forms
     gtnform = GuessTheNumberForm(request.form)
     gtnresetform = GuessTheNumberResetForm(request.form)

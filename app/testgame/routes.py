@@ -64,14 +64,14 @@ def tg_play(game_id):
 
     if request.method == 'POST' and addxpform.addxp_button.data:
         xp = addxpform.xp.data
-        service = GameService(user_id=current_user.id, test_game_id=game_id)
+        service = GameService(test_game_id=game_id)
         service.add_xp(xp)
         db.session.commit()
         flash(f'{xp} XP added to {game.game_name}')
 
     if request.method == 'POST' and addcashform.addcash_button.data:
         cash = addcashform.cash.data
-        service = GameService(user_id=current_user.id, test_game_id=game_id)
+        service = GameService(test_game_id=game_id)
         service.add_cash(cash)
         db.session.commit()
         flash(f'{cash} cash added to {game.game_name}')

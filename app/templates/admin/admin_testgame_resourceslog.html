@@ -27,10 +27,10 @@
         <tbody>
             {% for xplog in xplogs %}
                 <tr>
-                    <td>{{ xplog.user.id }}</td>
-                    <td>{{ xplog.user.username }}</td>
-                    <td>{{ xplog.test_game.id }}</td>
-                    <td>{{ xplog.test_game.game_name }}</td>
+                    <td>{{ xplog.testgame.user_id }}</td>
+                    <td>{{ xplog.testgame.user.username }}</td>
+                    <td>{{ xplog.testgame.id }}</td>
+                    <td>{{ xplog.testgame.game_name }}</td>
                     <td>{{ xplog.xp }}</td>
                     <td>{{ xplog.entry_date }}</td>
                 </tr>
@@ -57,10 +57,10 @@
         <tbody>
             {% for cashlog in cashlogs %}
                 <tr>
-                    <td>{{ cashlog.user.id }}</td>
-                    <td>{{ cashlog.user.username }}</td>
-                    <td>{{ cashlog.test_game.id }}</td>
-                    <td>{{ cashlog.test_game.game_name }}</td>
+                    <td>{{ cashlog.testgame.user_id }}</td>
+                    <td>{{ cashlog.testgame.user.username }}</td>
+                    <td>{{ cashlog.testgame.id }}</td>
+                    <td>{{ cashlog.testgame.game_name }}</td>
                     <td>{{ cashlog.cash }}</td>
                     <td>{{ cashlog.entry_date }}</td>
                 </tr>

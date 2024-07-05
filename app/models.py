@@ -7,6 +7,7 @@ from flask_login import UserMixin # type: ignore
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+
 ## USER RELATED MODELS
 
 @login.user_loader
@@ -27,7 +28,8 @@ class User(UserMixin, db.Model):
     active = db.Column(db.Boolean(), default=True)
     activetestgame = db.Column(db.Integer, nullable=True)
 
-    testgame = so.relationship("TestGame", back_populates="user")
+    # Relationships
+    test_game = so.relationship("TestGame", back_populates="user", cascade="all, delete-orphan")
     role=so.relationship("Role", secondary="user_roles")
 
 
@@ -102,6 +104,7 @@ class GTNSettings(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     startrange = db.Column(db.Integer, default=1)
     endrange = db.Column(db.Integer, default=100)
+
     
 class GTNHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -113,7 +116,7 @@ class GTNHistory(db.Model):
     number = db.Column(db.Integer)
     guesses = db.Column(db.Integer)
 
-
+## TEST GAME RELATED MODELS
 # Model representing a game test case
 class TestGame(db.Model):
     __tablename__ = 'test_game'
@@ -122,7 +125,7 @@ class TestGame(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     # Foreign keys
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
     # Basic game information
     game_name = db.Column(db.String(64))
@@ -132,25 +135,33 @@ class TestGame(db.Model):
     level = db.Column(db.Integer, default=1)
     cash = db.Column(db.Float, default=5000)
     
-    # Relationships
-    user = db.relationship("User", backref="test_games")
-    inventory = db.relationship("TestGameInventory", back_populates="test_game")
-    items = db.relationship("TestGameItem", backref="test_game")
+    # create relationships
+    test_game_cash_logs = db.relationship("TestGameCashLog", back_populates="testgame")
+    test_game_xp_logs = db.relationship("TestGameXPLog", back_populates="testgame")
+    user = db.relationship("User", back_populates="test_game")
+    inventories = db.relationship('TestGameInventory', backref='game', lazy=True, cascade="all, delete-orphan")
+    
     
 
+class TestGameInventory(db.Model):
+    __tablename__ = 'test_game_inventory'
 
-    
-
-# Model representing items within a game
-class TestGameItem(db.Model):
-    __tablename__ = 'test_game_items'
-    
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
 
-    # Foreign key to TestGame
-    testgame_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
-    
+    # Foreign keys
+    game_id = db.Column(db.Integer, db.ForeignKey('test_game.id'), nullable=False)
+
+    # Relationships
+    inventory_items = db.relationship('TestGameInventoryItems', back_populates="inventory")
+
+
+class TestGameItem(db.Model):
+    __tablename__ = 'test_game_items'
+
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+
     # Item details
     item_name = db.Column(db.String(64))
     item_cost = db.Column(db.Float)
@@ -158,28 +169,31 @@ class TestGameItem(db.Model):
     item_level = db.Column(db.Integer)
     item_type = db.Column(db.String(64))
     item_description = db.Column(db.String(256))
-    
 
-# Model representing a user's inventory for a game
-class TestGameInventory(db.Model):
-    __tablename__ = 'test_game_inventory'
+    # Relationships
+    inventory_items = db.relationship('TestGameInventoryItems', back_populates="item")
+
+    
+# Model association table to store inventory items
+class TestGameInventoryItems(db.Model):
+    __tablename__ = 'test_game_inventory_items'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
-
+    
     # Foreign keys
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
+    inventory_id = db.Column(db.Integer, db.ForeignKey('test_game_inventory.id'), nullable=False)
     
-    # Inventory details
-    item_id = db.Column(db.Integer, db.ForeignKey("test_game_items.id"))
+    # Item details
+    item_id = db.Column(db.Integer, db.ForeignKey('test_game_items.id'), nullable=False)
     quantity = db.Column(db.Integer, default=0)
-    
-    # Relationships
-    user = db.relationship("User", backref="inventories")
-    item = db.relationship("TestGameItem", backref="inventories")
-    test_game = db.relationship("TestGame", back_populates="inventory")
 
+    # Relationships
+    inventory = db.relationship("TestGameInventory", back_populates="inventory_items")
+    item = db.relationship("TestGameItem", back_populates="inventory_items")
+    
+
+  
 
 # Model to log xp transactions
 class TestGameXPLog(db.Model):
@@ -189,16 +203,14 @@ class TestGameXPLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     # Foreign keys
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
 
     # XP details
     xp = db.Column(db.Integer)
     entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
    
-    # Relationships
-    test_game = db.relationship("TestGame", backref="xp_logs")
-    user = db.relationship("User", backref="xp_logs")
+    # Relationships with unique backref names
+    testgame = db.relationship("TestGame", back_populates="test_game_xp_logs")
 
 class TestGameCashLog(db.Model):
     __tablename__ = 'test_game_cash_log'
@@ -207,7 +219,6 @@ class TestGameCashLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     # Foreign keys
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
 
     # Cash details
@@ -215,8 +226,7 @@ class TestGameCashLog(db.Model):
     entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
 
     # Relationships
-    test_game = db.relationship("TestGame", backref="cash_logs")
-    user = db.relationship("User", backref="cash_logs")
+    testgame = db.relationship("TestGame", back_populates="test_game_cash_logs")
 
 
 # Create Model to store level requirements, not specfic to use or game
@@ -231,7 +241,3 @@ class TestGameLevelRequirements(db.Model):
     xp_required = db.Column(db.Integer)
 
     
-
-
-## TODO: CREATE MODELS FOR QUESTS, QUEST REWARDS, AND QUEST PROGRESS not game_id specific
-

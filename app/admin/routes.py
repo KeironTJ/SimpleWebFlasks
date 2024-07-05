@@ -169,3 +169,15 @@ def admin_testgame_levelrequirements():
                            title='Admin Test Game Level Requirements', 
                            levelrequirements=levelrequirements,
                            levelrequirementform=levelrequirementform)
+
+
+# This route is used to render the admin page for the test game main quests
+@bp.route('/admin_testgame_mainquests', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_testgame_mainquests():
+
+    
+
+    return render_template("admin/admin_testgame_mainquests.html", 
+                           title='Admin Test Game Main Quests')
