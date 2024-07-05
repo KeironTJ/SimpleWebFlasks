@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user  # type: ignore
 from app import db
-from app.models import User, Role, UserRoles, GTNSettings, TestGame, TestGameXPLog, TestGameCashLog, TestGameLevelRequirements
+from app.models import User, Role, UserRoles, GTNSettings, TestGame, TestGameXPLog, TestGameCashLog, TestGameLevelRequirements,TestGameMainQuests
 from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsForm
 from app.admin.decorators import admin_required
 from app.admin import bp
@@ -177,7 +177,11 @@ def admin_testgame_levelrequirements():
 @admin_required
 def admin_testgame_mainquests():
 
+    # Queries
+    mainquests = db.session.query(TestGameMainQuests).all()
+
     
 
     return render_template("admin/admin_testgame_mainquests.html", 
-                           title='Admin Test Game Main Quests')
+                           title='Admin Test Game Main Quests',
+                           mainquests=mainquests)
