@@ -4,8 +4,8 @@
 
 <div class="Jumbotron">
 
-    <h1>Admin - Test Game - Main Quests</h1>
-    
+    <h1>Admin - Test Game - All Quests</h1>
+
 </div>
 
 <hr />
@@ -17,11 +17,30 @@
             <th>Quest Name</th>
             <th>Quest Description</th>
             <th>Quest Type</th>
+            <th>Quest Rewards</th>
         </tr>
     </thead>
+    <tbody>
+        {% for quest in quests %}
+        <tr>
+            <td>{{ quest.quest_id }}</td>
+            <td>{{ quest.quest_name }}</td>
+            <td>{{ quest.quest_description }}</td>
+            <td>{{ quest.quest_type }}</td>
+            {% for reward in quest.quest_rewards %}
+                <td>{{ reward.quest_reward_name }}</td>
+                <td>{{ reward.quest_reward_description }}</td>
+                <td>{{ reward.quest_reward_xp }}</td>
+                <td>{{ reward.quest_reward_cash }}</td>
+                {% for item in reward.quest_reward_item %}
+                    <td>{{ item.item_id }}</td>
+                    <td>{{ item.quantity }}</td>
+                {% endfor %}
+
+            {% endfor %}
+        </tr>
+        {% endfor %}
 </table>
-
-
 
 
 {% endblock %}

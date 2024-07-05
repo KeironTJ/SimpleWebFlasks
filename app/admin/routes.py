@@ -178,10 +178,10 @@ def admin_testgame_levelrequirements():
 def admin_testgame_mainquests():
 
     # Queries
-    mainquests = db.session.query(TestGameQuest).all()
+    quests = db.session.query(TestGameQuest).all()
 
     
 
     return render_template("admin/admin_testgame_mainquests.html", 
                            title='Admin Test Game Main Quests',
-                           mainquests=mainquests)
+                           quests=quests)
