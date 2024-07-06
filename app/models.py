@@ -144,6 +144,7 @@ class TestGame(db.Model):
     
     
 
+
 class TestGameInventory(db.Model):
     __tablename__ = 'test_game_inventory'
 
@@ -157,7 +158,8 @@ class TestGameInventory(db.Model):
     inventory_items = db.relationship('TestGameInventoryItems', back_populates="inventory")
 
 
-    # Model to store reward item associations
+
+# Model to store reward item associations
 class RewardItemAssociation(db.Model):
     __tablename__ = 'reward_item_association'
     
@@ -204,9 +206,9 @@ class TestGameInventoryItems(db.Model):
     
     # Foreign keys
     inventory_id = db.Column(db.Integer, db.ForeignKey('test_game_inventory.id'), nullable=False)
-    
-    # Item details
     item_id = db.Column(db.Integer, db.ForeignKey('test_game_items.id'), nullable=False)
+    
+    # Item quantity
     quantity = db.Column(db.Integer, default=0)
 
     # Relationships

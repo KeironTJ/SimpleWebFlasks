@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from app.models import User, db, TestGame
+from app.models import User, db, TestGame, TestGameInventory, TestGameInventoryItems
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
 from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm
 from app.testgame.game_logic import GameService, GameCreation
@@ -103,3 +103,16 @@ def tg_display_quests(game_id):
                            title='Test Game - Quests',
                            game=game,
                            quests=quests)
+
+# Route to display inventory
+@bp.route('/tg_display_inventory/<game_id>', methods=['GET', 'POST'])
+@login_required
+def tg_display_inventory(game_id):
+    # Query for testgame inventory items
+    game = TestGame.query.filter_by(id=game_id).first()
+    inventories = TestGameInventory.query.filter_by(game_id=game_id).all()
+    
+    return render_template("testgame/tg_display_inventory.html",
+                           title='Test Game - Inventory',
+                            game=game,
+                            inventories=inventories)
