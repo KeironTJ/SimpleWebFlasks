@@ -11,6 +11,7 @@ from app.models import TestGame
 from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,RewardItemAssociation, TestGameQuestProgress
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems
 from app.models import TestGameLevelRequirements
+from app.models import TestGameCashLog, TestGameXPLog
 from app.testgame.game_logic import GameCreation, GameService
 
 app = create_app()
@@ -115,9 +116,9 @@ def create_inventory_items():
     print("Inventory Items Created")
     
 def create_level_requirements():
-    level_requirement1 = TestGameLevelRequirements(quest_id=1, level_requirement=1)
-    level_requirement2 = TestGameLevelRequirements(quest_id=2, level_requirement=2)
-    level_requirement3 = TestGameLevelRequirements(quest_id=3, level_requirement=3)
+    level_requirement1 = TestGameLevelRequirements(level = 1, xp_required = 100)
+    level_requirement2 = TestGameLevelRequirements(level = 2, xp_required = 200)
+    level_requirement3 = TestGameLevelRequirements(level = 3, xp_required = 400)
     db.session.add(level_requirement1)
     db.session.add(level_requirement2)
     db.session.add(level_requirement3)
@@ -125,16 +126,24 @@ def create_level_requirements():
     print("Level Requirements Created")
 
 def create_test_game_for_admin():
-    test_game = TestGame(user_id=1, game_name="Test Game 1")
-    db.session.add(test_game)
+    service = GameCreation(user_id=1, game_name="Test Game 1")
+    test_game = service.create_game()
+    
     db.session.commit()
     print("Test Game Created")
     
+    game_id = test_game.id
+    
+    service.assign_all_quests(game_id)
+    service.set_active_game(game_id)
+    db.session.commit()
 
     
     
     
 def delete_all_data():
+    db.session.query(User).delete()
+    db.session.query(Role).delete()
     db.session.query(TestGameQuestProgress).delete()
     db.session.query(TestGameInventoryItems).delete()
     db.session.query(TestGameInventory).delete()
@@ -145,23 +154,16 @@ def delete_all_data():
     db.session.query(RewardItemAssociation).delete()    
     db.session.query(TestGameLevelRequirements).delete()
     db.session.query(TestGame).delete()
+    db.session.query(TestGameCashLog).delete()
+    db.session.query(TestGameXPLog).delete()
 
 
     db.session.commit()
     print("All data deleted")
 
 
-if __name__ == "__main__":
-    check_and_initialize_database()
-    delete_all_data()
-    populate_database()
+
     
-    create_QuestTypes()
-    create_items()
-    create_inventory()
-    create_inventory_items()
-    
-    create_test_game_for_admin()
     
  
 class QuestCreator:
@@ -241,7 +243,7 @@ items_info = {
         {"item_id": 3, "quantity": 3}
     ]
 }
-Main_quest_1.create_full_quest(rewards_info, items_info)
+
 
 Main_quest_2 = QuestCreator(quest_name="Main Quest 2", quest_description="Main Quest 2 Description", quest_type_id=1)
 rewards_info = [
@@ -258,10 +260,22 @@ items_info = {
     ]
 }
 
-Main_quest_2.create_full_quest(rewards_info, items_info)
 
-
-
+if __name__ == "__main__":
+    check_and_initialize_database()
+    delete_all_data()
+    populate_database()
+    
+    create_QuestTypes()
+    create_items()
+    create_inventory()
+    create_inventory_items()
+    create_level_requirements()
+    
+    Main_quest_1.create_full_quest(rewards_info, items_info)
+    Main_quest_2.create_full_quest(rewards_info, items_info)
+    
+    create_test_game_for_admin()
         
         
 

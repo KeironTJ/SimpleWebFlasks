@@ -12,7 +12,7 @@ class GameCreation:
 
     def create_game(self) -> TestGame:
         """Creates a new TestGame instance."""
-        test_game = TestGame(user_id=self.user_id, game_name=self.game_name)
+        test_game = TestGame(user_id=self.user_id, game_name=self.game_name )
         db.session.add(test_game)
         return test_game
 
@@ -27,7 +27,16 @@ class GameCreation:
         for quest in quests:
             quest_progress = TestGameQuestProgress(game_id=game_id, quest_id=quest.id)
             db.session.add(quest_progress)
+            
+    # function to reutn TestGame instance
+    def get_test_game(self) -> TestGame:
+        """Retrieves the TestGame instance or raises an error if not found."""
+        test_game = TestGame.query.get(self.user_id)
+        if test_game is None:
+            raise ValueError(f"TestGame with ID {self.user_id} not found.")
+        return test_game        
     
+
     
         
 

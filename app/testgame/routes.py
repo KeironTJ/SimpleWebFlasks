@@ -20,12 +20,15 @@ def tg_startmenu():
     if request.method == 'POST' and newgameform.newgame_button.data:
         
         game_name = newgameform.game_name.data
+        
         service = GameCreation(user_id=current_user.id, game_name=game_name)
         game = service.create_game()
         db.session.commit()
+        
         service.set_active_game(game.id)
         service.assign_all_quests(game.id)
         db.session.commit()
+        
         game_id = game.id
         
         

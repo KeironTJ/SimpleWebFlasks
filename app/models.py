@@ -129,11 +129,11 @@ class TestGame(db.Model):
     
     # Basic game information
     game_name = db.Column(db.String(64))
-    game_exists = db.Column(db.Boolean, default=False)
+    game_exists = db.Column(db.Boolean, default=True)
     entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     xp = db.Column(db.Integer, default=0)
-    level = db.Column(db.Integer, default=1)
-    cash = db.Column(db.Float, default=5000)
+    level = db.Column(db.Integer, default=0)
+    cash = db.Column(db.Float, default=0)
     
     # create relationships
     test_game_cash_logs = db.relationship("TestGameCashLog", back_populates="testgame")
