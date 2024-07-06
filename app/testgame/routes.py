@@ -1,8 +1,9 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.models import User, db, TestGame
+from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
 from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm
-from app.testgame.game_logic import GameService
+from app.testgame.game_logic import GameService, GameCreation
 import sqlalchemy as sa
 
 from app.testgame import bp
@@ -17,18 +18,17 @@ def tg_startmenu():
     numberofgames = TestGame.query.filter_by(user_id=current_user.id).count()
        
     if request.method == 'POST' and newgameform.newgame_button.data:
-        new_game = TestGame(user_id=current_user.id, 
-                            game_name=newgameform.game_name.data,
-                            game_exists=True)        
-
-        db.session.add(new_game)
+        
+        game_name = newgameform.game_name.data
+        service = GameCreation(user_id=current_user.id, game_name=game_name)
+        game = service.create_game()
         db.session.commit()
-
-        current_user.activetestgame = new_game.id
+        service.set_active_game(game.id)
+        service.assign_all_quests(game.id)
         db.session.commit()
-        flash('New Game Created')
-
-        game_id = new_game.id
+        game_id = game.id
+        
+        
 
         return redirect(url_for('testgame.tg_play', game_id=game_id))
     
@@ -87,3 +87,16 @@ def tg_play(game_id):
     
 
 
+# Route to display quests
+@bp.route('/tg_display_quests/<game_id>', methods=['GET', 'POST'])
+@login_required
+def tg_display_quests(game_id):
+    
+    # Query for testgame quest progress
+    game = TestGame.query.filter_by(id=game_id).first()
+    quests = TestGameQuestProgress.query.filter_by(game_id=game_id).all()
+    
+    return render_template("testgame/tg_display_quests.html", 
+                           title='Test Game - Quests',
+                           game=game,
+                           quests=quests)

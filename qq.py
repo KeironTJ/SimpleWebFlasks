@@ -8,8 +8,10 @@ from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy.sql import text
 from app.models import db, Role, User
 from app.models import TestGame
-from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,RewardItemAssociation
+from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,RewardItemAssociation, TestGameQuestProgress
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems
+from app.models import TestGameLevelRequirements
+from app.testgame.game_logic import GameCreation, GameService
 
 app = create_app()
 app_context = app.app_context()
@@ -122,10 +124,18 @@ def create_level_requirements():
     db.session.commit()
     print("Level Requirements Created")
 
+def create_test_game_for_admin():
+    test_game = TestGame(user_id=1, game_name="Test Game 1")
+    db.session.add(test_game)
+    db.session.commit()
+    print("Test Game Created")
+    
+
     
     
     
 def delete_all_data():
+    db.session.query(TestGameQuestProgress).delete()
     db.session.query(TestGameInventoryItems).delete()
     db.session.query(TestGameInventory).delete()
     db.session.query(TestGameItem).delete()
@@ -133,6 +143,10 @@ def delete_all_data():
     db.session.query(TestGameQuest).delete()
     db.session.query(TestGameQuestType).delete()
     db.session.query(RewardItemAssociation).delete()    
+    db.session.query(TestGameLevelRequirements).delete()
+    db.session.query(TestGame).delete()
+
+
     db.session.commit()
     print("All data deleted")
 
@@ -141,10 +155,13 @@ if __name__ == "__main__":
     check_and_initialize_database()
     delete_all_data()
     populate_database()
+    
     create_QuestTypes()
     create_items()
     create_inventory()
     create_inventory_items()
+    
+    create_test_game_for_admin()
     
  
 class QuestCreator:

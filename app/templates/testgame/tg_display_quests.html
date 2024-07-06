@@ -1,0 +1,19 @@
+{% extends "testgame/tg_base.html" %}
+
+{% block content2 %}
+
+
+
+<div>
+	<h2>Quests in Progress</h2>
+	<p>Here are the quests you have in progress:</p>
+	<ul>
+		{% for quest in quests %}
+			<li> {{ quest.quest_quest.quest_name }} - {{ quest.quest_quest.quest_description }} - Progress = {{ quest.quest_progress }} - Active = {{ quest.quest_active }} - Completed = {{ quest.quest_completed }} </li>
+		{% endfor %}
+	</ul>
+	</div>
+
+
+
+{% endblock content2 %}
