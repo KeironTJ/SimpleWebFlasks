@@ -2,30 +2,52 @@
 
 {% block content2 %}
 
-<p>Lets add some free xp!</p>>
+<!-- TEST GAME HOME SCREEN -->
+
+<div>
+    <p> Some Test </p>
+
+    <!-- Section for all game CARDS that will show an image icon, level and name and description -->
+        <div class="gamecard">
+            <p>QUEST BUILDING</p>
+            <p>QUEST ICON</p>
+            <p>QUEST DESCRIPTION</p>
+            <p>QUEST LEVEL</p>
+        </div>
+
+        <div class="gamecard">
+            <p>INVENTORY BUILDING</p>
+            <p>INVENTORY ICON</p>
+            <p>INVENTORY DESCRIPTION</p>
+            <p>INVENTORY LEVEL</p>
+        </div>
+</div>
 
 
-<form action="" method="post">
+<!-- TESTING FORMS TO ALLOW XP AND CASH ADDITION -->
+ <div>
+    <form action="" method="post">
 
-    {{ addxpform.hidden_tag() }}
+        {{ addxpform.hidden_tag() }}
 
-    <p>{{ addxpform.xp.label }}</p>
-    <p>{{ addxpform.xp(size=1) }}</p>
+        <p>{{ addxpform.xp.label }}</p>
+        <p>{{ addxpform.xp(size=1) }}</p>
 
-    <p>{{ addxpform.addxp_button() }}</p>
+        <p>{{ addxpform.addxp_button() }}</p>
 
-</form>
+    </form>
 
-<form action="" method="post">
+    <form action="" method="post">
 
-    {{ addcashform.hidden_tag() }}
+        {{ addcashform.hidden_tag() }}
 
-    <p>{{ addcashform.cash.label }}</p>
-    <p>{{ addcashform.cash(size=1) }}</p>
+        <p>{{ addcashform.cash.label }}</p>
+        <p>{{ addcashform.cash(size=1) }}</p>
 
-    <p>{{ addcashform.addcash_button() }}</p>
+        <p>{{ addcashform.addcash_button() }}</p>
 
+    </form>
 
-
+</div>
 
 {% endblock content2 %}

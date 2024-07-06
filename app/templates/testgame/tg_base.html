@@ -6,6 +6,8 @@
 
 <hr>
 
+
+
 <div style="display: flex; justify-content: space-around;">
     <p>{{game.user.username}}</p>
     <p>XP: {{ game.xp }}</p>
@@ -17,8 +19,12 @@
 <hr>
 
 <!-- Link for Quests -->
-<a href="{{ url_for('testgame.tg_display_quests',game_id=game.id) }}">Quests</a>
-<a href="{{ url_for('testgame.tg_display_inventory', game_id=game.id) }}"> Inventory </a>
+<div>
+    <a href="{{ url_for('testgame.tg_display_quests',game_id=game.id) }}">Quests</a>
+    <a href="{{ url_for('testgame.tg_display_inventory', game_id=game.id) }}"> Inventory </a>
+</div>
+
+<hr>
 
 
 {% block content2 %}  {% endblock content2 %}
