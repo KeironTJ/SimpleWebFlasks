@@ -12,7 +12,7 @@
             <li> {{ inventory.id }} </li>
             <ul>
                 {% for item in inventory.inventory_items %}
-                <li> {{ item.item.item_name }} - {{ item.item.item_description }} - Quantity = {{ item.item_quantity }} </li>
+                <li> {{ item.item.item_name }} - {{ item.item.item_description }} - Quantity = {{ item.quantity }} </li>
                 {% endfor %}
             </ul>
             

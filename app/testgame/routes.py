@@ -94,28 +94,41 @@ def tg_play(game_id):
 
 
 # Route to display quests
-@bp.route('/tg_display_quests/<game_id>', methods=['GET', 'POST'])
+@bp.route('/tg_building_quests/<game_id>', methods=['GET', 'POST'])
 @login_required
-def tg_display_quests(game_id):
+def tg_building_quests(game_id):
     
     # Query for testgame quest progress
     game = TestGame.query.filter_by(id=game_id).first()
     quests = TestGameQuestProgress.query.filter_by(game_id=game_id).all()
     
-    return render_template("testgame/tg_display_quests.html", 
+    return render_template("testgame/buildings/tg_building_quests.html", 
                            title='Test Game - Quests',
                            game=game,
                            quests=quests)
 
 # Route to display inventory
-@bp.route('/tg_display_inventory/<game_id>', methods=['GET', 'POST'])
+@bp.route('/tg_building_inventory/<game_id>', methods=['GET', 'POST'])
 @login_required
-def tg_display_inventory(game_id):
+def tg_building_inventory(game_id):
     # Query for testgame inventory items
     game = TestGame.query.filter_by(id=game_id).first()
     inventories = TestGameInventory.query.filter_by(game_id=game_id).all()
     
-    return render_template("testgame/tg_display_inventory.html",
+    return render_template("testgame/buildings/tg_building_inventory.html",
                            title='Test Game - Inventory',
                             game=game,
                             inventories=inventories)
+
+
+# Route to display farm
+@bp.route('/tg_building_farm/<game_id>', methods=['GET', 'POST'])
+@login_required
+def tg_building_farm(game_id):
+    # Query for testgame inventory items
+    game = TestGame.query.filter_by(id=game_id).first()
+
+    
+    return render_template("testgame/buildings/tg_building_farm.html",
+                           title='Test Game - Farm',
+                            game=game)

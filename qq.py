@@ -12,24 +12,14 @@ from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,Re
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems
 from app.models import TestGameLevelRequirements
 from app.models import TestGameCashLog, TestGameXPLog
-from app.models import TestGameBuildings, TestGameBuildingProgress
+from app.models import TestGameBuildings, TestGameBuildingProgress, TestGameBuildingProgress, TestGameBuildingRequirements
 from app.testgame.game_logic import GameCreation, GameService
 
 app = create_app()
 app_context = app.app_context()
 app_context.push()
 
-
-# Check if the database exist. If not create the database
-def check_and_initialize_database():
-    if os.path.exists("app.db"):
-        print("Database already exists")
-    else:
-        print("Database does not exist. Creating database")
-
-
-        
-
+     
 # Add roles and users to the database
 def add_role(role_name):
     """Add a role to the database."""
@@ -54,7 +44,6 @@ def add_user(username, email, password, role_name):
         if role:
             user.role.append(role)
         db.session.add(user)
-        db.session.commit()
         try:
             db.session.commit()
             print(f"Added user: {username}")
@@ -102,26 +91,6 @@ def create_inventory():
     db.session.commit()
     print("Inventories Created")
     
-def create_items():
-    item1 = TestGameItem(item_name="Item 1", item_description="Item 1 Description")
-    item2 = TestGameItem(item_name="Item 2", item_description="Item 2 Description")
-    item3 = TestGameItem(item_name="Item 3", item_description="Item 3 Description")
-    db.session.add(item1)
-    db.session.add(item2)
-    db.session.add(item3)
-    db.session.commit()
-    print("Items Created")
-    
-def create_inventory_items():
-    inventory_item1 = TestGameInventoryItems(inventory_id=1, item_id=1, quantity=1)
-    inventory_item2 = TestGameInventoryItems(inventory_id=1, item_id=2, quantity=2)
-    inventory_item3 = TestGameInventoryItems(inventory_id=2, item_id=3, quantity=3)
-    db.session.add(inventory_item1)
-    db.session.add(inventory_item2)
-    db.session.add(inventory_item3)
-    db.session.commit()
-    print("Inventory Items Created")
-    
 def create_level_requirements():
     level_requirement1 = TestGameLevelRequirements(level = 1, xp_required = 100)
     level_requirement2 = TestGameLevelRequirements(level = 2, xp_required = 200)
@@ -146,31 +115,172 @@ def create_test_game_for_admin():
     db.session.commit()
     
 
-def create_test_game_buildings():
-    building1 = TestGameBuildings(building_name="Quests Building", building_description="View All Quests", building_link="testgame.tg_display_quests")
-    building2 = TestGameBuildings(building_name="Warehouse", building_description="View Inventory", building_link="testgame.tg_display_inventory")
-    db.session.add(building1)
-    db.session.add(building2)
-    db.session.commit()
-    print("Buildings Created")  
+## Item Creator Class
+class ItemCreator:
+    def __init__(self, item_name, item_description):
+        self.item_name = item_name
+        self.item_description = item_description
+        self.item = None  # Placeholder for the created item object
+
+    def create_item(self):
+        try:
+            self.item = TestGameItem(item_name=self.item_name, item_description=self.item_description)
+            db.session.add(self.item)
+            db.session.commit()
+            print("Item Created")
+            return self.item
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to create item: {e}")
+
+    def create_inventory_item(self, inventory_id, quantity):
+        if self.item is None:
+            print("Item must be created before adding to inventory.")
+            return
+        try:
+            inventory_item = TestGameInventoryItems(inventory_id=inventory_id, item_id=self.item.id, quantity=quantity)
+            db.session.add(inventory_item)
+            db.session.commit()
+            print("Inventory Item Created")
+            return inventory_item
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to create inventory item: {e}")
+
+    def create_full_item(self, inventory_id, quantity):
+        """
+        Create an item and add it to an inventory.
+        
+        :param inventory_id: The id of the inventory to add the item to.
+        :param quantity: The quantity of the item in the inventory.
+        """
+        self.create_item()
+        self.create_inventory_item(inventory_id, quantity)
     
-def create_test_game_building_progress():
-    building_progress1 = TestGameBuildingProgress(game_id=1, building_id=1, building_level=1, building_active=True)
-    building_progress2 = TestGameBuildingProgress(game_id=1, building_id=2, building_level=1, building_active=True)
-    db.session.add(building_progress1)
-    db.session.add(building_progress2)
-    db.session.commit()
-    print("Building Progress Created")
+# Example usage
+item1 = ItemCreator(item_name="Sword", item_description="A sharp sword")
+item2 = ItemCreator(item_name="Shield", item_description="A sturdy shield")
+item3 = ItemCreator(item_name="Potion", item_description="A healing potion")
+
+
+
+## Building Creator Class
+# Class creates building and building requirements and then building progress
+class BuildingCreator:
+    def __init__(self, building_name, building_description, building_link):
+        self.building_name = building_name
+        self.building_description = building_description
+        self.building_link = building_link
+        self.building = None  # Placeholder for the created building object
+
+    def create_building(self):
+        try:
+            self.building = TestGameBuildings(building_name=self.building_name, 
+                                              building_description=self.building_description, 
+                                              building_link=self.building_link)
+            db.session.add(self.building)
+            db.session.commit()
+            print("Building Created")
+            return self.building
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to create building: {e}")
+
+    def create_building_requirements(self, building_level, level_required, cash_required):
+        if self.building is None:
+            print("Building must be created before adding requirements.")
+            return
+        try:
+            building_requirement = TestGameBuildingRequirements(building_building=self.building, 
+                                                                building_level=building_level,
+                                                                level_required=level_required,
+                                                                cash_required=cash_required
+                                                                )
+            db.session.add(building_requirement)
+            db.session.commit()
+            print("Building Requirement Created")
+            return building_requirement
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to create building requirement: {e}")
+
+    def create_building_progress(self, building_progress, building_level, building_active):
+        if self.building is None:
+            print("Building must be created before adding progress.")
+            return
+        try:
+            building_progress = TestGameBuildingProgress(building_building=self.building,
+                                                         building_progress=building_progress,
+                                                         building_level=building_level,
+                                                         building_active=building_active,
+                                                         building_date_active=None
+                                                         )
+  
+            db.session.add(building_progress)
+            db.session.commit()
+            print("Building Progress Created")
+            return building_progress
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to create building progress: {e}")
+
+    def create_full_building(self, requirements_info, progress_info):
+        """
+        Create a building with requirements and progress.
+        
+        :param requirements_info: List of dictionaries with requirement details.
+        :param progress_info: List of dictionaries with progress details.
+        """
+        self.create_building()
+        for requirement_info in requirements_info:
+            self.create_building_requirements(**requirement_info)
+        for progress_info in progress_info:
+            self.create_building_progress(**progress_info)
+        
+# Example usage
+QuestBuilding = BuildingCreator(building_name="Quest Building", building_description="Building for quests", building_link="testgame.tg_building_quest")
+
+requirements_info = [
+    {"building_level": 1, "level_required": 1, "cash_required": 100},
+    {"building_level": 2, "level_required": 2, "cash_required": 200}
+    ]
+progress_info = [
+    {"building_progress": 0, "building_level": 1, "building_active": False},
+    {"building_progress": 0, "building_level": 2, "building_active": False}
+    ]
     
+
+WarehouseBuilding = BuildingCreator(building_name="Warehouse Building", building_description="Building for storage", building_link="testgame.tg_building_inventory")
+
+requirements_info = [
+    {"building_level": 1, "level_required": 1, "cash_required": 100},
+    {"building_level": 2, "level_required": 2, "cash_required": 200}
+    ]
+progress_info = [
+    {"building_progress": 0, "building_level": 1, "building_active": False},
+    {"building_progress": 0, "building_level": 2, "building_active": False}
+    ]
+    
+FarmBuilding = BuildingCreator(building_name="Farm Building", building_description="Building for farming", building_link="testgame.tg_building_farm")
+
+requirements_info = [
+    {"building_level": 1, "level_required": 1, "cash_required": 100},
+    {"building_level": 2, "level_required": 2, "cash_required": 200}
+    ]
+progress_info = [
+    {"building_progress": 0, "building_level": 1, "building_active": False},
+    {"building_progress": 0, "building_level": 2, "building_active": False}
+    ]
+    
+
+
+
+
+
 
     
     
-    
-
-
-    
-    
- 
+ ## Quest Creator Class   
 class QuestCreator:
     def __init__(self, quest_name, quest_description, quest_type_id):
         self.quest_name = quest_name
@@ -290,22 +400,29 @@ def delete_all_data():
 
 
 if __name__ == "__main__":
-    check_and_initialize_database()
     delete_all_data()
     populate_database()
     
     create_QuestTypes()
-    create_items()
     create_inventory()
-    create_inventory_items()
     create_level_requirements()
     
-    create_test_game_buildings()
-    create_test_game_building_progress()
-   
+    # Create buildings, requirements progress
+    QuestBuilding.create_full_building(requirements_info, progress_info)
+    WarehouseBuilding.create_full_building(requirements_info, progress_info)
+    FarmBuilding.create_full_building(requirements_info, progress_info) 
     
+    # Create quests, rewards, and reward item associations
     Main_quest_1.create_full_quest(rewards_info, items_info)
     Main_quest_2.create_full_quest(rewards_info, items_info)
+    
+    # Create items and inventory items
+    item1.create_full_item(inventory_id=1, quantity=1)
+    item2.create_full_item(inventory_id=1, quantity=2)
+    item3.create_full_item(inventory_id=2, quantity=3)
+    
+    
+
     
     create_test_game_for_admin()
         

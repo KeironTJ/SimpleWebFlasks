@@ -364,12 +364,12 @@ class TestGameBuildings(db.Model):
     # Building details
     building_name = db.Column(db.String(64))
     building_description = db.Column(db.String(256))
-    
     building_link = db.Column(db.String(256))
     
     
     # Relationships
     building_progress = db.relationship("TestGameBuildingProgress", back_populates="building_building")
+    building_requirements = db.relationship("TestGameBuildingRequirements", back_populates="building_building")
     
 class TestGameBuildingProgress(db.Model):
     __tablename__ = 'test_game_building_progress'
@@ -391,6 +391,23 @@ class TestGameBuildingProgress(db.Model):
     building_building = db.relationship("TestGameBuildings", back_populates="building_progress")
     building_game = db.relationship("TestGame", back_populates="building_progress")
     
+# Model to store building requirements
+class TestGameBuildingRequirements(db.Model):
+    __tablename__ = 'test_game_building_requirements'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    building_id = db.Column(db.Integer, db.ForeignKey('test_game_buildings.id'))
+    
+    # Building requirements
+    building_level = db.Column(db.Integer)
+    level_required = db.Column(db.Integer)
+    cash_required = db.Column(db.Float)
+    
+    # Relationships
+    building_building = db.relationship("TestGameBuildings", back_populates="building_requirements")  
     
     
 
