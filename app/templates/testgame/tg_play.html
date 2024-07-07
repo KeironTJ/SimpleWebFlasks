@@ -2,52 +2,38 @@
 
 {% block content2 %}
 
-<!-- TEST GAME HOME SCREEN -->
-
-<div>
-    <p> Some Test </p>
-
-    <!-- Section for all game CARDS that will show an image icon, level and name and description -->
-        <div class="gamecard">
-            <p>QUEST BUILDING</p>
-            <p>QUEST ICON</p>
-            <p>QUEST DESCRIPTION</p>
-            <p>QUEST LEVEL</p>
+<div class="container mt-3">
+    <div class="row">
+        {% for building in game.building_progress %}
+        <div class="col-md-4 mb-4">
+            <!-- Wrap the card with an <a> tag -->
+            <a href="{{  url_for(building.building_building.building_link, game_id=game.id) }}" class="card-link">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ building.building_building.building_name }}</h5>
+                        <p class="card-text">{{ building.building_building.building_description }}</p>
+                        <p class="card-text">Level: {{ building.building_level }}</p>
+                    </div>
+                </div>
+            </a>
         </div>
-
-        <div class="gamecard">
-            <p>INVENTORY BUILDING</p>
-            <p>INVENTORY ICON</p>
-            <p>INVENTORY DESCRIPTION</p>
-            <p>INVENTORY LEVEL</p>
-        </div>
+        {% if loop.index % 3 == 0 %}
+    </div><div class="row">
+        {% endif %}
+        {% endfor %}
+    </div>
 </div>
 
-
-<!-- TESTING FORMS TO ALLOW XP AND CASH ADDITION -->
- <div>
+<div>
     <form action="" method="post">
-
         {{ addxpform.hidden_tag() }}
-
-        <p>{{ addxpform.xp.label }}</p>
-        <p>{{ addxpform.xp(size=1) }}</p>
-
-        <p>{{ addxpform.addxp_button() }}</p>
-
+        <p>{{ addxpform.xp.label }} - {{ addxpform.xp }} - {{ addxpform.addxp_button() }}</p>
     </form>
 
     <form action="" method="post">
-
         {{ addcashform.hidden_tag() }}
-
-        <p>{{ addcashform.cash.label }}</p>
-        <p>{{ addcashform.cash(size=1) }}</p>
-
-        <p>{{ addcashform.addcash_button() }}</p>
-
+        <p>{{ addcashform.cash.label }} - {{ addxpform.cash}} - {{ addcashform.addcash_button() }}</p>
     </form>
-
 </div>
 
 {% endblock content2 %}

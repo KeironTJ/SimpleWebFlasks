@@ -141,6 +141,7 @@ class TestGame(db.Model):
     user = db.relationship("User", back_populates="test_game")
     inventories = db.relationship('TestGameInventory', backref='game', lazy=True, cascade="all, delete-orphan")
     quest_progress = db.relationship("TestGameQuestProgress", back_populates="quest_game")
+    building_progress = db.relationship("TestGameBuildingProgress", back_populates="building_game")
     
     
 
@@ -350,3 +351,47 @@ class TestGameCashLog(db.Model):
 
     # Relationships
     testgame = db.relationship("TestGame", back_populates="test_game_cash_logs")
+    
+
+## TEST GAME BUILDING MODELS
+# Model to store building details
+class TestGameBuildings(db.Model):
+    __tablename__ = 'test_game_buildings'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Building details
+    building_name = db.Column(db.String(64))
+    building_description = db.Column(db.String(256))
+    
+    building_link = db.Column(db.String(256))
+    
+    
+    # Relationships
+    building_progress = db.relationship("TestGameBuildingProgress", back_populates="building_building")
+    
+class TestGameBuildingProgress(db.Model):
+    __tablename__ = 'test_game_building_progress'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    building_id = db.Column(db.Integer, db.ForeignKey('test_game_buildings.id'))
+    game_id = db.Column(db.Integer, db.ForeignKey('test_game.id'))
+    
+    # Building progress details
+    building_progress = db.Column(db.Integer, default=0)
+    building_level = db.Column(db.Integer, default=0)
+    building_active = db.Column(db.Boolean, default=False)
+    building_date_active = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    building_building = db.relationship("TestGameBuildings", back_populates="building_progress")
+    building_game = db.relationship("TestGame", back_populates="building_progress")
+    
+    
+    
+
+    

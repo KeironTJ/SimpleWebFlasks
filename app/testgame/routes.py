@@ -2,6 +2,7 @@ from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.models import User, db, TestGame, TestGameInventory, TestGameInventoryItems
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
+from app.models import TestGameBuildingProgress, TestGameBuildings
 from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm
 from app.testgame.game_logic import GameService, GameCreation
 import sqlalchemy as sa
@@ -64,6 +65,8 @@ def tg_play(game_id):
 
     # Database Queries
     game = TestGame.query.filter_by(id=game_id).first()
+
+    
 
     if request.method == 'POST' and addxpform.addxp_button.data:
         xp = addxpform.xp.data

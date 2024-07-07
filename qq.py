@@ -12,18 +12,25 @@ from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,Re
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems
 from app.models import TestGameLevelRequirements
 from app.models import TestGameCashLog, TestGameXPLog
+from app.models import TestGameBuildings, TestGameBuildingProgress
 from app.testgame.game_logic import GameCreation, GameService
 
 app = create_app()
 app_context = app.app_context()
 app_context.push()
 
+
+# Check if the database exist. If not create the database
 def check_and_initialize_database():
     if os.path.exists("app.db"):
         print("Database already exists")
     else:
         print("Database does not exist. Creating database")
 
+
+        
+
+# Add roles and users to the database
 def add_role(role_name):
     """Add a role to the database."""
     role = Role.query.filter_by(name=role_name).first()
@@ -137,30 +144,28 @@ def create_test_game_for_admin():
     service.assign_all_quests(game_id)
     service.set_active_game(game_id)
     db.session.commit()
-
     
-    
-    
-def delete_all_data():
-    db.session.query(User).delete()
-    db.session.query(Role).delete()
-    db.session.query(TestGameQuestProgress).delete()
-    db.session.query(TestGameInventoryItems).delete()
-    db.session.query(TestGameInventory).delete()
-    db.session.query(TestGameItem).delete()
-    db.session.query(TestGameQuestRewards).delete()
-    db.session.query(TestGameQuest).delete()
-    db.session.query(TestGameQuestType).delete()
-    db.session.query(RewardItemAssociation).delete()    
-    db.session.query(TestGameLevelRequirements).delete()
-    db.session.query(TestGame).delete()
-    db.session.query(TestGameCashLog).delete()
-    db.session.query(TestGameXPLog).delete()
 
-
+def create_test_game_buildings():
+    building1 = TestGameBuildings(building_name="Quests Building", building_description="View All Quests", building_link="testgame.tg_display_quests")
+    building2 = TestGameBuildings(building_name="Warehouse", building_description="View Inventory", building_link="testgame.tg_display_inventory")
+    db.session.add(building1)
+    db.session.add(building2)
     db.session.commit()
-    print("All data deleted")
+    print("Buildings Created")  
+    
+def create_test_game_building_progress():
+    building_progress1 = TestGameBuildingProgress(game_id=1, building_id=1, building_level=1, building_active=True)
+    building_progress2 = TestGameBuildingProgress(game_id=1, building_id=2, building_level=1, building_active=True)
+    db.session.add(building_progress1)
+    db.session.add(building_progress2)
+    db.session.commit()
+    print("Building Progress Created")
+    
 
+    
+    
+    
 
 
     
@@ -260,6 +265,29 @@ items_info = {
     ]
 }
 
+def delete_all_data():
+    db.session.query(User).delete()
+    db.session.query(Role).delete()
+    db.session.query(TestGameQuestProgress).delete()
+    db.session.query(TestGameInventoryItems).delete()
+    db.session.query(TestGameInventory).delete()
+    db.session.query(TestGameItem).delete()
+    db.session.query(TestGameQuestRewards).delete()
+    db.session.query(TestGameQuest).delete()
+    db.session.query(TestGameQuestType).delete()
+    db.session.query(RewardItemAssociation).delete()    
+    db.session.query(TestGameLevelRequirements).delete()
+    db.session.query(TestGame).delete()
+    db.session.query(TestGameCashLog).delete()
+    db.session.query(TestGameXPLog).delete()
+    db.session.query(TestGameBuildings).delete()
+    db.session.query(TestGameBuildingProgress).delete()
+    
+
+    db.session.commit()
+    print("All data deleted")
+
+
 
 if __name__ == "__main__":
     check_and_initialize_database()
@@ -271,6 +299,10 @@ if __name__ == "__main__":
     create_inventory()
     create_inventory_items()
     create_level_requirements()
+    
+    create_test_game_buildings()
+    create_test_game_building_progress()
+   
     
     Main_quest_1.create_full_quest(rewards_info, items_info)
     Main_quest_2.create_full_quest(rewards_info, items_info)
