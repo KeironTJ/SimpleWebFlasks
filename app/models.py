@@ -386,7 +386,6 @@ class TestGameBuildings(db.Model):
     # Relationships
     building_type = db.relationship("TestGameBuildingType", back_populates="building")
     building_progress = db.relationship("TestGameBuildingProgress", back_populates="building")
-    building_requirements = db.relationship("TestGameBuildingRequirements", back_populates="building")
 
 
 
@@ -405,6 +404,13 @@ class TestGameBuildingProgress(db.Model):
     # Building progress details
     building_level = db.Column(db.Integer, default=1)
     building_active = db.Column(db.Boolean, default=False)
+    
+    base_building_cash_required = db.Column(db.Float, default=0)
+    base_building_level_required = db.Column(db.Integer, default=0)
+    
+    cash_per_hour = db.Column(db.Float, default=0)
+    
+
     building_completed = db.Column(db.Boolean, default=False)
     building_completed_date = db.Column(db.DateTime, nullable=True)
 
@@ -412,22 +418,3 @@ class TestGameBuildingProgress(db.Model):
     building = db.relationship("TestGameBuildings", back_populates="building_progress")
     game = db.relationship("TestGame", back_populates="building_progress")
 
-
-
-# Model to store building requirements
-class TestGameBuildingRequirements(db.Model):
-    __tablename__ = 'test_game_building_requirements'
-
-    # Primary key
-    id = db.Column(db.Integer, primary_key=True)
-
-    # Foreign keys
-    building_id = db.Column(db.Integer, db.ForeignKey('test_game_buildings.id'))
-
-    # Building requirements
-    building_level = db.Column(db.Integer)
-    user_level_required = db.Column(db.Integer)
-    user_cash_required = db.Column(db.Float)
-
-    # Relationships
-    building = db.relationship("TestGameBuildings", back_populates="building_requirements")

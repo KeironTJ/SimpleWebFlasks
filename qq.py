@@ -12,7 +12,7 @@ from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,Re
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems
 from app.models import TestGameLevelRequirements
 from app.models import TestGameCashLog, TestGameXPLog
-from app.models import TestGameBuildings, TestGameBuildingProgress, TestGameBuildingRequirements, TestGameBuildingType
+from app.models import TestGameBuildings, TestGameBuildingProgress, TestGameBuildingType
 from app.testgame.game_logic import GameCreation, GameService
 
 app = create_app()
@@ -110,9 +110,10 @@ def create_test_game_for_admin():
     
     game_id = test_game.id
     
-    service.assign_all_quests(game_id)
-    service.set_active_game(game_id)
+    service.create_all_startup(game_id)
     db.session.commit()
+    
+    
     
 
 ## Item Creator Class
@@ -173,22 +174,18 @@ def create_building_types():
     print("Building Types Created")
 
 ## Building Creator Class
-# A class to independently create a building logic. independant method to create a building type, and individual method to create a building and then assign requirements to the building.
+# Class to create buildings, no building requirements or progress
 class BuildingCreator:
-    def __init__(self,building_type_id,  building_name, building_description, building_link):
-        self.building_type_id = building_type_id
+    def __init__(self, building_name, building_description, building_type_id, building_link):
         self.building_name = building_name
         self.building_description = building_description
+        self.building_type_id = building_type_id
         self.building_link = building_link
         self.building = None  # Placeholder for the created building object
 
     def create_building(self):
         try:
-            self.building = TestGameBuildings(building_type_id=self.building_type_id,
-                                              building_name=self.building_name, 
-                                              building_description=self.building_description, 
-                                              building_link=self.building_link
-                                              )
+            self.building = TestGameBuildings(building_name=self.building_name, building_description=self.building_description, building_type_id=self.building_type_id, building_link=self.building_link)
             db.session.add(self.building)
             db.session.commit()
             print("Building Created")
@@ -196,68 +193,13 @@ class BuildingCreator:
         except Exception as e:
             db.session.rollback()
             print(f"Failed to create building: {e}")
-
-    def create_building_requirements(self, building_level, user_level_required, user_cash_required):
-        if self.building is None:
-            print("Building must be created before adding requirements.")
-            return
-        try:
-            building_requirement = TestGameBuildingRequirements(building=self.building, 
-                                                                building_level=building_level, 
-                                                                user_level_required=user_level_required, 
-                                                                user_cash_required=user_cash_required)
-
-            db.session.add(building_requirement)
-            db.session.commit()
-            print("Building Requirement Created")
-            return building_requirement
-        except Exception as e:
-            db.session.rollback()
-            print(f"Failed to create building requirement: {e}")
-
-    def create_full_building(self, requirements_info):
-        """
-        Create a building with requirements.
-        
-        :param requirements_info: List of dictionaries with requirement details.
-        """
-        self.create_building()
-        for requirement_info in requirements_info:
-            self.create_building_requirements(**requirement_info)
-
+            
 # Example usage
-building1 = BuildingCreator(building_type_id=1, 
-                            building_name="Quest Building", 
-                            building_description="Building to display quests", 
-                            building_link="testgame.tg_building_quests")
+quest_building = BuildingCreator(building_name="Quest Building", building_description="View All Quests", building_type_id=1, building_link="testgame.tg_building_quests") 
+inventory_building = BuildingCreator(building_name="Inventory Building", building_description="View Inventory", building_type_id=2, building_link="testgame.tg_building_inventory")
+farm_building = BuildingCreator(building_name="Farm", building_description="Collect Cash", building_type_id=3, building_link="testgame.tg_building_farm")    
+    
 
-requirements_info = [
-    {"building_level": 1, "user_level_required": 1, "user_cash_required": 0},
-    {"building_level": 2, "user_level_required": 2, "user_cash_required": 100},
-    {"building_level": 3, "user_level_required": 3, "user_cash_required": 200},
-]
-
-building2 = BuildingCreator(building_type_id=2, 
-                            building_name="Inventory Building", 
-                            building_description="Building to display inventory", 
-                            building_link="testgame.tg_building_inventory")
-
-requirements_info = [
-    {"building_level": 1, "user_level_required": 1, "user_cash_required": 0},
-    {"building_level": 2, "user_level_required": 2, "user_cash_required": 100},
-    {"building_level": 3, "user_level_required": 3, "user_cash_required": 200}
-]
-
-building3 = BuildingCreator(building_type_id=3, 
-                            building_name="Farm", 
-                            building_description="Building to collect cash", 
-                            building_link="testgame.tg_building_farm")
-
-requirements_info = [
-    {"building_level": 1, "user_level_required": 1, "user_cash_required": 0},
-    {"building_level": 2, "user_level_required": 2, "user_cash_required": 100},
-    {"building_level": 3, "user_level_required": 3, "user_cash_required": 200}
-]
 
 
 # Class to assign all buildings to admin
@@ -269,7 +211,14 @@ class BuildingAssigner:
 
     def assign_all_buildings(self):
         for building in self.buildings:
-            building_progress = TestGameBuildingProgress(game_id=self.game_id, building_id=building.id, building_level=1)
+            
+            if building.building_type_id == 3:
+                building_progress = TestGameBuildingProgress(game_id=self.game_id, building_id=building.id, building_level=1, cash_per_hour=1000)
+            else:
+                building_progress = TestGameBuildingProgress(game_id=self.game_id, building_id=building.id, building_level=1)
+            
+            
+                
             db.session.add(building_progress)
         db.session.commit()
         print("All Buildings Assigned")
@@ -386,7 +335,6 @@ def delete_all_data():
     db.session.query(TestGameCashLog).delete()
     db.session.query(TestGameXPLog).delete()
     db.session.query(TestGameBuildingProgress).delete()
-    db.session.query(TestGameBuildingRequirements).delete()
     db.session.query(TestGameBuildings).delete()
     db.session.query(TestGameBuildingType).delete()
 
@@ -406,9 +354,10 @@ if __name__ == "__main__":
     
     # Create buildings, requirements progress
     create_building_types()
-    building1.create_full_building(requirements_info)
-    building2.create_full_building(requirements_info)
-    building3.create_full_building(requirements_info)
+    quest_building.create_building()
+    inventory_building.create_building()
+    farm_building.create_building()
+    
 
     # Assign all buildings to admin
     assigner = BuildingAssigner(game_id=1)

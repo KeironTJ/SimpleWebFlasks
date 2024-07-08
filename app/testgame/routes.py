@@ -67,7 +67,6 @@ def tg_play(game_id):
 
     # Database Queries
     game = TestGame.query.filter_by(id=game_id).first()
-    print(game.building_progress)
     
 
     if request.method == 'POST' and addxpform.addxp_button.data:
