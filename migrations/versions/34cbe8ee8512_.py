@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 491ad95a487d
+Revision ID: 34cbe8ee8512
 Revises: 
-Create Date: 2024-07-07 20:17:29.870617
+Create Date: 2024-07-08 13:43:06.684416
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '491ad95a487d'
+revision = '34cbe8ee8512'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -23,6 +23,12 @@ def upgrade():
     sa.Column('name', sa.String(length=50), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
+    )
+    op.create_table('test_game_building_types',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('building_type_name', sa.String(length=64), nullable=True),
+    sa.Column('building_type_description', sa.String(length=256), nullable=True),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('test_game_items',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -103,6 +109,15 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('test_game_buildings',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('building_type_id', sa.Integer(), nullable=True),
+    sa.Column('building_name', sa.String(length=64), nullable=True),
+    sa.Column('building_descriptions', sa.String(length=256), nullable=True),
+    sa.Column('building_link', sa.String(length=256), nullable=True),
+    sa.ForeignKeyConstraint(['building_type_id'], ['test_game_building_types.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('test_game_quests',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('quest_name', sa.String(length=64), nullable=True),
@@ -125,6 +140,27 @@ def upgrade():
     sa.Column('role_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('test_game_building_progress',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('building_id', sa.Integer(), nullable=True),
+    sa.Column('game_id', sa.Integer(), nullable=True),
+    sa.Column('building_level', sa.Integer(), nullable=True),
+    sa.Column('building_active', sa.Boolean(), nullable=True),
+    sa.Column('building_completed', sa.Boolean(), nullable=True),
+    sa.Column('building_completed_date', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['building_id'], ['test_game_buildings.id'], ),
+    sa.ForeignKeyConstraint(['game_id'], ['test_game.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('test_game_building_requirements',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('building_id', sa.Integer(), nullable=True),
+    sa.Column('building_level', sa.Integer(), nullable=True),
+    sa.Column('user_level_required', sa.Integer(), nullable=True),
+    sa.Column('user_cash_required', sa.Float(), nullable=True),
+    sa.ForeignKeyConstraint(['building_id'], ['test_game_buildings.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('test_game_cash_log',
@@ -217,9 +253,12 @@ def downgrade():
     op.drop_table('test_game_quest_progress')
     op.drop_table('test_game_inventory')
     op.drop_table('test_game_cash_log')
+    op.drop_table('test_game_building_requirements')
+    op.drop_table('test_game_building_progress')
     op.drop_table('user_roles')
     op.drop_table('transaction_category')
     op.drop_table('test_game_quests')
+    op.drop_table('test_game_buildings')
     op.drop_table('test_game')
     op.drop_table('gtn_settings')
     op.drop_table('gtn_history')
@@ -232,5 +271,6 @@ def downgrade():
     op.drop_table('test_game_quest_types')
     op.drop_table('test_game_level_requirements')
     op.drop_table('test_game_items')
+    op.drop_table('test_game_building_types')
     op.drop_table('roles')
     # ### end Alembic commands ###

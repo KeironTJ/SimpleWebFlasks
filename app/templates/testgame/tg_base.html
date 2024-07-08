@@ -17,11 +17,14 @@
 <hr>
 
 <!-- Link for Quests -->
-<a href="{{ url_for('testgame.tg_play', game_id=game.id) }}">Home</a> - 
-<a href="{{ url_for('testgame.tg_building_quests', game_id=game.id) }}">Quests</a> - 
-<a href="{{ url_for('testgame.tg_building_inventory', game_id=game.id) }}"> Inventory </a> - 
-<a href="{{ url_for('testgame.tg_building_farm', game_id=game.id) }}"> Farm </a>
+<div style="display: flex; justify-content: space-around;">
+    <a href="{{ url_for('testgame.tg_play', game_id=game.id) }}">Home</a> - 
+    <a href="{{ url_for('testgame.tg_building_quests', game_id=game.id) }}">Quests</a> - 
+    <a href="{{ url_for('testgame.tg_building_inventory', game_id=game.id) }}"> Inventory </a> - 
+    <a href="{{ url_for('testgame.tg_building_farm', game_id=game.id) }}"> Farm </a>
+</div>  
 
+<hr>
 
 {% block content2 %}  {% endblock content2 %}
 

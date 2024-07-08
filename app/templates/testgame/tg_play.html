@@ -7,11 +7,11 @@
         {% for building in game.building_progress %}
         <div class="col-md-4 mb-4">
             <!-- Wrap the card with an <a> tag -->
-            <a href="{{  url_for(building.building_building.building_link, game_id=game.id) }}" class="card-link">
+            <a href="{{  url_for(building.building.building_link, game_id=game.id) }}" class="card-link">
                 <div class="card">
                     <div class="card-body text-center">
-                        <h5 class="card-title">{{ building.building_building.building_name }}</h5>
-                        <p class="card-text">{{ building.building_building.building_description }}</p>
+                        <h5 class="card-title">{{ building.building.building_name }}</h5>
+                        <p class="card-text">{{ building.building.building_description }}</p>
                         <p class="card-text">Level: {{ building.building_level }}</p>
                     </div>
                 </div>
