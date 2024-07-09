@@ -1,0 +1,50 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content2 %}
+
+<div class="Jumbotron">
+
+    <h1>Admin - Test Game - Model</h1>
+
+</div>
+
+<hr>
+
+<div>
+    <h2>Games</h2>
+
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Game Name</th>
+                <th>Game Exists</th>
+                <th>Entry Date</th>
+                <th>XP</th>
+                <th>Level</th>
+                <th>Cash</th>
+                <th>TestGameventory1</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for testgame in testgames %}
+            <tr>
+                <td>{{ testgame.id }}</td>
+                <td>{{ testgame.game_name }}</td>
+                <td>{{ testgame.game_exists }}</td>
+                <td>{{ testgame.entry_date }}</td>
+                <td>{{ testgame.xp }}</td>
+                <td>{{ testgame.level }}</td>
+                <td>{{ testgame.cash }}</td>
+                <td>{{ testgame.testgameventory1 }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

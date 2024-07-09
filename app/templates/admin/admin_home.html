@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "admin/admin_base.html" %}
 
-{% block content %}
+{% block content2 %}
 
 <div class="Jumbotron">
 
@@ -22,11 +22,11 @@
                     <div class="card-body">
                         <p class="card-text">View and manage users</p>
                         <a href="{{ url_for('admin.admin_users') }}" class="btn btn-primary">Users</a>
-                    </div>  
+                    </div>
                 </div>
             </div>
         </div>
-    </div> 
+    </div>
 </div>
 
 <div class="container mt-3">
@@ -39,7 +39,7 @@
                         <p class="card-text">View and manage roles</p>
                         <a href="{{ url_for('admin.admin_roles') }}" class="btn btn-primary">Roles</a>
                     </div>
-                    
+
                 </div>
             </div>
         </div>
@@ -61,13 +61,21 @@
                     <div class="card-body">
                         <p class="card-text">View and manage GAME LOGIC related data</p>
                         <a href="{{ url_for('admin.admin_testgame_levelrequirements') }}" class="btn btn-primary">Maintain Level Requirements</a>
-                        <a href="" class="btn btn-primary">TBC</a>
                     </div>
 
                     <div class="card-body">
                         <p class="card-text">View and manage QUEST LOGIC related data</p>
-                        <p><a href="{{ url_for('admin.admin_testgame_mainquests') }}" class="btn btn-primary">Maintain Main Quests</a></p>
-                        <a href="" class="btn btn-primary">Maintain Main Quest Requirements</a>
+                        <p><a href="{{ url_for('admin.admin_testgame_mainquests') }}" class="btn btn-primary">Quests</a></p>
+                    </div>
+
+                    <div class="card-body">
+                        <p class="card-text">View and manage BUILDING related data</p>
+                        <a href="{{ url_for('admin.admin_testgame_buildings') }}" class="btn btn-primary">Buildings</a>
+                    </div>
+
+                    <div class="card-body">
+                        <p class="card-text">View and manage ITEM related data</p>
+                        <a href="{{ url_for('admin.admin_testgame_items') }}" class="btn btn-primary">Items</a>
                     </div>
 
 

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<hr />
+
+
+<div class="card">
+    <div style="display: flex; justify-content: space-around;">
+        <p>MAIN:</p>
+        <a href="{{ url_for('admin.admin_home') }}">Admin Home</a> -
+        <a href="{{ url_for('admin.admin_users') }}">Users</a> -
+        <a href="{{ url_for('admin.admin_roles') }}">Roles</a> -
+
+    </div>
+</div>
+
+    
+<div class="card">
+    <div style="display: flex; justify-content: space-around;">
+        <p>TESTGAME:</p>
+        <a href="{{ url_for('admin.admin_testgame_models') }}">All Games</a> -
+        <a href="{{ url_for('admin.admin_testgame_buildings') }}">Buildings</a> -
+        <a href="{{ url_for('admin.admin_testgame_mainquests') }}">Quests</a> -
+        <a href="{{ url_for('admin.admin_testgame_resourceslog') }}">Resources</a> - 
+        <a href="{{ url_for('admin.admin_testgame_items') }}">Items</a> - 
+        <a href="{{ url_for('admin.admin_testgame_inventories') }}">Inventory</a> -
+    </div>
+</div>
+
+<hr />
+
+
+    {% block content2 %}  {% endblock content2 %}
+
+    {% endblock content %}

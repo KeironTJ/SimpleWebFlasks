@@ -1,10 +1,10 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from app.models import User, db, TestGame, TestGameInventory, TestGameInventoryItems
+from app.models import User, db, TestGame, TestGameInventory, TestGameInventoryUser, TestGameInventoryItems, TestGameInventoryType
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
 from app.models import TestGameBuildingProgress, TestGameBuildings
 from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm
-from app.testgame.game_logic import GameService, GameCreation
+from app.testgame.game_logic import GameService, GameCreation, GameQuery
 import sqlalchemy as sa
 
 from app.testgame import bp
@@ -114,12 +114,12 @@ def tg_building_quests(game_id):
 def tg_building_inventory(game_id):
     # Query for testgame inventory items
     game = TestGame.query.filter_by(id=game_id).first()
-    inventories = TestGameInventory.query.filter_by(game_id=game_id).all()
+    userinventories = TestGameInventoryUser.query.filter_by(game_id=game_id).all()
     
     return render_template("testgame/buildings/tg_building_inventory.html",
                            title='Test Game - Inventory',
                             game=game,
-                            inventories=inventories)
+                            userinventories=userinventories)
 
 
 # Route to display farm

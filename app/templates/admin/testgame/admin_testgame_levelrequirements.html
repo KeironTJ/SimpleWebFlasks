@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "admin/admin_base.html" %}
 
-{% block content %}
+{% block content2 %}
 
 <div class="Jumbotron">
 
     <h1>Admin - Test Game - XP Log</h1>
-    
+
 
 </div>
 
@@ -38,10 +38,10 @@
         </thead>
         <tbody>
             {% for levelrequirement in levelrequirements %}
-                <tr>
-                    <td>{{ levelrequirement.level }}</td>
-                    <td>{{ levelrequirement.xp_required }}</td>
-                </tr>
+            <tr>
+                <td>{{ levelrequirement.level }}</td>
+                <td>{{ levelrequirement.xp_required }}</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>

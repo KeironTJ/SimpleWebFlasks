@@ -1,7 +1,7 @@
 from app.models import User, TestGame, TestGameQuest, TestGameQuestProgress, TestGameQuestRewards, TestGameQuestType
 from app.models import TestGame, TestGameXPLog, TestGameCashLog
 from app.models import TestGameBuildingType, TestGameBuildingProgress, TestGameBuildings
-from app.models import TestGameInventory, TestGameInventoryItems
+from app.models import TestGameInventory, TestGameInventoryItems, TestGameInventoryType, TestGameInventoryUser
 from datetime import datetime
 from app import db
 
@@ -47,7 +47,8 @@ class GameCreation:
         """Assigns all inventories to a TestGame."""
         inventories = TestGameInventory.query.all()
         for inventory in inventories:
-            inventory = TestGameInventory(game_id=game_id)
+            inventory = TestGameInventoryUser(game_id=game_id, 
+                                              inventory_id=inventory.id)
             db.session.add(inventory)
            
     def create_all_startup(self, game_id: int) -> None:
@@ -223,25 +224,33 @@ class GameService:
         quest_progress.is_complete = True
         quest_progress.completion_date = datetime.now()
         
-    def add_inventory(self, game_id: int, inventory_id: int) -> None:
+    def add_game_inventory(self, game_id: int, inventory_id: int) -> None:
         """Adds an inventory to a TestGame."""
-        inventory = TestGameInventory(game_id=game_id, inventory_id=inventory_id)
+        inventory = TestGameInventoryUser(game_id=game_id, inventory_id=inventory_id)
         db.session.add(inventory)
         
-    def remove_inventory(self, game_id: int, inventory_id: int) -> None:
+    def remove_game_inventory(self, game_id: int, inventory_id: int) -> None:
         """Removes an inventory from a TestGame."""
-        inventory = TestGameInventory.query.filter_by(game_id=game_id, inventory_id=inventory_id).first()
+        inventory = TestGameInventoryUser.query.filter_by(game_id=game_id, inventory_id=inventory_id).first()
         db.session.delete(inventory)
         
-    def add_inventory_item(self, inventory_id: int, item_id: int) -> None:
-        """Adds an item to an inventory."""
-        item = TestGameInventoryItems(inventory_id=inventory_id, item_id=item_id)
-        db.session.add(item)
-        
-    def remove_inventory_item(self, inventory_id: int, item_id: int) -> None:
-        """Removes an item from an inventory."""
+    def add_inventory_item(self, inventory_id: int, item_id: int, quantity: int) -> None:
+        """Check if item already exists, if so, increase quantity, otherwise add item to inventory."""
         item = TestGameInventoryItems.query.filter_by(inventory_id=inventory_id, item_id=item_id).first()
-        db.session.delete(item)
+        if item is not None:
+            item.quantity += quantity
+        else:
+            item = TestGameInventoryItems(inventory_id=inventory_id, item_id=item_id, quantity=quantity)
+            db.session.add(item)
+        
+    def remove_inventory_item(self, inventory_id: int, item_id: int, quantity: int) -> None:
+        """Check if item exists, if so, decrease quantity, if quantity is 0, remove item from inventory."""
+        item = TestGameInventoryItems.query.filter_by(inventory_id=inventory_id, item_id=item_id).first()
+        if item is not None:
+            item.quantity -= quantity
+            if item.quantity <= 0:
+                db.session.delete(item)
+        
         
             
     def add_quest_progress(self, quest_id: int, progress: int) -> None:

@@ -1,17 +1,18 @@
-{% extends "base.html" %}
+{% extends "admin/admin_base.html" %}
 
-{% block content %}
+{% block content2 %}
 
 <div class="Jumbotron">
 
-    <h1>Admin - Test Game - XP Log</h1>
-    
+    <h1>Admin - Test Game - Resources</h1>
 
 </div>
 
+<hr />
+
 <div class="container">
 
-    <p>View the XP log for the test game.</p>
+    <h2>XP Log</h2>
 
     <table class="table table-striped table-bordered">
         <thead>
@@ -26,22 +27,22 @@
         </thead>
         <tbody>
             {% for xplog in xplogs %}
-                <tr>
-                    <td>{{ xplog.testgame.user_id }}</td>
-                    <td>{{ xplog.testgame.user.username }}</td>
-                    <td>{{ xplog.testgame.id }}</td>
-                    <td>{{ xplog.testgame.game_name }}</td>
-                    <td>{{ xplog.xp }}</td>
-                    <td>{{ xplog.entry_date }}</td>
-                </tr>
+            <tr>
+                <td>{{ xplog.testgame.user_id }}</td>
+                <td>{{ xplog.testgame.user.username }}</td>
+                <td>{{ xplog.testgame.id }}</td>
+                <td>{{ xplog.testgame.game_name }}</td>
+                <td>{{ xplog.xp }}</td>
+                <td>{{ xplog.entry_date }}</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
-</div>  
+</div>
 
 <div class="container">
 
-    <p>View the Cash log for the test game.</p>
+    <h2>Cash Log</h2>
 
     <table class="table table-striped table-bordered">
         <thead>
@@ -56,18 +57,18 @@
         </thead>
         <tbody>
             {% for cashlog in cashlogs %}
-                <tr>
-                    <td>{{ cashlog.testgame.user_id }}</td>
-                    <td>{{ cashlog.testgame.user.username }}</td>
-                    <td>{{ cashlog.testgame.id }}</td>
-                    <td>{{ cashlog.testgame.game_name }}</td>
-                    <td>{{ cashlog.cash }}</td>
-                    <td>{{ cashlog.entry_date }}</td>
-                </tr>
+            <tr>
+                <td>{{ cashlog.testgame.user_id }}</td>
+                <td>{{ cashlog.testgame.user.username }}</td>
+                <td>{{ cashlog.testgame.id }}</td>
+                <td>{{ cashlog.testgame.game_name }}</td>
+                <td>{{ cashlog.cash }}</td>
+                <td>{{ cashlog.entry_date }}</td>
+            </tr>
             {% endfor %}
         </tbody>
     </table>
-</div> 
+</div>
 
 
 

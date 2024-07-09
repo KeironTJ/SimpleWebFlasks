@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "admin/admin_base.html" %}
 
-{% block content %}
+{% block content2 %}
 
 <div class="Jumbotron">
 
@@ -30,18 +30,20 @@
                     {% for user in users %}
                     <tr>
                         <td>{{ user.username }}</td>
-                        <td>{% for role in user.role %}
-                                {{ role.name }} <br>
+                        <td>
+                            {% for role in user.role %}
+                            {{ role.name }} <br>
                             {% else %}
-                                No Roles Assigned
-                            {% endfor %}</td>
+                            No Roles Assigned
+                            {% endfor %}
+                        </td>
                         <td>{{ user.active }}</td>
                         <td>
                             {% if user.active %}
-                                <a href="{{ url_for('admin.deactivate_user', user_id=user.id) }}" class="btn btn-danger">Deactivate</a>
+                            <a href="{{ url_for('admin.deactivate_user', user_id=user.id) }}" class="btn btn-danger">Deactivate</a>
                             {% else %}
-                                <a href="{{ url_for('admin.activate_user', user_id=user.id) }}" class="btn btn-success">Activate</a>
-                            {% endif %}                            
+                            <a href="{{ url_for('admin.activate_user', user_id=user.id) }}" class="btn btn-success">Activate</a>
+                            {% endif %}
                         </td>
                         <td>{{ user.activetestgame }}</td>
                     </tr>

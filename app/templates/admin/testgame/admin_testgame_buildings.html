@@ -1,0 +1,110 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content2 %}
+
+<div class="Jumbotron">
+
+    <h1>Admin - Test Game - Game Buildings</h1>
+
+</div>
+
+<hr />
+
+<div>
+    <h2>Game Building Types</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Building Type Name</th>
+                <th>Building Type Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for buildingtype in buildingtypes %}
+            <tr>
+                <td>{{ buildingtype.building_type_name }}</td>
+                <td>{{ buildingtype.building_type_description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<hr />
+
+<div>
+    <h2>Game Buildings Table</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Building ID</th>
+                <th>Building Name</th>
+                <th>Building Description</th>
+                <th>Building Type</th>
+                <th>Building Link </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for building in buildings %}
+            <tr>
+                <td>{{ building.id }}</td>
+                <td>{{ building.building_name }}</td>
+                <td>{{ building.building_description }}</td>
+                <td>{{ building.building_type.building_type_name }}</td>
+                <td>{{ building.building_link }}</td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+
+<hr />
+
+<div>
+    <h2>Game Building Progress Table</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Building Progress ID</th>
+                <th>Building Game ID</th>
+                <th>Building Building ID</th>
+                <th>Building Building Level</th>
+                <th>Building Building Active</th>
+                <th>Cash Required to Build</th>
+                <th>Level Required to Build</th>
+                <th>Cash per Hour</th>
+                <th>Building Completed</th>
+                <th>Building Completed Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for buildingprogress in buildingprogress %}
+            <tr>
+                <td>{{ buildingprogress.id }}</td>
+                <td>{{ buildingprogress.game_id }}</td>
+                <td>{{ buildingprogress.building_id }}</td>
+                <td>{{ buildingprogress.building_level }}</td>
+                <td>{{ buildingprogress.building_active }}</td>
+                <td>{{ buildingprogress.base_building_cash_required }}</td>
+                <td>{{ buildingprogress.base_building_level_required }}</td>
+                <td>{{ buildingprogress.cash_per_hour }}</td>
+                <td>{{ buildingprogress.building_completed }}</td>
+                <td>{{ buildingprogress.building_completed_date }}</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+
+
+{% endblock content2 %}

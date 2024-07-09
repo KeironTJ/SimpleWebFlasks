@@ -1,0 +1,176 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content2 %}
+
+<div class="Jumbotron">
+
+    <h1>Admin - Test Game - Quests</h1>
+
+</div>
+
+<hr />
+
+<div>
+    <h2>Quest Types</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Quest Type ID</th>
+                <th>Quest Type Name</th>
+                <th>Quest Type Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for questtype in questtypes %}
+            <tr>
+                <td>{{ questtype.id }}</td>
+                <td>{{ questtype.quest_type_name }}</td>
+                <td>{{ questtype.quest_type_description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+<div>
+
+    <hr />
+
+    <h2>All Quests</h2>
+
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th>Quest ID</th>
+                <th>Quest Name</th>
+                <th>Quest Description</th>
+                <th>Quest Type ID</th>
+                <th>Quest Type Name</th>
+                <th>Quest Rewards</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quest in quests %}
+            <tr>
+                <td>{{ quest.id }}</td>
+                <td>{{ quest.quest_name }}</td>
+                <td>{{ quest.quest_description }}</td>
+                <td>{{ quest.quest_type.id }}</td>
+                <td>{{ quest.quest_type.quest_type_name }}</td>
+                <td>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Reward Name</th>
+                                <th>Reward Description</th>
+                                <th>Reward XP</th>
+                                <th>Reward Cash</th>
+                                <th>Reward Items</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for reward in quest.quest_rewards %}
+                            <tr>
+                                <td>{{ reward.quest_reward_name }}</td>
+                                <td>{{ reward.quest_reward_description }}</td>
+                                <td>{{ reward.quest_reward_xp }}</td>
+                                <td>{{ reward.quest_reward_cash }}</td>
+                                <td>
+                                    <table class="table">
+                                        <thead>
+                                        <th>Item Name</th>
+                                        <th>Item Description</th>
+                                        <th>Item Quantity</th>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in reward.reward_items %}
+                                            <tr>
+                                                <td>{{ item.item.item_name }}</td>
+                                                <td>{{ item.item.item_description }}</td>
+                                                <td>{{ item.quantity }}</td>
+                                            </tr>
+                                            {% endfor %}
+                                    </table>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+
+
+            </tr>
+            {% endfor %}
+    </table>
+</div>
+
+<hr />
+
+<div>
+    <h2>Quest Progress</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Quest Progress ID</th>
+                <th>Game ID</th>
+                <th>Quest ID</th>
+                <th>Quest Progress</th>
+                <th>Quest Active</th>
+                <th>Quest Completed</th>
+                <th>Quest Completed Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for questprogress in questprogresses %}
+            <tr>
+                <td>{{ questprogress.id }}</td>
+                <td>{{ questprogress.game_id }}</td>
+                <td>{{ questprogress.quest_id }}</td>
+                <td>{{ questprogress.quest_progress }}</td>
+                <td>{{ questprogress.quest_active }}</td>
+                <td>{{ questprogress.quest_completed }}</td>
+                <td>{{ questprogress.quest_completed_date }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<hr />
+
+<div>
+    <h2>Quest Rewards </h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Quest Reward ID</th>
+                <th>Quest ID</th>
+                <th>Quest Reward Name</th>
+                <th>Quest Reward Description</th>
+                <th>Quest Reward XP</th>
+                <th>Quest Reward Cash</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for questreward in questrewards %}
+            <tr>
+                <td>{{ questreward.id }}</td>
+                <td>{{ questreward.quest_id }}</td>
+                <td>{{ questreward.quest_reward_name }}</td>
+                <td>{{ questreward.quest_reward_description }}</td>
+                <td>{{ questreward.quest_reward_xp }}</td>
+                <td>{{ questreward.quest_reward_cash }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+{% endblock %}

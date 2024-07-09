@@ -9,7 +9,7 @@ from sqlalchemy.sql import text
 from app.models import db, Role, User
 from app.models import TestGame
 from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,RewardItemAssociation, TestGameQuestProgress
-from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems
+from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems, TestGameInventoryType, TestGameInventoryUser
 from app.models import TestGameLevelRequirements
 from app.models import TestGameCashLog, TestGameXPLog
 from app.models import TestGameBuildings, TestGameBuildingProgress, TestGameBuildingType
@@ -70,27 +70,47 @@ def populate_database():
         print("User KeironTJ already exists")
        
         
-def create_QuestTypes():
-    quest_type1 = TestGameQuestType(quest_type_name="Main Quest", quest_type_description="Main Story Progression Quests")
-    quest_type2 = TestGameQuestType(quest_type_name="Building Quest", quest_type_description="Building Progression Quests")
-    quest_type3 = TestGameQuestType(quest_type_name="Level Quest", quest_type_description="Levelling Progression Quests")
-    db.session.add(quest_type1)
-    db.session.add(quest_type2)
-    db.session.add(quest_type3)
-    db.session.commit()
-    print("Quest Types Created")
+
     
 
-def create_inventory():
-    inventory1 = TestGameInventory(game_id=1)
-    inventory2 = TestGameInventory(game_id=2)
-    inventory3 = TestGameInventory(game_id=3)
-    db.session.add(inventory1)
-    db.session.add(inventory2)
-    db.session.add(inventory3)
+## INVENTORY
+# Create Inventory Types       
+def create_inventory_types():
+    inventory_type1 = TestGameInventoryType(inventory_type_name="Main Inventory", inventory_type_description="Main Inventory Description")
+    inventory_type2 = TestGameInventoryType(inventory_type_name="Secondary Inventory", inventory_type_description="Secondary Inventory Description")
+    inventory_type3 = TestGameInventoryType(inventory_type_name="Tertiary Inventory", inventory_type_description="Tertiary Inventory Description")
+    db.session.add(inventory_type1)
+    db.session.add(inventory_type2)
+    db.session.add(inventory_type3)
     db.session.commit()
-    print("Inventories Created")
+    print("Inventory Types Created")
     
+# Inventory Creator Class
+class InventoryCreator:
+    def __init__(self, inventory_name, inventory_description, inventory_type_id):
+        self.inventory_name = inventory_name
+        self.inventory_description = inventory_description
+        self.inventory_type_id = inventory_type_id
+        self.inventory = None  # Placeholder for the created inventory object
+
+    def create_inventory(self):
+        try:
+            self.inventory = TestGameInventory(inventory_name=self.inventory_name, inventory_description=self.inventory_description, inventory_type_id=self.inventory_type_id)
+            db.session.add(self.inventory)
+            db.session.commit()
+            print("Inventory Created")
+            return self.inventory
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to create inventory: {e}")
+            
+# Example usage
+main_inventory = InventoryCreator(inventory_name="Main Inventory", inventory_description="Main Inventory Description", inventory_type_id=1)
+
+
+    
+## LEVEL REQUIREMENTS
+# Create Level Requirements        
 def create_level_requirements():
     level_requirement1 = TestGameLevelRequirements(level = 1, xp_required = 100)
     level_requirement2 = TestGameLevelRequirements(level = 2, xp_required = 200)
@@ -101,21 +121,11 @@ def create_level_requirements():
     db.session.commit()
     print("Level Requirements Created")
 
-def create_test_game_for_admin():
-    service = GameCreation(user_id=1, game_name="Test Game 1")
-    test_game = service.create_game()
-    
-    db.session.commit()
-    print("Test Game Created")
-    
-    game_id = test_game.id
-    
-    service.create_all_startup(game_id)
-    db.session.commit()
-    
-    
-    
 
+    
+    
+    
+## ITEMS
 ## Item Creator Class
 class ItemCreator:
     def __init__(self, item_name, item_description):
@@ -134,35 +144,18 @@ class ItemCreator:
             db.session.rollback()
             print(f"Failed to create item: {e}")
 
-    def create_inventory_item(self, inventory_id, quantity):
-        if self.item is None:
-            print("Item must be created before adding to inventory.")
-            return
-        try:
-            inventory_item = TestGameInventoryItems(inventory_id=inventory_id, item_id=self.item.id, quantity=quantity)
-            db.session.add(inventory_item)
-            db.session.commit()
-            print("Inventory Item Created")
-            return inventory_item
-        except Exception as e:
-            db.session.rollback()
-            print(f"Failed to create inventory item: {e}")
-
-    def create_full_item(self, inventory_id, quantity):
-        """
-        Create an item and add it to an inventory.
-        
-        :param inventory_id: The id of the inventory to add the item to.
-        :param quantity: The quantity of the item in the inventory.
-        """
-        self.create_item()
-        self.create_inventory_item(inventory_id, quantity)
     
 # Example usage
-item1 = ItemCreator(item_name="Sword", item_description="A sharp sword")
-item2 = ItemCreator(item_name="Shield", item_description="A sturdy shield")
-item3 = ItemCreator(item_name="Potion", item_description="A healing potion")
+Sword = ItemCreator(item_name="Sword", item_description="A sharp sword")
+Shield = ItemCreator(item_name="Shield", item_description="A sturdy shield")
+Potion = ItemCreator(item_name="Potion", item_description="A healing potion")
 
+
+
+
+
+## BUILDINGS
+# Create Building Types
 def create_building_types():
     building_type1 = TestGameBuildingType(building_type_name="Main Building", building_type_description="Main Building Description")
     building_type2 = TestGameBuildingType(building_type_name="Secondary Building", building_type_description="Secondary Building Description")
@@ -201,30 +194,19 @@ farm_building = BuildingCreator(building_name="Farm", building_description="Coll
     
 
 
-
-# Class to assign all buildings to admin
-
-class BuildingAssigner:
-    def __init__(self, game_id):
-        self.game_id = game_id
-        self.buildings = TestGameBuildings.query.all()
-
-    def assign_all_buildings(self):
-        for building in self.buildings:
-            
-            if building.building_type_id == 3:
-                building_progress = TestGameBuildingProgress(game_id=self.game_id, building_id=building.id, building_level=1, cash_per_hour=1000)
-            else:
-                building_progress = TestGameBuildingProgress(game_id=self.game_id, building_id=building.id, building_level=1)
-            
-            
-                
-            db.session.add(building_progress)
-        db.session.commit()
-        print("All Buildings Assigned")
-
-
- ## Quest Creator Class   
+## QUESTS
+# Create Quest Types
+def create_QuestTypes():
+    quest_type1 = TestGameQuestType(quest_type_name="Main Quest", quest_type_description="Main Story Progression Quests")
+    quest_type2 = TestGameQuestType(quest_type_name="Building Quest", quest_type_description="Building Progression Quests")
+    quest_type3 = TestGameQuestType(quest_type_name="Level Quest", quest_type_description="Levelling Progression Quests")
+    db.session.add(quest_type1)
+    db.session.add(quest_type2)
+    db.session.add(quest_type3)
+    db.session.commit()
+    print("Quest Types Created")
+    
+ # Quest Creator Class   
 class QuestCreator:
     def __init__(self, quest_name, quest_description, quest_type_id):
         self.quest_name = quest_name
@@ -319,25 +301,86 @@ items_info = {
     ]
 }
 
+
+## TEST GAME ADMIN CREATION TEST
+# Create a test game for the admin user
+def create_test_game_for_admin():
+    service = GameCreation(user_id=1, game_name="Test Game 1")
+    test_game = service.create_game()
+    
+    db.session.commit()
+    print("Test Game Created")
+    
+    game_id = test_game.id
+    
+    service.create_all_startup(game_id)
+    db.session.commit()
+    
+def test_GameService():
+    service = GameService(test_game_id=1)
+    try:
+        # Add XP and Cash
+        service.add_xp(100)
+        service.add_cash(100)
+        print("XP and Cash added")
+    except Exception as e:
+        print(f"Failed to add XP and Cash: {e}")
+    service.add_xp(100)
+    service.add_cash(100)
+    
+
+        
+    try:
+        # Add Sward to inventory
+        service.add_inventory_item(1, 1, 1)
+        print("Inventory Item Added")
+    except Exception as e:
+        print(f"Failed to add inventory item: {e}")
+        
+    try:
+        db.session.commit()
+        print("Test Game Service Completed")
+    except:
+        db.session.rollback()
+        print("Failed to commit")
+    
+    
+    
+    
+    
+
 def delete_all_data():
+    
+    # Delete User Data
     db.session.query(User).delete()
     db.session.query(Role).delete()
+    
+    # Delete Game Quest Data
     db.session.query(TestGameQuestProgress).delete()
-    db.session.query(TestGameInventoryItems).delete()
-    db.session.query(TestGameInventory).delete()
-    db.session.query(TestGameItem).delete()
     db.session.query(TestGameQuestRewards).delete()
-    db.session.query(TestGameQuest).delete()
+    db.session.query(RewardItemAssociation).delete() 
     db.session.query(TestGameQuestType).delete()
-    db.session.query(RewardItemAssociation).delete()    
-    db.session.query(TestGameLevelRequirements).delete()
-    db.session.query(TestGame).delete()
-    db.session.query(TestGameCashLog).delete()
-    db.session.query(TestGameXPLog).delete()
+    db.session.query(TestGameQuest).delete()
+    
+    # Delete Building Data
     db.session.query(TestGameBuildingProgress).delete()
     db.session.query(TestGameBuildings).delete()
     db.session.query(TestGameBuildingType).delete()
+    
+    # Delete Item Data
+    db.session.query(TestGameItem).delete()
+    
+    # Delete Inventory Data
+    db.session.query(TestGameInventoryItems).delete()
+    db.session.query(TestGameInventoryUser).delete()
+    db.session.query(TestGameInventory).delete()
+    db.session.query(TestGameInventoryType).delete()
 
+    # Delete Game Data
+    db.session.query(TestGameCashLog).delete()
+    db.session.query(TestGameXPLog).delete()
+    db.session.query(TestGameLevelRequirements).delete()
+    db.session.query(TestGame).delete()
 
     db.session.commit()
     print("All data deleted")
@@ -348,35 +391,39 @@ if __name__ == "__main__":
     delete_all_data()
     populate_database()
     
-    create_QuestTypes()
-    create_inventory()
+    
+    
+    # Create Inventory Types, Inventories
+    create_inventory_types()
+    main_inventory.create_inventory()
+    
+    
+    # Create Level Requirements
     create_level_requirements()
     
     # Create buildings, requirements progress
     create_building_types()
+    
     quest_building.create_building()
     inventory_building.create_building()
     farm_building.create_building()
-    
-
-    # Assign all buildings to admin
-    assigner = BuildingAssigner(game_id=1)
-    assigner.assign_all_buildings()
 
     
     # Create quests, rewards, and reward item associations
+    create_QuestTypes()
     Main_quest_1.create_full_quest(rewards_info, items_info)
     Main_quest_2.create_full_quest(rewards_info, items_info)
     
     # Create items and inventory items
-    item1.create_full_item(inventory_id=1, quantity=1)
-    item2.create_full_item(inventory_id=1, quantity=2)
-    item3.create_full_item(inventory_id=2, quantity=3)
+    Sword.create_item()
+    Shield.create_item()
+    Potion.create_item()
     
     
 
     
     create_test_game_for_admin()
+    test_GameService()
         
         
 
