@@ -317,33 +317,41 @@ def create_test_game_for_admin():
     db.session.commit()
     
 def test_GameService():
+    print("TESTING GameService")
     service = GameService(test_game_id=1)
+    
+    # Add XP and Cash
     try:
-        # Add XP and Cash
-        service.add_xp(100)
+        service.add_xp(50)
         service.add_cash(100)
-        print("XP and Cash added")
+        print("TEST XP and Cash - SUCCESS")
     except Exception as e:
-        print(f"Failed to add XP and Cash: {e}")
-    service.add_xp(100)
-    service.add_cash(100)
+        print(f"TEST XP and Cash - FAILED: {e}")
     
 
-        
+    # Add Sword to inventory      
     try:
-        # Add Sward to inventory
         service.add_inventory_item(1, 1, 1)
-        print("Inventory Item Added")
+        print("TEST Add Sword to Inventory - SUCCESS")
     except Exception as e:
-        print(f"Failed to add inventory item: {e}")
+        print(f"TEST Add Sword to Inventory - FAILED: {e}")
         
+        
+    # Add XP to increase Level
+    try:
+        service.add_xp(150)
+        print("TEST XP added to increase Level - SUCCESS")
+    except Exception as e:
+        print(f"XP added to increase Level - FAILED: {e}")
+        
+    # Attempt commit
     try:
         db.session.commit()
-        print("Test Game Service Completed")
+        print("TEST PASSED")
     except:
         db.session.rollback()
-        print("Failed to commit")
-    
+        print("TEST FAILED")
+
     
     
     
@@ -418,9 +426,6 @@ if __name__ == "__main__":
     Sword.create_item()
     Shield.create_item()
     Potion.create_item()
-    
-    
-
     
     create_test_game_for_admin()
     test_GameService()

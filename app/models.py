@@ -135,6 +135,8 @@ class TestGame(db.Model):
     level = db.Column(db.Integer, default=0)
     cash = db.Column(db.Float, default=0)
     
+    next_level_xp_required = db.Column(db.Integer, default=110)
+    
     # create relationships
     test_game_cash_logs = db.relationship("TestGameCashLog", back_populates="testgame")
     test_game_xp_logs = db.relationship("TestGameXPLog", back_populates="testgame")

@@ -4,6 +4,8 @@ from app.models import TestGameBuildingType, TestGameBuildingProgress, TestGameB
 from app.models import TestGameInventory, TestGameInventoryItems, TestGameInventoryType, TestGameInventoryUser
 from datetime import datetime
 from app import db
+from flask import flash
+from math import floor
 
 class GameCreation:
     """Service for creating a new TestGame instance."""
@@ -56,6 +58,9 @@ class GameCreation:
         self.assign_all_quests(game_id)
         self.assign_all_buildings(game_id)
         self.assign_all_inventories(game_id)
+        
+        
+        
         
         
     
@@ -191,15 +196,44 @@ class GameQuery:
 class GameService:
     """Service for adding XP and cash to a TestGame and logging the operations."""
     
-    def __init__(self, test_game_id: int) -> None:
+    def __init__(self, test_game_id: int, notifier=None) -> None:
         self.test_game_id = test_game_id
+        self.test_game = self._get_test_game()
+        self.notifier = notifier or self.default_notifier
+        
+     
+    @ staticmethod
+    def default_notifier(message):
+        pass
+        
 
     def add_xp(self, xp: int) -> None:
-        """Adds XP to a TestGame and logs the addition."""
-        test_game = self._get_test_game()
-        test_game.xp += xp
+        """Adds XP to a TestGame, logs the addition, and checks for level up."""
+        self.test_game.xp += xp
         xp_log = TestGameXPLog(xp=xp, test_game_id=self.test_game_id)
         db.session.add(xp_log)
+
+        self._check_and_update_level()
+
+    def _check_and_update_level(self) -> None:
+        """Checks if the TestGame has leveled up and updates accordingly."""
+        level_up = False
+        while self.test_game.xp >= self._xp_required_for_next_level(self.test_game.level):
+            self.test_game.level += 1
+            level_up = True
+
+        if level_up:
+            self.alert_level_up()
+            self.test_game.next_level_xp_required = self._xp_required_for_next_level(self.test_game.level)
+
+    def _xp_required_for_next_level(self, level: int) -> int:
+        base_xp = 100
+        return floor(base_xp * (1.1 ** (level + 1)))
+
+    def alert_level_up(self) -> None:
+        """Alerts the user that they have leveled up."""
+        self.notifier(f'Congratulations! You have reached level {self.test_game.level}!')
+        
 
     def add_cash(self, cash: int) -> None:
         """Adds cash to a TestGame and logs the addition."""
@@ -217,7 +251,16 @@ class GameService:
         """Removes a quest from a TestGame."""
         quest_progress = TestGameQuestProgress.query.filter_by(game_id=game_id, quest_id=quest_id).first()
         db.session.delete(quest_progress)
+    
+    def add_quest_progress(self, quest_id: int, progress: int) -> None:
+        """Adds progress to a quest."""
+        quest_progress = TestGameQuestProgress.query.get(quest_id)
+        quest_progress.progress += progress
         
+        if quest_progress.progress >= 100:
+            quest_progress.is_complete = True
+            quest_progress.completion_date = datetime.now()
+            
     def complete_quest(self, game_id: int, quest_id: int) -> None:
         """Marks a quest as complete."""
         quest_progress = TestGameQuestProgress.query.filter_by(game_id=game_id, quest_id=quest_id).first()
@@ -250,23 +293,8 @@ class GameService:
             item.quantity -= quantity
             if item.quantity <= 0:
                 db.session.delete(item)
-        
-        
-            
-    def add_quest_progress(self, quest_id: int, progress: int) -> None:
-        """Adds progress to a quest."""
-        quest_progress = TestGameQuestProgress.query.get(quest_id)
-        quest_progress.progress += progress
-        
-        if quest_progress.progress >= 100:
-            quest_progress.is_complete = True
-            quest_progress.completion_date = datetime.now()
-            
-    def add_game_level(self, game_id: int, level: int) -> None:
-        """Adds a level to a TestGame."""
-        test_game = TestGame.query.get(game_id)
-        test_game.level += level
-        
+
+
     def add_building_level(self, building_id: int, level: int, cash_per_hour: int) -> None:
         """Adds a level to a building."""
         building = TestGameBuildingProgress.query.get(building_id)
@@ -280,6 +308,14 @@ class GameService:
         if test_game is None:
             raise ValueError(f"TestGame with ID {self.test_game_id} not found.")
         return test_game
+    
+
+
+class WebNotifier:
+    @staticmethod
+    def notify(message):
+        flash(message)
+
        
 
                               

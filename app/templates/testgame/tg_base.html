@@ -8,8 +8,11 @@
 
 <div style="display: flex; justify-content: space-around;">
     <p>{{game.user.username}}</p>
-    <p>XP: {{ game.xp }}</p>
-    <p>Level: {{ game.level }}</p>
+    <p>
+        XP: {{ game.xp }}/{{game.next_level_xp_required}}</p>
+    <p>Level: {{ game.level
+        }}
+    </p>
     <p>Cash: {{ game.cash }}</p>
     <p>TestGameventory1: {{ game.testgameventory1 }}</p>
 </div>
