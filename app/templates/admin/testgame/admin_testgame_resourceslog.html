@@ -70,6 +70,38 @@
     </table>
 </div>
 
+<div class="container">
 
+    <h2>Resources Log</h2> 
 
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Game ID</th>
+                <th>XP</th>
+                <th>Cash</th>
+                <th>Wood</th>
+                <th>Stone</th>
+                <th>Metal</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for resourcelog in resourcelogs %}
+            <tr>
+                <td>{{ resourcelog.testgame.user_id }}</td>
+                <td>{{ resourcelog.testgame.id }}</td>
+                <td>{{ resourcelog.xp }}</td>
+                <td>{{ resourcelog.cash }}</td>
+                <td>{{ resourcelog.wood }}</td>
+                <td>{{ resourcelog.stone }}</td>
+                <td>{{ resourcelog.metal }}</td>
+                <td>{{ resourcelog.entry_date }}</td>
+            </tr>
+            {% endfor %}    
+        </tbody>
+    </table>
+</div>
 {% endblock %}

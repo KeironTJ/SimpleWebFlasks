@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user  # type: ignore
 from app import db
-from app.models import User, Role, UserRoles, GTNSettings, TestGame, TestGameXPLog, TestGameCashLog, TestGameLevelRequirements
+from app.models import User, Role, UserRoles, GTNSettings, TestGame, TestGameXPLog, TestGameCashLog, TestGameLevelRequirements, TestGameResourceLog
 from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsForm
 from app.models import TestGameBuildingProgress, TestGameBuildingType, TestGameBuildings
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
@@ -144,12 +144,14 @@ def admin_testgame_resourceslog():
 
     xplogs = db.session.query(TestGameXPLog).all()
     cashlogs = db.session.query(TestGameCashLog).all()
+    resourcelogs = db.session.query(TestGameResourceLog).all()
 
 
     return render_template("admin/testgame/admin_testgame_resourceslog.html", 
                            title='Admin Test Game XP Log', 
                            xplogs=xplogs,
-                           cashlogs=cashlogs)
+                           cashlogs=cashlogs,
+                           resourcelogs=resourcelogs)
 
 # This route is used to render the admin page for for test game level requirements
 @bp.route('/admin_testgame_levelrequirements', methods=['GET', 'POST'])

@@ -11,9 +11,9 @@ from app.models import TestGame
 from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,RewardItemAssociation, TestGameQuestProgress
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems, TestGameInventoryType, TestGameInventoryUser
 from app.models import TestGameLevelRequirements
-from app.models import TestGameCashLog, TestGameXPLog
+from app.models import TestGameCashLog, TestGameXPLog, TestGameResourceLog
 from app.models import TestGameBuildings, TestGameBuildingProgress, TestGameBuildingType
-from app.testgame.game_logic import GameCreation, GameService, PrintNotifier, FlashNotifier
+from app.testgame.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
 
 app = create_app()
 app_context = app.app_context()
@@ -352,6 +352,35 @@ def test_GameService():
         db.session.rollback()
         print("TEST FAILED")
 
+def test_GameBuildingService():
+    print("TESTING GameBuildingService")
+    service = GameBuildingService(building_progress_id=3, notifier=PrintNotifier())
+    
+    # Add Building Progress
+    print("TEST Starting resource accrual")
+    try:
+        service.start_accrual()
+        print("TEST Start Accrual - SUCCESS")
+    except Exception as e:
+        print(f"TEST Add Building Progress - FAILED: {e}")
+
+    print("TEST Collecting resources")
+    try:
+        service.collect_resources()
+        print("TEST Collect Resources - SUCCESS")
+    except Exception as e:
+        print(f"TEST Collect Resources - FAILED: {e}")
+        
+    # Attempt commit
+    try:
+        
+        db.session.commit()
+        print("TEST PASSED")
+    except:
+        db.session.rollback()
+        print("TEST FAILED")
+
+
     
     
     
@@ -387,6 +416,7 @@ def delete_all_data():
     # Delete Game Data
     db.session.query(TestGameCashLog).delete()
     db.session.query(TestGameXPLog).delete()
+    db.session.query(TestGameResourceLog).delete()
     db.session.query(TestGameLevelRequirements).delete()
     db.session.query(TestGame).delete()
 
@@ -429,6 +459,7 @@ if __name__ == "__main__":
     
     create_test_game_for_admin()
     test_GameService()
+    test_GameBuildingService()
         
         
 

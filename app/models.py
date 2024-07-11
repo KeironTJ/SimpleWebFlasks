@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 from sqlalchemy import Column, Integer, String, DateTime # type: ignore
 import sqlalchemy.orm as so # type: ignore
@@ -134,6 +134,10 @@ class TestGame(db.Model):
     xp = db.Column(db.Integer, default=0)
     level = db.Column(db.Integer, default=0)
     cash = db.Column(db.Float, default=0)
+    wood = db.Column(db.Integer, default=0)
+    stone = db.Column(db.Integer, default=0)
+    metal = db.Column(db.Integer, default=0)
+
     
     next_level_xp_required = db.Column(db.Integer, default=110)
     
@@ -144,6 +148,7 @@ class TestGame(db.Model):
     inventories = db.relationship("TestGameInventoryUser", back_populates="game")
     quest_progress = db.relationship("TestGameQuestProgress", back_populates="quest_game")
     building_progress = db.relationship("TestGameBuildingProgress", back_populates="game")
+    test_game_resource_logs = db.relationship("TestGameResourceLog", back_populates="testgame")
     
     
 class TestGameInventoryType(db.Model):
@@ -385,6 +390,27 @@ class TestGameCashLog(db.Model):
 
     # Relationships
     testgame = db.relationship("TestGame", back_populates="test_game_cash_logs")
+
+class TestGameResourceLog(db.Model):
+    __tablename__ = 'test_game_resource_log'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Foreign keys
+    test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
+
+    # Resource details
+    cash = db.Column(db.Float, default=0)
+    xp = db.Column(db.Integer, default=0)
+    wood = db.Column(db.Integer, default=0)
+    stone = db.Column(db.Integer, default=0)
+    metal = db.Column(db.Integer, default=0)
+    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    source = db.Column(db.String(64))
+
+    # Relationships
+    testgame = db.relationship("TestGame", back_populates="test_game_resource_logs")
     
 
 ## TEST GAME BUILDING MODELS
@@ -439,16 +465,39 @@ class TestGameBuildingProgress(db.Model):
     building_level = db.Column(db.Integer, default=1)
     building_active = db.Column(db.Boolean, default=False)
     
+    # Building Upgrade Requirements
     base_building_cash_required = db.Column(db.Float, default=0)
     base_building_level_required = db.Column(db.Integer, default=0)
     
-    cash_per_hour = db.Column(db.Float, default=0)
-    
+    # Building Resource Collection details
+    xp_per_minute = db.Column(db.Integer, default=0)
+    cash_per_minute = db.Column(db.Float, default=0)
+    wood_per_minute = db.Column(db.Integer, default=0)
+    stone_per_minute = db.Column(db.Integer, default=0)
+    metal_per_minute = db.Column(db.Integer, default=0)
 
+    # Building Resource Time Details
+    accrual_start_time = db.Column(db.DateTime, nullable=True)
+    max_accrual_duration = db.Column(db.Integer, default=8)
+
+    # Accrued Resources
+    accrued_xp = db.Column(db.Integer, default=0)
+    accrued_cash = db.Column(db.Float, default=0)
+    accrued_wood = db.Column(db.Integer, default=0)
+    accrued_stone = db.Column(db.Integer, default=0)
+    accrued_metai = db.Column(db.Integer, default=0)
+    
+    # Building Completion Details
     building_completed = db.Column(db.Boolean, default=False)
     building_completed_date = db.Column(db.DateTime, nullable=True)
 
     # Relationships
     building = db.relationship("TestGameBuildings", back_populates="building_progress")
     game = db.relationship("TestGame", back_populates="building_progress")
+
+    
+        
+    
+
+
 

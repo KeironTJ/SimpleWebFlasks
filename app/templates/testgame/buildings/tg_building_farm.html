@@ -10,8 +10,16 @@
 </div>
 
 <div>
-    <p>Current Level: {{ game.building_progress[2].building.building_name }}<p>
-    <p>Cash per hour: {{ game.building_progress[2].cash_per_hour }}</p>
+    <p>Current Level: {{ building_progress.building.building_name }}<p>
+    <p>Cash per hour: {{ building_progress.cash_per_minute }}</p>
+    <p>Cash Accrued: {{ building_progress.accrued_cash }}</p>
+</div>
+
+<div>
+    <form action="" method="post">
+        {{ collectresourcesform.hidden_tag() }}
+        <p>{{ collectresourcesform.collect_button() }}</p>
+    </form>
 </div>
 
 

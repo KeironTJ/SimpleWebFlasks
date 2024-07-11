@@ -28,6 +28,9 @@ class AddCashForm(FlaskForm):
     cash = IntegerField('Cash', validators=[DataRequired()])
     addcash_button = SubmitField('Add Cash')
 
+class CollectResourcesForm(FlaskForm):
+    collect_button = SubmitField('Collect Resources')
+
 
 
 

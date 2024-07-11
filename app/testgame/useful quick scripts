@@ -1,0 +1,5 @@
+# SQLITE3 script to alter value in test game building progress table, id 3 accrual_start_time @ 4 hours before now
+UPDATE test_game_building_progress
+SET accrual_start_time = datetime('now', '-4 hours')
+
+

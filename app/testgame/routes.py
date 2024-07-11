@@ -1,10 +1,11 @@
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from app.models import User, db, TestGame, TestGameInventory, TestGameInventoryUser, TestGameInventoryItems, TestGameInventoryType
+from app.models import User, db, TestGame, TestGameInventory
+from app.models import TestGameInventoryUser, TestGameInventoryItems, TestGameInventoryType
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
 from app.models import TestGameBuildingProgress, TestGameBuildings
-from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm
-from app.testgame.game_logic import GameService, GameCreation, GameQuery
+from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, CollectResourcesForm
+from app.testgame.game_logic import GameService, GameCreation, GameQuery, GameBuildingService
 import sqlalchemy as sa
 
 from app.testgame import bp
@@ -122,13 +123,33 @@ def tg_building_inventory(game_id):
 
 
 # Route to display farm
-@bp.route('/tg_building_farm/<game_id>', methods=['GET', 'POST'])
+@bp.route('/tg_building_farm/<building_progress_id>', methods=['GET', 'POST'])
 @login_required
-def tg_building_farm(game_id):
+def tg_building_farm(building_progress_id):
     # Query for testgame inventory items
-    game = TestGame.query.filter_by(id=game_id).first()
+    building_progress = TestGameBuildingProgress.query.filter_by(id=building_progress_id).first()
+    game = TestGame.query.filter_by(id=building_progress.game_id).first()
+
+    # Forms
+    collectresourcesform = CollectResourcesForm()
+
+    # calculate accrued resources:
+    buildingservice = GameBuildingService(building_progress_id=building_progress_id)
+    buildingservice.calculate_accrued_resources()
+
+    if request.method == 'POST' and collectresourcesform.collect_button.data:
+        buildingservice.collect_resources()
+        db.session.commit()
+        flash(f'Resources Collected')
+
+
+
+
 
     
     return render_template("testgame/buildings/tg_building_farm.html",
                            title='Test Game - Farm',
-                            game=game)
+                            game=game,
+                            building_progress=building_progress,
+                            buildingservice=buildingservice,
+                            collectresourcesform=collectresourcesform)

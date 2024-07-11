@@ -1,8 +1,9 @@
-from app.models import User, TestGame, TestGameQuest, TestGameQuestProgress, TestGameQuestRewards, TestGameQuestType
-from app.models import TestGame, TestGameXPLog, TestGameCashLog
+from app.models import User, TestGame
+from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestRewards, TestGameQuestType
+from app.models import TestGame, TestGameXPLog, TestGameCashLog, TestGameResourceLog
 from app.models import TestGameBuildingType, TestGameBuildingProgress, TestGameBuildings
 from app.models import TestGameInventory, TestGameInventoryItems, TestGameInventoryType, TestGameInventoryUser
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 from app import db
 from flask import flash
 from math import floor
@@ -50,6 +51,15 @@ class GameCreation:
         for building in buildings:
             building = TestGameBuildingProgress(game_id=game_id, 
                                                 building_id=building.id)
+            # Set initial Building parameters:
+            #If Farm
+            if building.building_id == 3:
+                building.building_active = True
+                building.building_level = 1
+                building.cash_per_minute = 10
+                building.xp_per_minute = 1
+                building.accrual_start_time = datetime.now(timezone.utc)
+
             db.session.add(building)
 
     # function to assign all inventories to the TestGame instance
@@ -217,8 +227,8 @@ class GameService:
     def add_xp(self, xp: int) -> None:
         """Adds XP to a TestGame, logs the addition, and checks for level up."""
         self.test_game.xp += xp
-        xp_log = TestGameXPLog(xp=xp, test_game_id=self.test_game_id)
-        db.session.add(xp_log)
+        resource_log= TestGameResourceLog(test_game_id=self.test_game_id, xp=xp)
+        db.session.add(resource_log)
 
         self._check_and_update_level()
 
@@ -243,7 +253,7 @@ class GameService:
         """Adds cash to a TestGame and logs the addition."""
         test_game = self._get_test_game()
         test_game.cash += cash
-        cash_log = TestGameCashLog(cash=cash, test_game_id=self.test_game_id)
+        cash_log = TestGameResourceLog(test_game_id=self.test_game_id, cash=cash)
         db.session.add(cash_log)
     
     ## Quest related actions
@@ -320,7 +330,90 @@ class GameService:
     
 
 
+## GameBuildingService
+# Class to action against the TestGameBuilding instance
+class GameBuildingService:
+    ''' Service for managing game specific building actions '''
+    def __init__(self, building_progress_id: int, notifier=FlashNotifier()) -> None:
+        self.building_progress_id = building_progress_id
+        self.building = self._get_building_progress()
+        self.notifier = notifier
 
+    def _get_building_progress(self) -> TestGameBuildingProgress:
+        """Retrieves the TestGameBuildingProgress instance or raises an error if not found."""
+        building = TestGameBuildingProgress.query.get(self.building_progress_id)
+        if building is None:
+            raise ValueError(f"TestGameBuildingProgress with ID {self.building_progress_id} not found.")
+        return building  
+
+    # Building Methods:
+    def start_accrual(self):
+        self.building.accrual_start_time = datetime.now(timezone.utc)
+        self.building.accrued_cash = 0
+        self.building.accrued_xp = 0
+        self.building.accrued_wood = 0
+        self.building.accrued_stone = 0
+        self.building.accrued_metal = 0
+
+    def collect_resources(self):
+        self.calculate_accrued_resources()
+
+        # Add accrued resources to the TestGame
+        self.building.game.cash += self.building.accrued_cash
+        #use game service to add xp
+        game_service = GameService(test_game_id=self.building.game_id)
+        game_service.add_xp(self.building.accrued_xp)
+
+        self.building.game.wood += self.building.accrued_wood
+        self.building.game.stone += self.building.accrued_stone
+        self.building.game.metal += self.building.accrued_metal
+
+        
+
+        # update log
+        resource_log = TestGameResourceLog(
+            test_game_id=self.building.game_id,
+            cash=self.building.accrued_cash,
+            wood=self.building.accrued_wood,
+            stone=self.building.accrued_stone,
+            metal=self.building.accrued_metal
+        )
+
+        db.session.add(resource_log)
+
+        # Update building progress
+        self.start_accrual()
+
+        
+        
+            
+    def show_accrual_time(self):
+        if self.building.accrual_start_time is None:
+            return False
+        else:
+            time_difference = datetime.now(timezone.utc) - self.building.accrual_start_time
+            hours = time_difference.total_seconds() / 3600
+            return hours
+        
+    def calculate_accrued_resources(self):
+        # Ensure accrual_start_time is offset-aware
+        if self.building.accrual_start_time.tzinfo is None:
+            accrual_start_time = self.building.accrual_start_time.replace(tzinfo=timezone.utc)
+        else:
+            accrual_start_time = self.building.accrual_start_time
+
+        # Calculate with finer detail
+        time_difference = datetime.now(timezone.utc) - accrual_start_time
+        minutes = time_difference.total_seconds() / 60  # Calculate minutes for finer detail
+
+        # Calculate accrued resources and round to whole numbers
+        self.building.accrued_cash = round(self.building.cash_per_minute * minutes)
+        self.building.accrued_xp = round(self.building.xp_per_minute * minutes)
+        self.building.accrued_wood = round(self.building.wood_per_minute * minutes)
+        self.building.accrued_stone = round(self.building.stone_per_minute * minutes)
+        self.building.accrued_metal = round(self.building.metal_per_minute * minutes)
+            
+    
        
 
                               
