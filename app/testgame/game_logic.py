@@ -7,6 +7,9 @@ from app import db
 from flask import flash
 from math import floor
 
+
+## Game Setup related Service
+# Class to create a new TestGame instance
 class GameCreation:
     """Service for creating a new TestGame instance."""
     
@@ -15,6 +18,7 @@ class GameCreation:
         self.game_name = game_name
         self.game_id = None # game_id is set after game creation
 
+    # function to create a new TestGame instance
     def create_game(self) -> TestGame:
         """Creates a new TestGame instance."""
         test_game = TestGame(user_id=self.user_id, game_name=self.game_name )
@@ -24,11 +28,13 @@ class GameCreation:
         
         return test_game
 
+    # function to set the active game for the user
     def set_active_game(self, game_id: int) -> None:
         """Sets the active game for the user."""
         user = User.query.get(self.user_id)
         user.activetestgame = game_id
 
+    # function to assign all quests to the TestGame instance
     def assign_all_quests(self, game_id: int) -> None:
         """Assigns all quests to a TestGame."""
         quests = TestGameQuest.query.all()
@@ -36,7 +42,8 @@ class GameCreation:
             quest_progress = TestGameQuestProgress(game_id=game_id, 
                                                    quest_id=quest.id)
             db.session.add(quest_progress)
-            
+
+    # function to assign all buildings to the TestGame instance    
     def assign_all_buildings(self, game_id: int) -> None:
         """Assigns all buildings to a TestGame."""
         buildings = TestGameBuildings.query.all()
@@ -44,7 +51,8 @@ class GameCreation:
             building = TestGameBuildingProgress(game_id=game_id, 
                                                 building_id=building.id)
             db.session.add(building)
-            
+
+    # function to assign all inventories to the TestGame instance
     def assign_all_inventories(self, game_id: int) -> None:
         """Assigns all inventories to a TestGame."""
         inventories = TestGameInventory.query.all()
@@ -52,30 +60,24 @@ class GameCreation:
             inventory = TestGameInventoryUser(game_id=game_id, 
                                               inventory_id=inventory.id)
             db.session.add(inventory)
-           
+        
+    # function to create all startup items for the TestGame instance
     def create_all_startup(self, game_id: int) -> None:
         """Creates all startup items for a TestGame."""
         self.assign_all_quests(game_id)
         self.assign_all_buildings(game_id)
         self.assign_all_inventories(game_id)
         
-        
-        
-        
-        
-    
-            
-            
 
-            
-
-# Class to to query the TestGame instance
+## Game Related Query Service    
+# Class to query the TestGame 
 class GameQuery:
     """Service for querying the TestGame instance."""
     
     def __init__(self, game_id: int) -> None:
         self.game_id = game_id
         
+    # function to get the active game for the user
     def get_active_game(self) -> TestGame:
         """Retrieves the active TestGame instance or raises an error if not found."""
         user = User.query.get(self.user_id)
@@ -86,11 +88,13 @@ class GameQuery:
             raise ValueError(f"TestGame with ID {user.activetestgame} not found.")
         return test_game
     
+    # function to get all games for the user
     def get_all_games(self) -> TestGame:
         """Retrieves all TestGame instances for a user."""
         test_games = TestGame.query.filter_by(user_id=self.user_id).all()
         return test_games
     
+    # function to get all quests for the TestGame instance for the
     def get_game_by_id(self, game_id: int) -> TestGame:
         """Retrieves a TestGame instance by ID."""
         test_game = TestGame.query.get(game_id)
@@ -185,6 +189,7 @@ class GameQuery:
         return test_game        
     
 
+## Context Related Service
 class FlashNotifier:
     @staticmethod
     def notify(message):
@@ -196,6 +201,8 @@ class PrintNotifier:
         print(message)
 
 
+## Game Related Service
+# Class to action against the TestGame instance
 class GameService:
     """Service for adding XP and cash to a TestGame and logging the operations."""
     
@@ -204,7 +211,9 @@ class GameService:
         self.test_game = self._get_test_game()
         self.notifier = notifier
         
-        
+    
+    ## Game related actions
+    # functions to add XP to the TestGame instance
     def add_xp(self, xp: int) -> None:
         """Adds XP to a TestGame, logs the addition, and checks for level up."""
         self.test_game.xp += xp
@@ -221,20 +230,15 @@ class GameService:
             level_up = True
 
         if level_up:
-            self.alert_level_up()
+            if self.notifier:
+                self.notifier.notify(f'Congratulations! You have reached level {self.test_game.level}!')
             self.test_game.next_level_xp_required = self._xp_required_for_next_level(self.test_game.level)
 
     def _xp_required_for_next_level(self, level: int) -> int:
         base_xp = 100
         return floor(base_xp * (1.1 ** (level + 1)))
 
-    def alert_level_up(self) -> None:
-        """Alerts the user that they have leveled up."""
-
-        if self.notifier:
-            self.notifier.notify(f'Congratulations! You have reached level {self.test_game.level}!')
-        
-
+    # function to add cash to the TestGame instance
     def add_cash(self, cash: int) -> None:
         """Adds cash to a TestGame and logs the addition."""
         test_game = self._get_test_game()
@@ -242,6 +246,7 @@ class GameService:
         cash_log = TestGameCashLog(cash=cash, test_game_id=self.test_game_id)
         db.session.add(cash_log)
     
+    ## Quest related actions
     def assign_quest(self, game_id: int, quest_id: int) -> None:
         """Assigns a quest to a TestGame."""
         quest_progress = TestGameQuestProgress(game_id=game_id, quest_id=quest_id)
@@ -267,6 +272,8 @@ class GameService:
         quest_progress.is_complete = True
         quest_progress.completion_date = datetime.now()
         
+
+    ## Inventory / Item related actions
     def add_game_inventory(self, game_id: int, inventory_id: int) -> None:
         """Adds an inventory to a TestGame."""
         inventory = TestGameInventoryUser(game_id=game_id, inventory_id=inventory_id)
@@ -295,13 +302,15 @@ class GameService:
                 db.session.delete(item)
 
 
+    ## Building related actions
     def add_building_level(self, building_id: int, level: int, cash_per_hour: int) -> None:
         """Adds a level to a building."""
         building = TestGameBuildingProgress.query.get(building_id)
         building.level += level
         building.cash_per_hour += cash_per_hour
         
-        
+
+    ## Helper functions
     def _get_test_game(self) -> TestGame:
         """Retrieves the TestGame instance or raises an error if not found."""
         test_game = TestGame.query.get(self.test_game_id)

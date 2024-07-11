@@ -9,6 +9,7 @@ import sqlalchemy as sa
 
 from app.testgame import bp
 
+
 @bp.route('/tg_startmenu', methods=['GET', 'POST'])
 @login_required
 def tg_startmenu():
@@ -50,7 +51,7 @@ def tg_startmenu():
                            numberofgames=numberofgames)
 
 
-##Game Instance
+## Route to display game play
 @bp.route('/tgplay/<game_id>', methods=['GET', 'POST'])
 @login_required
 def tg_play(game_id): 
@@ -63,18 +64,16 @@ def tg_play(game_id):
     addxpform = AddXPForm()
     addcashform = AddCashForm()
 
-    
-
     # Database Queries
     game = TestGame.query.filter_by(id=game_id).first()
     
-
     if request.method == 'POST' and addxpform.addxp_button.data:
         xp = addxpform.xp.data
         service = GameService(test_game_id=game_id)
         service.add_xp(xp)
         db.session.commit()
         flash(f'{xp} xp added to {game.game_name}')
+
 
     if request.method == 'POST' and addcashform.addcash_button.data:
         cash = addcashform.cash.data
