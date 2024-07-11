@@ -175,12 +175,7 @@ class GameQuery:
         """Retrieves a TestGameQuestProgress instance by game and quest ID."""
         quest_progress = TestGameQuestProgress.query.filter_by(game_id=game_id, quest_id=quest_id).first()
         return quest_progress
-    
-    
-    
-    
-
-            
+   
     # function to reutn TestGame instance
     def get_test_game(self) -> TestGame:
         """Retrieves the TestGame instance or raises an error if not found."""
@@ -190,23 +185,26 @@ class GameQuery:
         return test_game        
     
 
-    
-        
+class FlashNotifier:
+    @staticmethod
+    def notify(message):
+        flash(message)
+
+class PrintNotifier: 
+    @staticmethod
+    def notify(message):
+        print(message)
+
 
 class GameService:
     """Service for adding XP and cash to a TestGame and logging the operations."""
     
-    def __init__(self, test_game_id: int, notifier=None) -> None:
+    def __init__(self, test_game_id: int, notifier=FlashNotifier()) -> None:
         self.test_game_id = test_game_id
         self.test_game = self._get_test_game()
-        self.notifier = notifier or self.default_notifier
+        self.notifier = notifier
         
-     
-    @ staticmethod
-    def default_notifier(message):
-        pass
         
-
     def add_xp(self, xp: int) -> None:
         """Adds XP to a TestGame, logs the addition, and checks for level up."""
         self.test_game.xp += xp
@@ -232,7 +230,9 @@ class GameService:
 
     def alert_level_up(self) -> None:
         """Alerts the user that they have leveled up."""
-        self.notifier(f'Congratulations! You have reached level {self.test_game.level}!')
+
+        if self.notifier:
+            self.notifier.notify(f'Congratulations! You have reached level {self.test_game.level}!')
         
 
     def add_cash(self, cash: int) -> None:
@@ -311,10 +311,6 @@ class GameService:
     
 
 
-class WebNotifier:
-    @staticmethod
-    def notify(message):
-        flash(message)
 
        
 

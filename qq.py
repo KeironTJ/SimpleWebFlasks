@@ -13,7 +13,7 @@ from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems, 
 from app.models import TestGameLevelRequirements
 from app.models import TestGameCashLog, TestGameXPLog
 from app.models import TestGameBuildings, TestGameBuildingProgress, TestGameBuildingType
-from app.testgame.game_logic import GameCreation, GameService
+from app.testgame.game_logic import GameCreation, GameService, PrintNotifier, FlashNotifier
 
 app = create_app()
 app_context = app.app_context()
@@ -318,7 +318,7 @@ def create_test_game_for_admin():
     
 def test_GameService():
     print("TESTING GameService")
-    service = GameService(test_game_id=1)
+    service = GameService(test_game_id=1, notifier=PrintNotifier())
     
     # Add XP and Cash
     try:
