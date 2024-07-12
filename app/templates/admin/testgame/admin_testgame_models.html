@@ -34,7 +34,7 @@
                 <td>{{ testgame.id }}</td>
                 <td>{{ testgame.game_name }}</td>
                 <td>{{ testgame.game_exists }}</td>
-                <td>{{ testgame.entry_date }}</td>
+                <td>{{ testgame.entry_date.strftime('%d-%m-%Y @ %H:%M') }}</td>
                 <td>{{ testgame.xp }}</td>
                 <td>{{ testgame.level }}</td>
                 <td>{{ testgame.cash }}</td>

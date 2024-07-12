@@ -1,6 +1,6 @@
 from app.models import User, TestGame
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestRewards, TestGameQuestType
-from app.models import TestGame, TestGameXPLog, TestGameCashLog, TestGameResourceLog
+from app.models import TestGame, TestGameResourceLog
 from app.models import TestGameBuildingType, TestGameBuildingProgress, TestGameBuildings
 from app.models import TestGameInventory, TestGameInventoryItems, TestGameInventoryType, TestGameInventoryUser
 from datetime import datetime, timezone, timedelta
@@ -224,14 +224,17 @@ class GameService:
     
     ## Game related actions
     # functions to add XP to the TestGame instance
-    def add_xp(self, xp: int) -> None:
+    def add_xp(self, xp: int, source="") -> None:
         """Adds XP to a TestGame, logs the addition, and checks for level up."""
         self.test_game.xp += xp
-        resource_log= TestGameResourceLog(test_game_id=self.test_game_id, xp=xp)
+        resource_log= TestGameResourceLog(test_game_id=self.test_game_id, 
+                                          xp=xp,
+                                          source=source)
         db.session.add(resource_log)
 
         self._check_and_update_level()
 
+    # method to check and update the level to support add_xp
     def _check_and_update_level(self) -> None:
         """Checks if the TestGame has leveled up and updates accordingly."""
         level_up = False
@@ -244,16 +247,19 @@ class GameService:
                 self.notifier.notify(f'Congratulations! You have reached level {self.test_game.level}!')
             self.test_game.next_level_xp_required = self._xp_required_for_next_level(self.test_game.level)
 
+    # method to calculate the xp required for the next level
     def _xp_required_for_next_level(self, level: int) -> int:
         base_xp = 100
         return floor(base_xp * (1.1 ** (level + 1)))
 
     # function to add cash to the TestGame instance
-    def add_cash(self, cash: int) -> None:
+    def add_cash(self, cash: int, source = "") -> None:
         """Adds cash to a TestGame and logs the addition."""
         test_game = self._get_test_game()
         test_game.cash += cash
-        cash_log = TestGameResourceLog(test_game_id=self.test_game_id, cash=cash)
+        cash_log = TestGameResourceLog(test_game_id=self.test_game_id, 
+                                       cash=cash,
+                                       source=source)
         db.session.add(cash_log)
     
     ## Quest related actions
@@ -360,13 +366,14 @@ class GameBuildingService:
 
         # Add accrued resources to the TestGame
         self.building.game.cash += self.building.accrued_cash
-        #use game service to add xp
-        game_service = GameService(test_game_id=self.building.game_id)
-        game_service.add_xp(self.building.accrued_xp)
-
         self.building.game.wood += self.building.accrued_wood
         self.building.game.stone += self.building.accrued_stone
         self.building.game.metal += self.building.accrued_metal
+        
+        #use game service to add xp as need to check if level up
+        game_service = GameService(test_game_id=self.building.game_id)
+        game_service.add_xp(self.building.accrued_xp,
+                            source = "Resource Collection. Building: " + str(self.building.building_id))
 
         
 
@@ -376,7 +383,8 @@ class GameBuildingService:
             cash=self.building.accrued_cash,
             wood=self.building.accrued_wood,
             stone=self.building.accrued_stone,
-            metal=self.building.accrued_metal
+            metal=self.building.accrued_metal,
+            source = "Resource Collection. Building: " + str(self.building.building_id)
         )
 
         db.session.add(resource_log)
@@ -384,9 +392,7 @@ class GameBuildingService:
         # Update building progress
         self.start_accrual()
 
-        
-        
-            
+
     def show_accrual_time(self):
         if self.building.accrual_start_time is None:
             return False

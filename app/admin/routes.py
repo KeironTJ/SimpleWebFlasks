@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user  # type: ignore
 from app import db
-from app.models import User, Role, UserRoles, GTNSettings, TestGame, TestGameXPLog, TestGameCashLog, TestGameLevelRequirements, TestGameResourceLog
+from app.models import User, Role, UserRoles, GTNSettings, TestGame, TestGameResourceLog
 from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsForm
 from app.models import TestGameBuildingProgress, TestGameBuildingType, TestGameBuildings
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
@@ -142,15 +142,11 @@ def admin_testgame_models():
 @admin_required
 def admin_testgame_resourceslog():
 
-    xplogs = db.session.query(TestGameXPLog).all()
-    cashlogs = db.session.query(TestGameCashLog).all()
     resourcelogs = db.session.query(TestGameResourceLog).all()
 
 
     return render_template("admin/testgame/admin_testgame_resourceslog.html", 
                            title='Admin Test Game XP Log', 
-                           xplogs=xplogs,
-                           cashlogs=cashlogs,
                            resourcelogs=resourcelogs)
 
 # This route is used to render the admin page for for test game level requirements
@@ -159,25 +155,9 @@ def admin_testgame_resourceslog():
 @admin_required
 def admin_testgame_levelrequirements():
 
-    # Forms
-    levelrequirementform = LevelRequirementsForm()
-
-    if request.method == 'POST' and levelrequirementform.addlevel_button.data:
-        levelrequirement = TestGameLevelRequirements(level=levelrequirementform.level.data,
-                                                     xp_required=levelrequirementform.xp_required.data)
-        db.session.add(levelrequirement)
-        db.session.commit()
-        flash("Level Requirement Added")
-        return redirect(url_for('admin.admin_testgame_levelrequirements'))
-
-
-
-    levelrequirements = db.session.query(TestGameLevelRequirements).all()
 
     return render_template("admin/testgame/admin_testgame_levelrequirements.html", 
-                           title='Admin Test Game Level Requirements', 
-                           levelrequirements=levelrequirements,
-                           levelrequirementform=levelrequirementform)
+                           title='Admin Test Game Level Requirements')
 
 
 # This route is used to render the admin page for the test game main quests

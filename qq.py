@@ -10,8 +10,7 @@ from app.models import db, Role, User
 from app.models import TestGame
 from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,RewardItemAssociation, TestGameQuestProgress
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems, TestGameInventoryType, TestGameInventoryUser
-from app.models import TestGameLevelRequirements
-from app.models import TestGameCashLog, TestGameXPLog, TestGameResourceLog
+from app.models import TestGameResourceLog
 from app.models import TestGameBuildings, TestGameBuildingProgress, TestGameBuildingType
 from app.testgame.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
 
@@ -106,23 +105,7 @@ class InventoryCreator:
             
 # Example usage
 main_inventory = InventoryCreator(inventory_name="Main Inventory", inventory_description="Main Inventory Description", inventory_type_id=1)
-
-
-    
-## LEVEL REQUIREMENTS
-# Create Level Requirements        
-def create_level_requirements():
-    level_requirement1 = TestGameLevelRequirements(level = 1, xp_required = 100)
-    level_requirement2 = TestGameLevelRequirements(level = 2, xp_required = 200)
-    level_requirement3 = TestGameLevelRequirements(level = 3, xp_required = 400)
-    db.session.add(level_requirement1)
-    db.session.add(level_requirement2)
-    db.session.add(level_requirement3)
-    db.session.commit()
-    print("Level Requirements Created")
-
-
-    
+ 
     
     
 ## ITEMS
@@ -322,8 +305,8 @@ def test_GameService():
     
     # Add XP and Cash
     try:
-        service.add_xp(50)
-        service.add_cash(100)
+        service.add_xp(50, source="TEST ADD XP")
+        service.add_cash(100, source="TEST ADD Cash")
         print("TEST XP and Cash - SUCCESS")
     except Exception as e:
         print(f"TEST XP and Cash - FAILED: {e}")
@@ -339,7 +322,7 @@ def test_GameService():
         
     # Add XP to increase Level
     try:
-        service.add_xp(150)
+        service.add_xp(150, source="TEST ADD LEVEL")
         print("TEST XP added to increase Level - SUCCESS")
     except Exception as e:
         print(f"XP added to increase Level - FAILED: {e}")
@@ -414,10 +397,7 @@ def delete_all_data():
     db.session.query(TestGameInventoryType).delete()
 
     # Delete Game Data
-    db.session.query(TestGameCashLog).delete()
-    db.session.query(TestGameXPLog).delete()
     db.session.query(TestGameResourceLog).delete()
-    db.session.query(TestGameLevelRequirements).delete()
     db.session.query(TestGame).delete()
 
     db.session.commit()
@@ -435,9 +415,6 @@ if __name__ == "__main__":
     create_inventory_types()
     main_inventory.create_inventory()
     
-    
-    # Create Level Requirements
-    create_level_requirements()
     
     # Create buildings, requirements progress
     create_building_types()

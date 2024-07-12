@@ -95,9 +95,6 @@ class TransactionCategory(db.Model):
     transactions = db.relationship("Transaction", back_populates="category")
 
 
-
-
-
 ## GUESS THE NUMBER RELATED MODELS
 class GTNSettings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -115,6 +112,7 @@ class GTNHistory(db.Model):
     endrange = db.Column(db.Integer)
     number = db.Column(db.Integer)
     guesses = db.Column(db.Integer)
+
 
 ## TEST GAME RELATED MODELS
 # Model representing a game test case
@@ -142,8 +140,6 @@ class TestGame(db.Model):
     next_level_xp_required = db.Column(db.Integer, default=110)
     
     # create relationships
-    test_game_cash_logs = db.relationship("TestGameCashLog", back_populates="testgame")
-    test_game_xp_logs = db.relationship("TestGameXPLog", back_populates="testgame")
     user = db.relationship("User", back_populates="test_game")
     inventories = db.relationship("TestGameInventoryUser", back_populates="game")
     quest_progress = db.relationship("TestGameQuestProgress", back_populates="quest_game")
@@ -256,23 +252,6 @@ class TestGameInventoryItems(db.Model):
     inventory = db.relationship("TestGameInventoryUser", back_populates="inventory_items")
     item = db.relationship("TestGameItem", back_populates="inventory_items")
     
-
-  
-
-
-
-
-# Create Model to store level requirements, not specfic to use or game
-class TestGameLevelRequirements(db.Model):
-    __tablename__ = 'test_game_level_requirements'
-    
-    # Primary key
-    id = db.Column(db.Integer, primary_key=True)
-    
-    # Level requirements
-    level = db.Column(db.Integer)
-    xp_required = db.Column(db.Integer)
-
     
 
 ## TEST GAME QUEST RELATED MODELS
@@ -357,40 +336,7 @@ class TestGameQuestProgress(db.Model):
     
     
     
-    ## TESTGAME LOGS
-    # Model to log xp transactions
-class TestGameXPLog(db.Model):
-    __tablename__ = 'test_game_xp_log'
-
-    # Primary key
-    id = db.Column(db.Integer, primary_key=True)
-    
-    # Foreign keys
-    test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
-
-    # XP details
-    xp = db.Column(db.Integer)
-    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-   
-    # Relationships with unique backref names
-    testgame = db.relationship("TestGame", back_populates="test_game_xp_logs")
-
-class TestGameCashLog(db.Model):
-    __tablename__ = 'test_game_cash_log'
-    
-    # Primary key
-    id = db.Column(db.Integer, primary_key=True)
-
-    # Foreign keys
-    test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
-
-    # Cash details
-    cash = db.Column(db.Float)
-    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-
-    # Relationships
-    testgame = db.relationship("TestGame", back_populates="test_game_cash_logs")
-
+## TESTGAME LOGS
 class TestGameResourceLog(db.Model):
     __tablename__ = 'test_game_resource_log'
     
