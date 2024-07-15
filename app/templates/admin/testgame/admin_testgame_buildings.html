@@ -69,15 +69,32 @@
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
-                <th>Building Progress ID</th>
-                <th>Building Game ID</th>
-                <th>Building Building ID</th>
-                <th>Building Building Level</th>
-                <th>Building Building Active</th>
-                <th>Cash Required to Build</th>
-                <th>Level Required to Build</th>
-                <th>Cash per Hour</th>
+                <th>Progress ID</th>
+                <th>Game ID</th>
+                <th>Building ID</th>
+                <th>Building Level</th>
+                <th>Building Active</th>
+                <th>Max Building Level</th>
+                <th>Cash Requirement</th>
+                <th>Level Requirement</th>
+                <th>XP Requirement</th>
+                <th>Wood Requirement</th>
+                <th>Stone Requirement</th>
+                <th>Metal Requirement</th>
+                <th>XP per Minute</th>
+                <th>Cash per Minute</th>
+                <th>Wood per Minute</th>
+                <th>Stone per Minute</th>
+                <th>Metal per Minute</th>
+                <th>Accrual Start Time</th>
+                <th>Max Accrual Duration</th>
+                <th>Accrued XP</th>
                 <th>Accrued Cash</th>
+                <th>Accrued Wood</th>
+                <th>Accrued Stone</th>
+                <th>Accrued Metal</th>
+                <th>Building Completed</th>
+                <th>Building Completed Date</th>
 
 
             </tr>
@@ -90,21 +107,33 @@
                 <td>{{ buildingprogress.building_id }}</td>
                 <td>{{ buildingprogress.building_level }}</td>
                 <td>{{ buildingprogress.building_active }}</td>
+                <td>{{ buildingprogress.max_building_level }}</td>
                 <td>{{ buildingprogress.base_building_cash_required }}</td>
                 <td>{{ buildingprogress.base_building_level_required }}</td>
+                <td>{{ buildingprogress.base_building_xp_required }}</td>
+                <td>{{ buildingprogress.base_building_wood_required }}</td>
+                <td>{{ buildingprogress.base_building_stone_required }}</td>
+                <td>{{ buildingprogress.base_building_metal_required }}</td>
                 <td>{{ buildingprogress.cash_per_hour }}</td>
                 <td>{{ buildingprogress.accrued_cash }}</td>
+                <td>{{ buildingprogress.accrued_wood }}</td>
+                <td>{{ buildingprogress.accrued_stone }}</td>
+                <td>{{ buildingprogress.accrued_metal }}</td>
+                <td>{{ buildingprogress.accrual_start_time }}</td>
+                <td>{{ buildingprogress.max_accrual_duration }}</td>
+                <td>{{ buildingprogress.accrued_xp }}</td>
+                <td>{{ buildingprogress.accrued_cash }}</td>
+                <td>{{ buildingprogress.accrued_wood }}</td>
+                <td>{{ buildingprogress.accrued_stone }}</td>
+                <td>{{ buildingprogress.accrued_metal }}</td>
+                <td>{{ buildingprogress.building_completed }}</td>
+                <td>{{ buildingprogress.building_completed_date }}</td>
 
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-
-
-
-
-
 
 
 {% endblock content2 %}

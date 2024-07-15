@@ -1,10 +1,11 @@
+from msilib.schema import Upgrade
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.models import User, db, TestGame, TestGameInventory
 from app.models import TestGameInventoryUser, TestGameInventoryItems, TestGameInventoryType
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
 from app.models import TestGameBuildingProgress, TestGameBuildings
-from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, CollectResourcesForm
+from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, CollectResourcesForm, UpgradeBuildingForm
 from app.testgame.game_logic import GameService, GameCreation, GameQuery, GameBuildingService
 import sqlalchemy as sa
 
@@ -132,6 +133,7 @@ def tg_building_farm(building_progress_id):
 
     # Forms
     collectresourcesform = CollectResourcesForm()
+    upgradebuildingform = UpgradeBuildingForm()
 
     # calculate accrued resources:
     buildingservice = GameBuildingService(building_progress_id=building_progress_id)
@@ -142,14 +144,16 @@ def tg_building_farm(building_progress_id):
         db.session.commit()
         flash(f'Resources Collected')
 
+    if request.method == 'POST' and upgradebuildingform.upgrade_button.data:
+        buildingservice.upgrade_building()
+        db.session.commit()
+        flash(f'Building Upgraded')
 
 
-
-
-    
     return render_template("testgame/buildings/tg_building_farm.html",
                            title='Test Game - Farm',
                             game=game,
                             building_progress=building_progress,
                             buildingservice=buildingservice,
-                            collectresourcesform=collectresourcesform)
+                            collectresourcesform=collectresourcesform,
+                            upgradebuildingform=upgradebuildingform)

@@ -23,5 +23,23 @@
     </form>
 </div>
 
+<div>
+    <h2>Upgrade:</h2>
+
+    <p>Upgrade to the next level for: {{ building_progress.base_building_cash_required }}</p>
+    <p>Current Level: {{ building_progress.building_level }}</p>
+    {% if buildingservice.check_upgrade_requirements() %}
+        <form action="" method="post">
+            {{ upgradebuildingform.hidden_tag() }}
+            <p>{{ upgradebuildingform.upgrade_button() }}</p>
+        </form>
+    {% else %}
+        <p>Requirements not met</p>
+    {% endif %}
+    
+
+
+</div>
+
 
 {% endblock content2 %}

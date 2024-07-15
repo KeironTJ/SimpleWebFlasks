@@ -6,6 +6,7 @@ from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsFor
 from app.models import TestGameBuildingProgress, TestGameBuildingType, TestGameBuildings
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems, TestGameInventoryUser, TestGameInventoryType
+from app.testgame.game_logic import GameService, GameCreation, GameQuery, GameBuildingService
 from app.admin.decorators import admin_required
 from app.admin import bp
 
@@ -187,13 +188,21 @@ def admin_testgame_mainquests():
 @admin_required
 def admin_testgame_buildings():
     
+    # Queries
     testgames = db.session.query(TestGame).all()
     buildingtypes = db.session.query(TestGameBuildingType).all()
     buildings = db.session.query(TestGameBuildings).all()
     buildingprogress = db.session.query(TestGameBuildingProgress).all()
-                          
     
+    # Calculate Accrued Resources
+    for building in buildingprogress:
+        service = GameBuildingService(building_progress_id=building.id)
+        accrued_resources = service.calculate_accrued_resources()
+        building.accrued_resources = accrued_resources
     
+    db.session.commit()   
+        
+
     return render_template("admin/testgame/admin_testgame_buildings.html", 
                         title='Admin Test Game Buildings', 
                         testgames=testgames,

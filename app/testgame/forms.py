@@ -30,6 +30,10 @@ class AddCashForm(FlaskForm):
 
 class CollectResourcesForm(FlaskForm):
     collect_button = SubmitField('Collect Resources')
+    
+
+class UpgradeBuildingForm(FlaskForm):
+    upgrade_button = SubmitField('Upgrade')
 
 
 

@@ -418,7 +418,56 @@ class GameBuildingService:
         self.building.accrued_wood = round(self.building.wood_per_minute * minutes)
         self.building.accrued_stone = round(self.building.stone_per_minute * minutes)
         self.building.accrued_metal = round(self.building.metal_per_minute * minutes)
+    
+    def check_upgrade_requirements(self):
+        # Check if building is already at max level
+        if self.building.building_level >= self.building.max_building_level:
+            if self.notifier:
+                self.notifier.notify("Building is already at max level.")
+            return False
+        
+        # Check if user has enough cash to upgrade
+        if self.building.game.cash >= self.building.base_building_cash_required:
+            return True
+        
+        return False
+
+    def upgrade_building(self):
+        # Check if building is already at max level
+        if self.building.building_level >= self.building.max_building_level:
+            if self.notifier:
+                self.notifier.notify("Building is already at max level.")
+            return
+        
+        # Check if user has enough cash to upgrade
+        if self.building.game.cash < self.building.base_building_cash_required:
+            if self.notifier:
+                self.notifier.notify("Insufficient cash to upgrade building.")
+            return
+        
+        # Deduct cash from user
+        game_service = GameService(test_game_id=self.building.game_id)
+        game_service.add_cash(-self.building.base_building_cash_required, 
+                              source="Building Upgrade. Building: " + str(self.building.building_id))
+        
+        # Collect current resources
+        self.collect_resources()
+
+        # Upgrade building
+        self.building.building_level += 1
+        self.building.cash_per_minute += self.building.cash_per_minute * 1.1
+        self.building.xp_per_minute += self.building.xp_per_minute * 1.1
+        self.building.wood_per_minute += self.building.wood_per_minute * 1.1
+        self.building.stone_per_minute += self.building.stone_per_minute * 1.1
+        self.building.metal_per_minute += self.building.metal_per_minute * 1.1
+        
+        
+        if self.notifier:
+            self.notifier.notify(f"Building upgraded to level {self.building.building_level}.")
             
+            
+    
+    
     
        
 

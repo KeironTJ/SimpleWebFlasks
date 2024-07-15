@@ -410,10 +410,15 @@ class TestGameBuildingProgress(db.Model):
     # Building progress details
     building_level = db.Column(db.Integer, default=1)
     building_active = db.Column(db.Boolean, default=False)
+    max_building_level = db.Column(db.Integer, default=10)
     
     # Building Upgrade Requirements
     base_building_cash_required = db.Column(db.Float, default=0)
     base_building_level_required = db.Column(db.Integer, default=0)
+    base_building_xp_required = db.Column(db.Integer, default=0)
+    base_building_wood_required = db.Column(db.Integer, default=0)
+    base_building_stone_required = db.Column(db.Integer, default=0)
+    base_building_metal_required = db.Column(db.Integer, default=0)
     
     # Building Resource Collection details
     xp_per_minute = db.Column(db.Integer, default=0)
