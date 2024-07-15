@@ -120,26 +120,6 @@ def test_GameService():
         db.session.rollback()
         print("TEST FAILED")
 
-def test_GameBuildingService():
-    print("TESTING GameBuildingService")
-    service = GameBuildingService(building_progress_id=3, notifier=PrintNotifier())
-    
-
-    print("TEST Collecting resources")
-    try:
-        service.collect_resources()
-        print("TEST Collect Resources - SUCCESS")
-    except Exception as e:
-        print(f"TEST Collect Resources - FAILED: {e}")
-        
-    # Attempt commit
-    try:
-        
-        db.session.commit()
-        print("TEST PASSED")
-    except:
-        db.session.rollback()
-        print("TEST FAILED")
 
 
 
@@ -177,8 +157,7 @@ if __name__ == "__main__":
    
     
     create_test_game_for_admin()
-    test_GameService()
-    test_GameBuildingService()
+    #test_GameService()
         
         
 

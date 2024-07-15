@@ -57,11 +57,13 @@ class GameCreation:
             # Set quest building progress parameters for quests
             if building.building_id == 1:
                 building.building_active = True
+                building.building_level = 1
                 
                 
             # Set warehouse building progress parameters for inventories
             if building.building_id == 2:
-                building.building_active = True      
+                building.building_active = True  
+                building.building_level = 1
 
                           
             db.session.add(building)
@@ -330,7 +332,12 @@ class GameBuildingService:
 
     def _calculate_required_resources(self):
         """Calculates the resources required for the next upgrade based on the current level."""
-        level_factor = (1.1 * self.building.building_level)
+        
+        if self.building.building_level == 0:
+            level_factor = 1
+        else:
+            level_factor = (1.1 * self.building.building_level)
+        
         required_resources = {
             'level': round(self.building.building.base_building_level_required),
             'cash': round(self.building.building.base_building_cash_required * level_factor),
@@ -360,9 +367,22 @@ class GameBuildingService:
         game_service.add_cash(-self.building.building.base_building_cash_required, 
                               source="Building Upgrade. Building: " + str(self.building.building_id))
         
+        
+
+        ##TODO: Check if building is at level 0 and set rate
+        # Check if building level is 0 and set rate
+        if self.building.building_level == 0:
+            print(self.building.building.base_cash_per_minute)
+            self.building.cash_per_minute = self.building.building.base_cash_per_minute
+            self.building.xp_per_minute = self.building.building.base_xp_per_minute
+            self.building.wood_per_minute = self.building.building.base_wood_per_minute
+            self.building.stone_per_minute = self.building.building.base_stone_per_minute
+            self.building.metal_per_minute = self.building.building.base_metal_per_minute
+            self.building.building_active = True
+
         # Collect current resources
         self.collect_resources()
-
+        
         # Upgrade building
         self.building.building_level += 1
         self.building.cash_per_minute += round(self.building.cash_per_minute * 1.1)

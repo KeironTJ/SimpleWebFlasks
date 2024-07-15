@@ -52,7 +52,7 @@ class BuildingCreator:
             db.session.rollback()
             print(f"Failed to create building: {e}")
     
-    def set_building_requirements(self, cash, level, xp, wood, stone, metal):
+    def set_building_requirements(self, cash=0, level=0, xp=0, wood=0, stone=0, metal=0):
         if not self.building:
             print("Building must be created before setting requirements.")
             return
@@ -69,6 +69,23 @@ class BuildingCreator:
         except Exception as e:
             db.session.rollback()
             print(f"Failed to set building requirements: {e}")
+            
+    def set_base_collection_rates(self, cash=0, xp=0, wood=0, stone=0, metal=0):
+        if not self.building:
+            print("Building must be created before setting collection parameters.")
+            return
+        try:
+            self.building.base_cash_per_minute = cash
+            self.building.base_xp_per_minute = xp
+            self.building.base_wood_per_minute = wood
+            self.building.base_stone_per_minute = stone
+            self.building.base_metal_per_minute = metal
+
+            db.session.commit()
+            print("Building collection parameters set")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to set building collection parameters: {e}")
             
 
 def delete_building_data():
@@ -109,12 +126,9 @@ if __name__ == "__main__":
                                 building_type_id=3, 
                                 building_link="testgame.tg_building_resource")
     farm_building.create_building()
-    farm_building.set_building_requirements(cash=1000, 
-                                            level=1, 
-                                            xp=0, 
-                                            wood=0, 
-                                            stone=0, 
-                                            metal=0)
+    farm_building.set_building_requirements(cash=1000, level=1)
+    farm_building.set_base_collection_rates(cash=10)
+                                            
     
     # Create Lumber Mill Building
     lumber_mill_building = BuildingCreator(building_name="Lumber Mill", 
@@ -122,12 +136,8 @@ if __name__ == "__main__":
                                        building_type_id=3, 
                                        building_link="testgame.tg_building_resource")
     lumber_mill_building.create_building()
-    lumber_mill_building.set_building_requirements(cash=1500, 
-                                                  level=5, 
-                                                  xp=0, 
-                                                  wood=0, 
-                                                  stone=0, 
-                                                  metal=0)
+    lumber_mill_building.set_building_requirements(cash=1500, level=5)
+    lumber_mill_building.set_base_collection_rates(wood=5)
     
     # Create Mine Quilding
     mine_building = BuildingCreator(building_name="Mine", 
@@ -135,12 +145,8 @@ if __name__ == "__main__":
                                 building_type_id=3, 
                                 building_link="testgame.tg_building_resource")
     mine_building.create_building()
-    mine_building.set_building_requirements(cash=2500, 
-                                            level=10, 
-                                            xp=0, 
-                                            wood=500, 
-                                            stone=0, 
-                                            metal=0)
+    mine_building.set_building_requirements(cash=2500, level=10, wood=500)
+    mine_building.set_base_collection_rates(stone=2)
     
     # Create Forge Building
     forge_building = BuildingCreator(building_name="Forge", 
@@ -148,11 +154,7 @@ if __name__ == "__main__":
                                  building_type_id=3, 
                                  building_link="testgame.tg_building_resource")
     forge_building.create_building()
-    forge_building.set_building_requirements(cash=5000, 
-                                            level=20, 
-                                            xp=0, 
-                                            wood=1000, 
-                                            stone=500, 
-                                            metal=0)
+    forge_building.set_building_requirements(cash=5000, level=20, wood=1000, stone=500, metal=0)
+    forge_building.set_base_collection_rates(metal=1)
     
     # python -m app.testgame.Buildings.Buildings

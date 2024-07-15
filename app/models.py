@@ -131,7 +131,7 @@ class TestGame(db.Model):
     entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
     xp = db.Column(db.Integer, default=0)
     level = db.Column(db.Integer, default=0)
-    cash = db.Column(db.Float, default=0)
+    cash = db.Column(db.Integer, default=0)
     wood = db.Column(db.Integer, default=0)
     stone = db.Column(db.Integer, default=0)
     metal = db.Column(db.Integer, default=0)
@@ -222,7 +222,7 @@ class TestGameItem(db.Model):
 
     # Item details
     item_name = db.Column(db.String(64))
-    item_cost = db.Column(db.Float)
+    item_cost = db.Column(db.Integer)
     item_xp = db.Column(db.Integer)
     item_level = db.Column(db.Integer)
     item_type = db.Column(db.String(64))
@@ -305,7 +305,7 @@ class TestGameQuestRewards(db.Model):
     quest_reward_name = db.Column(db.String(64))
     quest_reward_description = db.Column(db.String(256))
     quest_reward_xp = db.Column(db.Integer, default=0)
-    quest_reward_cash = db.Column(db.Float,default=0)
+    quest_reward_cash = db.Column(db.Integer,default=0)
     quest_reward_item_id = db.Column(db.Integer, db.ForeignKey('test_game_items.id'))
     
     # Relationships
@@ -347,7 +347,7 @@ class TestGameResourceLog(db.Model):
     test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
 
     # Resource details
-    cash = db.Column(db.Float, default=0)
+    cash = db.Column(db.Integer, default=0)
     xp = db.Column(db.Integer, default=0)
     wood = db.Column(db.Integer, default=0)
     stone = db.Column(db.Integer, default=0)
@@ -390,14 +390,24 @@ class TestGameBuildings(db.Model):
     building_link = db.Column(db.String(256))
     
     # Building Upgrade Requirements
-    base_building_cash_required = db.Column(db.Float, default=0)
+    base_building_cash_required = db.Column(db.Integer, default=0)
     base_building_level_required = db.Column(db.Integer, default=0)
     base_building_xp_required = db.Column(db.Integer, default=0)
     base_building_wood_required = db.Column(db.Integer, default=0)
     base_building_stone_required = db.Column(db.Integer, default=0)
     base_building_metal_required = db.Column(db.Integer, default=0)
     
-    max_building_level = db.Column(db.Integer, default=10)
+    # Building Level Details
+    max_building_level = db.Column(db.Integer, default=25)
+    
+    # Building Resource Collection details
+    base_xp_per_minute = db.Column(db.Integer, default=0)
+    base_cash_per_minute = db.Column(db.Integer, default=0)
+    base_wood_per_minute = db.Column(db.Integer, default=0)
+    base_stone_per_minute = db.Column(db.Integer, default=0)
+    base_metal_per_minute = db.Column(db.Integer, default=0)
+    
+    
 
     # Relationships
     building_type = db.relationship("TestGameBuildingType", back_populates="building")
@@ -424,7 +434,7 @@ class TestGameBuildingProgress(db.Model):
 
     # Building Resource Collection details
     xp_per_minute = db.Column(db.Integer, default=0)
-    cash_per_minute = db.Column(db.Float, default=0)
+    cash_per_minute = db.Column(db.Integer, default=0)
     wood_per_minute = db.Column(db.Integer, default=0)
     stone_per_minute = db.Column(db.Integer, default=0)
     metal_per_minute = db.Column(db.Integer, default=0)
@@ -435,7 +445,7 @@ class TestGameBuildingProgress(db.Model):
 
     # Accrued Resources
     accrued_xp = db.Column(db.Integer, default=0)
-    accrued_cash = db.Column(db.Float, default=0)
+    accrued_cash = db.Column(db.Integer, default=0)
     accrued_wood = db.Column(db.Integer, default=0)
     accrued_stone = db.Column(db.Integer, default=0)
     accrued_metai = db.Column(db.Integer, default=0)
