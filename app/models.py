@@ -388,6 +388,16 @@ class TestGameBuildings(db.Model):
     building_name = db.Column(db.String(64))
     building_description = db.Column(db.String(256))
     building_link = db.Column(db.String(256))
+    
+    # Building Upgrade Requirements
+    base_building_cash_required = db.Column(db.Float, default=0)
+    base_building_level_required = db.Column(db.Integer, default=0)
+    base_building_xp_required = db.Column(db.Integer, default=0)
+    base_building_wood_required = db.Column(db.Integer, default=0)
+    base_building_stone_required = db.Column(db.Integer, default=0)
+    base_building_metal_required = db.Column(db.Integer, default=0)
+    
+    max_building_level = db.Column(db.Integer, default=10)
 
     # Relationships
     building_type = db.relationship("TestGameBuildingType", back_populates="building")
@@ -410,16 +420,8 @@ class TestGameBuildingProgress(db.Model):
     # Building progress details
     building_level = db.Column(db.Integer, default=1)
     building_active = db.Column(db.Boolean, default=False)
-    max_building_level = db.Column(db.Integer, default=10)
     
-    # Building Upgrade Requirements
-    base_building_cash_required = db.Column(db.Float, default=0)
-    base_building_level_required = db.Column(db.Integer, default=0)
-    base_building_xp_required = db.Column(db.Integer, default=0)
-    base_building_wood_required = db.Column(db.Integer, default=0)
-    base_building_stone_required = db.Column(db.Integer, default=0)
-    base_building_metal_required = db.Column(db.Integer, default=0)
-    
+
     # Building Resource Collection details
     xp_per_minute = db.Column(db.Integer, default=0)
     cash_per_minute = db.Column(db.Float, default=0)
@@ -428,8 +430,8 @@ class TestGameBuildingProgress(db.Model):
     metal_per_minute = db.Column(db.Integer, default=0)
 
     # Building Resource Time Details
-    accrual_start_time = db.Column(db.DateTime, nullable=True)
-    max_accrual_duration = db.Column(db.Integer, default=8)
+    accrual_start_time = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    max_accrual_duration = db.Column(db.Integer, default=8) # in hours
 
     # Accrued Resources
     accrued_xp = db.Column(db.Integer, default=0)

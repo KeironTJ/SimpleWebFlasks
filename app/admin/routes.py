@@ -6,7 +6,7 @@ from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsFor
 from app.models import TestGameBuildingProgress, TestGameBuildingType, TestGameBuildings
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
 from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems, TestGameInventoryUser, TestGameInventoryType
-from app.testgame.game_logic import GameService, GameCreation, GameQuery, GameBuildingService
+from app.testgame.game_logic import GameService, GameCreation, GameBuildingService
 from app.admin.decorators import admin_required
 from app.admin import bp
 

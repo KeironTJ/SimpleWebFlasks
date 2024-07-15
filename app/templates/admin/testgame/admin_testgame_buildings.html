@@ -44,6 +44,13 @@
                 <th>Building Description</th>
                 <th>Building Type</th>
                 <th>Building Link </th>
+                <th>Max Building Level</th>
+                <th>Cash Requirement</th>
+                <th>Level Requirement</th>
+                <th>XP Requirement</th>
+                <th>Wood Requirement</th>
+                <th>Stone Requirement</th>
+                <th>Metal Requirement</th>
             </tr>
         </thead>
         <tbody>
@@ -54,6 +61,13 @@
                 <td>{{ building.building_description }}</td>
                 <td>{{ building.building_type.building_type_name }}</td>
                 <td>{{ building.building_link }}</td>
+                <td>{{ building.max_building_level }}</td>
+                <td>{{ building.base_building_cash_required }}</td>
+                <td>{{ building.base_building_level_required }}</td>
+                <td>{{ building.base_building_xp_required }}</td>
+                <td>{{ building.base_building_wood_required }}</td>
+                <td>{{ building.base_building_stone_required }}</td>
+                <td>{{ building.base_building_metal_required }}</td>
             </tr>
             {% endfor %}
 
@@ -74,13 +88,8 @@
                 <th>Building ID</th>
                 <th>Building Level</th>
                 <th>Building Active</th>
-                <th>Max Building Level</th>
-                <th>Cash Requirement</th>
-                <th>Level Requirement</th>
-                <th>XP Requirement</th>
-                <th>Wood Requirement</th>
-                <th>Stone Requirement</th>
-                <th>Metal Requirement</th>
+
+
                 <th>XP per Minute</th>
                 <th>Cash per Minute</th>
                 <th>Wood per Minute</th>
@@ -107,19 +116,14 @@
                 <td>{{ buildingprogress.building_id }}</td>
                 <td>{{ buildingprogress.building_level }}</td>
                 <td>{{ buildingprogress.building_active }}</td>
-                <td>{{ buildingprogress.max_building_level }}</td>
-                <td>{{ buildingprogress.base_building_cash_required }}</td>
-                <td>{{ buildingprogress.base_building_level_required }}</td>
-                <td>{{ buildingprogress.base_building_xp_required }}</td>
-                <td>{{ buildingprogress.base_building_wood_required }}</td>
-                <td>{{ buildingprogress.base_building_stone_required }}</td>
-                <td>{{ buildingprogress.base_building_metal_required }}</td>
+
+
                 <td>{{ buildingprogress.cash_per_hour }}</td>
                 <td>{{ buildingprogress.accrued_cash }}</td>
                 <td>{{ buildingprogress.accrued_wood }}</td>
                 <td>{{ buildingprogress.accrued_stone }}</td>
                 <td>{{ buildingprogress.accrued_metal }}</td>
-                <td>{{ buildingprogress.accrual_start_time }}</td>
+                <td>{{ buildingprogress.accrual_start_time.strftime('%d-%m-%Y @ %H:%M') }}</td>
                 <td>{{ buildingprogress.max_accrual_duration }}</td>
                 <td>{{ buildingprogress.accrued_xp }}</td>
                 <td>{{ buildingprogress.accrued_cash }}</td>

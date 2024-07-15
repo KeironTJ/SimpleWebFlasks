@@ -6,7 +6,7 @@ from app.models import TestGameInventoryUser, TestGameInventoryItems, TestGameIn
 from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
 from app.models import TestGameBuildingProgress, TestGameBuildings
 from app.testgame.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, CollectResourcesForm, UpgradeBuildingForm
-from app.testgame.game_logic import GameService, GameCreation, GameQuery, GameBuildingService
+from app.testgame.game_logic import GameService, GameCreation, GameBuildingService
 import sqlalchemy as sa
 
 from app.testgame import bp
@@ -27,10 +27,8 @@ def tg_startmenu():
         
         service = GameCreation(user_id=current_user.id, game_name=game_name)
         game = service.create_game()
-        db.session.commit()
         
-        service.set_active_game(game.id)
-        service.assign_all_quests(game.id)
+        service.create_all_startup(game.id)
         db.session.commit()
         
         game_id = game.id
