@@ -19,12 +19,12 @@ app_context.push()
 ## BUILDINGS
 # Create Building Types
 def create_building_types():
-    building_type1 = TestGameBuildingType(building_type_name="Main Building", building_type_description="Main Building Description")
-    building_type2 = TestGameBuildingType(building_type_name="Secondary Building", building_type_description="Secondary Building Description")
-    building_type3 = TestGameBuildingType(building_type_name="Tertiary Building", building_type_description="Tertiary Building Description")
-    db.session.add(building_type1)
-    db.session.add(building_type2)
-    db.session.add(building_type3)
+    mainbuildingtype = TestGameBuildingType(building_type_name="Main Building", building_type_description="Main Game Buildings")
+    inventorybuildingtype = TestGameBuildingType(building_type_name="Inventory Building", building_type_description="Inventory Buildings")
+    resourcebuildingtype = TestGameBuildingType(building_type_name="Resource Building", building_type_description="Resource Buildings")
+    db.session.add(mainbuildingtype)
+    db.session.add(inventorybuildingtype)
+    db.session.add(resourcebuildingtype)
     db.session.commit()
     print("Building Types Created")
 
@@ -70,39 +70,89 @@ class BuildingCreator:
             db.session.rollback()
             print(f"Failed to set building requirements: {e}")
             
-# Example usage
-quest_building = BuildingCreator(building_name="Quest Building", 
-                                 building_description="View All Quests", 
-                                 building_type_id=1, 
-                                 building_link="testgame.tg_building_quests") 
-
-
-inventory_building = BuildingCreator(building_name="Inventory Building", 
-                                     building_description="View Inventory", 
-                                     building_type_id=2, 
-                                     building_link="testgame.tg_building_inventory")
-
-farm_building = BuildingCreator(building_name="Farm", 
-                                building_description="Collect Cash", 
-                                building_type_id=3, 
-                                building_link="testgame.tg_building_farm")   
-
-
 
 def delete_building_data():
     # Delete Building Data
-    db.session.query(TestGameBuildingProgress).delete()
     db.session.query(TestGameBuildings).delete()
     db.session.query(TestGameBuildingType).delete()
+    db.session.query(TestGameBuildingProgress).delete()
+    print("Building Data Deleted")
     
 
 
-    # Create buildings, requirements progress
+# Create buildings, requirements progress
+if __name__ == "__main__": 
+    delete_building_data()
+    
     create_building_types()
+    
+    # Create Quest Building
+    quest_building = BuildingCreator(building_name="Quest Building", 
+                                 building_description="View All Quests", 
+                                 building_type_id=1, 
+                                 building_link="testgame.tg_building_quests") 
     
     quest_building.create_building()
     
+
+    # Create Inventory Building
+    inventory_building = BuildingCreator(building_name="Inventory Building", 
+                                     building_description="View Inventory", 
+                                     building_type_id=2, 
+                                     building_link="testgame.tg_building_inventory")
     inventory_building.create_building()
     
+
+    # Create Farm Building
+    farm_building = BuildingCreator(building_name="Farm", 
+                                building_description="Collect Cash", 
+                                building_type_id=3, 
+                                building_link="testgame.tg_building_resource")
     farm_building.create_building()
-    farm_building.set_building_requirements(cash=1000, level=1, xp=0, wood=0, stone=0, metal=0)
+    farm_building.set_building_requirements(cash=1000, 
+                                            level=1, 
+                                            xp=0, 
+                                            wood=0, 
+                                            stone=0, 
+                                            metal=0)
+    
+    # Create Lumber Mill Building
+    lumber_mill_building = BuildingCreator(building_name="Lumber Mill", 
+                                       building_description="Collect Wood", 
+                                       building_type_id=3, 
+                                       building_link="testgame.tg_building_resource")
+    lumber_mill_building.create_building()
+    lumber_mill_building.set_building_requirements(cash=1500, 
+                                                  level=5, 
+                                                  xp=0, 
+                                                  wood=0, 
+                                                  stone=0, 
+                                                  metal=0)
+    
+    # Create Mine Quilding
+    mine_building = BuildingCreator(building_name="Mine", 
+                                building_description="Collect Stone", 
+                                building_type_id=3, 
+                                building_link="testgame.tg_building_resource")
+    mine_building.create_building()
+    mine_building.set_building_requirements(cash=2500, 
+                                            level=10, 
+                                            xp=0, 
+                                            wood=500, 
+                                            stone=0, 
+                                            metal=0)
+    
+    # Create Forge Building
+    forge_building = BuildingCreator(building_name="Forge", 
+                                 building_description="Collect Metal", 
+                                 building_type_id=3, 
+                                 building_link="testgame.tg_building_resource")
+    forge_building.create_building()
+    forge_building.set_building_requirements(cash=5000, 
+                                            level=20, 
+                                            xp=0, 
+                                            wood=1000, 
+                                            stone=500, 
+                                            metal=0)
+    
+    # python -m app.testgame.Buildings.Buildings

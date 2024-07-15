@@ -2,19 +2,19 @@
 
 {% block content %}
 
-<h1> {{ title }} - {{ game.user.username }} - {{ game.game_name }} </h1>
+<h1>  {{ game.user.username }} - {{ game.game_name }} - {{ title }}  </h1>
 
 <hr>
 
 <div style="display: flex; justify-content: space-around;">
 
-    <p>{{game.user.username}}</p>
-
     <p>XP: {{ game.xp }}/{{game.next_level_xp_required}}</p>
-
     <p>Level: {{ game.level}}</p>
-
     <p>Cash: {{ game.cash }}</p>
+    <p>Wood: {{ game.wood }}</p>
+    <p>Stone: {{ game.stone }}</p>
+    <p>Metal: {{ game.metal }}</p>
+
 
 </div>
 
@@ -25,8 +25,7 @@
 
     <a href="{{ url_for('testgame.tg_play', game_id=game.id) }}">Home</a> - 
     <a href="{{ url_for('testgame.tg_building_quests', game_id=game.id) }}">Quests</a> - 
-    <a href="{{ url_for('testgame.tg_building_inventory', game_id=game.id) }}"> Inventory </a> - 
-    <a href="{{ url_for('testgame.tg_building_farm', building_progress_id=3) }}"> Farm </a>
+    <a href="{{ url_for('testgame.tg_building_inventory', game_id=game.id) }}"> Inventory </a>
 
 </div>  
 

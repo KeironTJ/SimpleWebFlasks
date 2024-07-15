@@ -418,7 +418,7 @@ class TestGameBuildingProgress(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey('test_game.id'))
 
     # Building progress details
-    building_level = db.Column(db.Integer, default=1)
+    building_level = db.Column(db.Integer, default=0)
     building_active = db.Column(db.Boolean, default=False)
     
 
@@ -430,7 +430,7 @@ class TestGameBuildingProgress(db.Model):
     metal_per_minute = db.Column(db.Integer, default=0)
 
     # Building Resource Time Details
-    accrual_start_time = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+    accrual_start_time = db.Column(db.DateTime, nullable=True)
     max_accrual_duration = db.Column(db.Integer, default=8) # in hours
 
     # Accrued Resources

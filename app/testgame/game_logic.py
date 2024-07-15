@@ -53,6 +53,16 @@ class GameCreation:
             building = TestGameBuildingProgress(game_id=game_id, 
                                                 building_id=building.id)
             
+            ## Set building progress parameters
+            # Set quest building progress parameters for quests
+            if building.building_id == 1:
+                building.building_active = True
+                
+                
+            # Set warehouse building progress parameters for inventories
+            if building.building_id == 2:
+                building.building_active = True      
+
                           
             db.session.add(building)
 
@@ -252,8 +262,6 @@ class GameBuildingService:
         game_service.add_xp(self.building.accrued_xp,
                             source = "Resource Collection. Building: " + str(self.building.building_id))
 
-        
-
         # update log
         resource_log = TestGameResourceLog(
             test_game_id=self.building.game_id,
@@ -282,13 +290,19 @@ class GameBuildingService:
             return hours
         
     def calculate_accrued_resources(self):
-        # Ensure accrual_start_time is offset-aware
-        if self.building.accrual_start_time.tzinfo is None:
-            accrual_start_time = self.building.accrual_start_time.replace(tzinfo=timezone.utc)
+        # Check if accrual_start_time is set
+        if self.building.accrual_start_time is None:
+            # Handle the case where accrual_start_time is not set
+            # This could be logging an error, setting a default value, or skipping the calculation
+            accrual_start_time = datetime.now(timezone.utc)
         else:
+            # Ensure accrual_start_time is offset-aware
             accrual_start_time = self.building.accrual_start_time
+            if accrual_start_time.tzinfo is None:
+                # If accrual_start_time is offset-naive, make it offset-aware by assuming it's in UTC
+                accrual_start_time = accrual_start_time.replace(tzinfo=timezone.utc)
 
-        # Calculate with finer detail
+        # Now that both datetimes are offset-aware, perform the subtraction
         time_difference = datetime.now(timezone.utc) - accrual_start_time
         minutes = time_difference.total_seconds() / 60  # Calculate minutes for finer detail
 
@@ -303,12 +317,29 @@ class GameBuildingService:
         # Check if building is already at max level
         if self.building.building_level >= self.building.building.max_building_level:
             return False
-        
-        # Check if user has enough cash to upgrade
-        if self.building.game.cash >= self.building.building.base_building_cash_required:
-            return True
-        
-        return False
+
+        # Calculate required resources for the current upgrade level
+        required_resources = self._calculate_required_resources()
+
+        # Check if user has enough resources to upgrade
+        for resource, required_amount in required_resources.items():
+            if getattr(self.building.game, resource) < required_amount:
+                return False
+
+        return True
+
+    def _calculate_required_resources(self):
+        """Calculates the resources required for the next upgrade based on the current level."""
+        level_factor = (1.1 * self.building.building_level)
+        required_resources = {
+            'level': round(self.building.building.base_building_level_required),
+            'cash': round(self.building.building.base_building_cash_required * level_factor),
+            'wood': round(self.building.building.base_building_wood_required * level_factor),
+            'stone': round(self.building.building.base_building_stone_required * level_factor),
+            'metal': round(self.building.building.base_building_metal_required * level_factor),
+        }
+        print(required_resources)
+        return required_resources
 
     def upgrade_building(self):
         # Check if building is already at max level
@@ -318,10 +349,11 @@ class GameBuildingService:
             return
         
         # Check if user has enough cash to upgrade
-        if self.building.game.cash < self.building.building.base_building_cash_required:
+        if not self.check_upgrade_requirements():
             if self.notifier:
-                self.notifier.notify("Insufficient cash to upgrade building.")
+                self.notifier.notify("Insufficient resources to upgrade building.")
             return
+        
         
         # Deduct cash from user
         game_service = GameService(test_game_id=self.building.game_id)
@@ -342,3 +374,9 @@ class GameBuildingService:
         
         if self.notifier:
             self.notifier.notify(f"Building upgraded to level {self.building.building_level}.")
+            
+    def check_resources_to_collect(self):
+        if self.building.accrual_start_time is None:
+            return False
+        else:
+            return True

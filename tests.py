@@ -124,13 +124,6 @@ def test_GameBuildingService():
     print("TESTING GameBuildingService")
     service = GameBuildingService(building_progress_id=3, notifier=PrintNotifier())
     
-    # Add Building Progress
-    print("TEST Starting resource accrual")
-    try:
-        service.start_accrual()
-        print("TEST Start Accrual - SUCCESS")
-    except Exception as e:
-        print(f"TEST Add Building Progress - FAILED: {e}")
 
     print("TEST Collecting resources")
     try:
@@ -165,6 +158,7 @@ def delete_test_data():
     db.session.query(TestGameBuildingProgress).delete()
     db.session.query(TestGameInventoryItems).delete()
     db.session.query(TestGameInventoryUser).delete()
+    db.session.query(TestGameBuildingProgress).delete()
     
     # Delete logs
     db.session.query(TestGameResourceLog).delete()

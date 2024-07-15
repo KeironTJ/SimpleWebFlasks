@@ -39,7 +39,7 @@
                 <td>{{ resourcelog.wood }}</td>
                 <td>{{ resourcelog.stone }}</td>
                 <td>{{ resourcelog.metal }}</td>
-                <td>{{ resourcelog.entry_date.strftime('%d-%m-%Y @ %H:%M') }}</td>
+                <td>{{ resourcelog.entry_date|datetime|default('N/A', true) }}</td>
                 <td>{{ resourcelog.source }}</td>
             </tr>
             {% endfor %}    

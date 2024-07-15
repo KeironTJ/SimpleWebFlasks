@@ -121,10 +121,10 @@ def tg_building_inventory(game_id):
                             userinventories=userinventories)
 
 
-# Route to display farm
-@bp.route('/tg_building_farm/<building_progress_id>', methods=['GET', 'POST'])
+# Route to display resource buildings
+@bp.route('/tg_building_resource/<building_progress_id>', methods=['GET', 'POST'])
 @login_required
-def tg_building_farm(building_progress_id):
+def tg_building_resource(building_progress_id):
     # Query for testgame inventory items
     building_progress = TestGameBuildingProgress.query.filter_by(id=building_progress_id).first()
     game = TestGame.query.filter_by(id=building_progress.game_id).first()
@@ -136,6 +136,7 @@ def tg_building_farm(building_progress_id):
     # calculate accrued resources:
     buildingservice = GameBuildingService(building_progress_id=building_progress_id)
     buildingservice.calculate_accrued_resources()
+    required_resources = buildingservice._calculate_required_resources()
 
     if request.method == 'POST' and collectresourcesform.collect_button.data:
         buildingservice.collect_resources()
@@ -148,10 +149,11 @@ def tg_building_farm(building_progress_id):
         flash(f'Building Upgraded')
 
 
-    return render_template("testgame/buildings/tg_building_farm.html",
-                           title='Test Game - Farm',
+    return render_template("testgame/buildings/tg_building_resource.html",
+                           title=building_progress.building.building_name,
                             game=game,
                             building_progress=building_progress,
                             buildingservice=buildingservice,
                             collectresourcesform=collectresourcesform,
-                            upgradebuildingform=upgradebuildingform)
+                            upgradebuildingform=upgradebuildingform,
+                            required_resources=required_resources)

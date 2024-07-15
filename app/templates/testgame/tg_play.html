@@ -13,7 +13,11 @@
                 <a href="{{  url_for(building.building.building_link, building_progress_id=building.id) }}" class="card-link">    
             {% endif %}
 
-                <div class="card">
+                {% if building.building_active %}
+                    <div class="card building-active">
+                {% else %}
+                    <div class="card building-inactive">
+                {% endif %}
                     <div class="card-body text-center">
                         <h5 class="card-title">{{ building.building.building_name }}</h5>
                         <p class="card-text">{{ building.building.building_description }}</p>
