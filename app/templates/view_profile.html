@@ -5,20 +5,6 @@
 <h1> View Profile: {{ user.username }} </h1>
 
 
-
-<p>First Name: {{ user.firstname }}</p>
-<p>Surname: {{ user.surname }}</p>
-
-{% if user.dob == None %}
-    <p>Date of Birth: None</p>
-{% else %}
-    <p>Date of Birth: {{ user.dob.strftime('%d-%m-%Y') }}</p>
-{% endif %}
-
-<p>First Line Address: {{ user.firstlineaddress }}</p>
-<p>City: {{ user.city }}</p>
-<p>Postcode: {{ user.postcode }}</p>
-
 <p>
     <a href="{{ url_for('main.edit_profile', user_id=user.id) }}" class="">Edit Profile</a>
 </p>

@@ -38,30 +38,8 @@ def edit_profile(user_id):
     if not current_user.is_admin() and current_user.id != user.id:
         return redirect(url_for('admin.not_admin'))
     
-    profileform = ProfileForm()
-
-    if request.method == "GET":
-        profileform.firstname.data = user.firstname
-        profileform.surname.data = user.surname
-        profileform.dob.data = user.dob
-        profileform.firstlineaddress.data = user.firstlineaddress
-        profileform.city.data = user.city
-        profileform.postcode.data = user.postcode
-
-    if request.method == "POST" and profileform.validate_on_submit():
-        user.firstname = profileform.firstname.data
-        user.surname = profileform.surname.data
-        user.dob = profileform.dob.data
-        user.firstlineaddress = profileform.firstlineaddress.data
-        user.city = profileform.city.data
-        user.postcode = profileform.postcode.data
-
-        flash('Profile updated successfully')
-        db.session.commit()
-
-        return redirect(url_for('main.view_profile', user_id=user.id))
     
-    return render_template("edit_profile.html", title='Edit Profile', user=user, profileform=profileform)    
+    return render_template("edit_profile.html", title='Edit Profile', user=user)    
 
 
 
