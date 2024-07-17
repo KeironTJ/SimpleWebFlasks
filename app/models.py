@@ -64,56 +64,6 @@ class UserRoles(db.Model):
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
     
 
-
-
-
-## FINANCE APP RELATED MODELS
-class Account(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    account_name = db.Column(db.String(64))
-    transactions = db.relationship("Transaction", back_populates="account")
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-
-
-class Transaction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    transaction_date = db.Column(db.DateTime)
-    account_id = db.Column(db.Integer, db.ForeignKey("account.id"))
-    category_id = db.Column(db.Integer, db.ForeignKey("transaction_category.id"), nullable=True)
-    item_name = db.Column(db.String(64), nullable=True)
-    amount = db.Column(db.Float, nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    account = db.relationship("Account", back_populates="transactions")
-    category = db.relationship("TransactionCategory", back_populates="transactions")
-
-
-class TransactionCategory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    category_name = db.Column(db.String(64))
-    parent_id = db.Column(db.Integer, nullable=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    transactions = db.relationship("Transaction", back_populates="category")
-
-
-## GUESS THE NUMBER RELATED MODELS
-class GTNSettings(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    startrange = db.Column(db.Integer, default=1)
-    endrange = db.Column(db.Integer, default=100)
-
-    
-class GTNHistory(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
-    user = db.relationship("User")
-    entry_date = db.Column(db.DateTime, default=datetime.now(timezone.utc))
-    startrange = db.Column(db.Integer)
-    endrange = db.Column(db.Integer)
-    number = db.Column(db.Integer)
-    guesses = db.Column(db.Integer)
-
-
 ## TEST GAME RELATED MODELS
 # Model representing a game test case
 class TestGame(db.Model):

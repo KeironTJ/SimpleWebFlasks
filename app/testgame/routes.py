@@ -1,4 +1,3 @@
-from msilib.schema import Upgrade
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
 from app.models import User, db, TestGame, TestGameInventory
@@ -33,8 +32,7 @@ def tg_startmenu():
         
         game_id = game.id
         
-        
-
+    
         return redirect(url_for('testgame.tg_play', game_id=game_id))
     
     if request.method == 'POST' and loadgameform.loadgame_button.data:
@@ -142,11 +140,13 @@ def tg_building_resource(building_progress_id):
         buildingservice.collect_resources()
         db.session.commit()
         flash(f'Resources Collected')
+        return redirect(url_for('testgame.tg_building_resource', building_progress_id=building_progress_id))
 
     if request.method == 'POST' and upgradebuildingform.upgrade_button.data:
         buildingservice.upgrade_building()
         db.session.commit()
         flash(f'Building Upgraded')
+        return redirect(url_for('testgame.tg_building_resource', building_progress_id=building_progress_id))
 
 
     return render_template("testgame/buildings/tg_building_resource.html",

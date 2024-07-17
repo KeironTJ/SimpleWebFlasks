@@ -21,12 +21,6 @@ def create_app(config_class=Config):
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
-    from app.gtn import bp as gtn_bp
-    app.register_blueprint(gtn_bp)
-
-    from app.financeapp import bp as financeapp_bp
-    app.register_blueprint(financeapp_bp)
-
     from app.admin import bp as admin_bp
     app.register_blueprint(admin_bp)
 

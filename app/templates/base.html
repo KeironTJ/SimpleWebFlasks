@@ -28,14 +28,6 @@
                         <a class="nav-link" aria-current="page" href="{{ url_for('main.index') }}">Home</a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{{ url_for('financeapp.pfhome') }}">Personal</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="{{ url_for('gtn.guessthenumberhome') }}">Guess the Number</a>
-                    </li>
-
                     {% if not current_user.is_authenticated or current_user.activetestgame == None    %}
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="{{ url_for('testgame.tg_startmenu') }}">Game Idea</a>

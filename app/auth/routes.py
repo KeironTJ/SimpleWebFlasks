@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.urls import urlsplit
 from app import db
 from app.auth.forms import LoginForm, RegistrationForm
-from app.models import User, GTNSettings, UserRoles
+from app.models import User, UserRoles
 import sqlalchemy as sa
 from app.auth import bp
 
@@ -62,10 +62,8 @@ def register():
         flash('Congratulations, you are now a registered user!')
         
         # Create default GTNSettings for the user
-        gtnsettings = GTNSettings(user_id=user.id, startrange=1, endrange=100)
         assign_user_role = UserRoles(user_id=user.id, role_id=2)
         print(assign_user_role.role_id)
-        db.session.add(gtnsettings)
         db.session.add(assign_user_role)
         db.session.commit()
         
