@@ -17,19 +17,13 @@ def load_user(id):
 class User(UserMixin, db.Model):
     id = db.Column(Integer, primary_key=True)
     username = db.Column(String(64), index=True, unique=True)
-    firstname = db.Column(String(64), nullable=True)
-    surname = db.Column(String(64), nullable=True)
-    dob = db.Column(DateTime, nullable=True)
-    firstlineaddress = db.Column(String(64), nullable=True)
-    city = db.Column(String(64), nullable=True)
-    postcode = db.Column(String(64), nullable=True)
     email = db.Column(String(120), index=True, unique=True)
     password_hash = db.Column(String(256))
     active = db.Column(db.Boolean(), default=True)
-    activetestgame = db.Column(db.Integer, nullable=True)
+    activegame = db.Column(db.Integer, nullable=True)
 
     # Relationships
-    test_game = so.relationship("TestGame", back_populates="user", cascade="all, delete-orphan")
+    game = so.relationship("Game", back_populates="user", cascade="all, delete-orphan")
     role=so.relationship("Role", secondary="user_roles")
 
 
@@ -64,10 +58,10 @@ class UserRoles(db.Model):
     role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))
     
 
-## TEST GAME RELATED MODELS
-# Model representing a game test case
-class TestGame(db.Model):
-    __tablename__ = 'test_game'
+## GAME RELATED MODELS
+# Model representing a game
+class Game(db.Model):
+    __tablename__ = 'game'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
@@ -90,15 +84,15 @@ class TestGame(db.Model):
     next_level_xp_required = db.Column(db.Integer, default=110)
     
     # create relationships
-    user = db.relationship("User", back_populates="test_game")
-    inventories = db.relationship("TestGameInventoryUser", back_populates="game")
-    quest_progress = db.relationship("TestGameQuestProgress", back_populates="quest_game")
-    building_progress = db.relationship("TestGameBuildingProgress", back_populates="game")
-    test_game_resource_logs = db.relationship("TestGameResourceLog", back_populates="testgame")
+    user = db.relationship("User", back_populates="game")
+    inventories = db.relationship("InventoryUser", back_populates="game")
+    quest_progress = db.relationship("QuestProgress", back_populates="game")
+    building_progress = db.relationship("BuildingProgress", back_populates="game")
+    resource_logs = db.relationship("ResourceLog", back_populates="game")
     
     
-class TestGameInventoryType(db.Model):
-    __tablename__ = 'test_game_inventory_types'
+class InventoryType(db.Model):
+    __tablename__ = 'inventory_types'
 
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
@@ -108,12 +102,12 @@ class TestGameInventoryType(db.Model):
     inventory_type_description = db.Column(db.String(256))
 
     # Relationships
-    inventory = db.relationship("TestGameInventory", back_populates="inventory_type")
+    inventory = db.relationship("Inventory", back_populates="inventory_type")
     
 
 
-class TestGameInventory(db.Model):
-    __tablename__ = 'test_game_inventory'
+class Inventory(db.Model):
+    __tablename__ = 'inventory'
 
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
@@ -123,27 +117,27 @@ class TestGameInventory(db.Model):
     inventory_description = db.Column(db.String(256))
 
     # Foreign keys
-    inventory_type_id = db.Column(db.Integer, db.ForeignKey('test_game_inventory_types.id'), nullable=False)
+    inventory_type_id = db.Column(db.Integer, db.ForeignKey('inventory_types.id'), nullable=False)
 
     # Relationships
-    inventory_type = db.relationship("TestGameInventoryType", back_populates="inventory")
-    inventory_user = db.relationship("TestGameInventoryUser", back_populates="inventory")
+    inventory_type = db.relationship("InventoryType", back_populates="inventory")
+    inventory_user = db.relationship("InventoryUser", back_populates="inventory")
     
 
-class TestGameInventoryUser(db.Model):
-    __tablename__ = 'test_game_inventory_user'
+class InventoryUser(db.Model):
+    __tablename__ = 'inventory_user'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
     
     # Foreign keys
-    game_id = db.Column(db.Integer, db.ForeignKey('test_game.id'))
-    inventory_id = db.Column(db.Integer, db.ForeignKey('test_game_inventory.id'))
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
+    inventory_id = db.Column(db.Integer, db.ForeignKey('inventory.id'))
     
     # Relationships
-    inventory = db.relationship("TestGameInventory", back_populates="inventory_user")
-    inventory_items = db.relationship("TestGameInventoryItems", back_populates="inventory")
-    game = db.relationship("TestGame", back_populates="inventories")
+    inventory = db.relationship("Inventory", back_populates="inventory_user")
+    inventory_items = db.relationship("InventoryItems", back_populates="inventory")
+    game = db.relationship("Game", back_populates="inventories")
 
 
 # Model to store reward item associations
@@ -154,18 +148,18 @@ class RewardItemAssociation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     
     # Foreign keys
-    reward_id = db.Column(db.Integer, db.ForeignKey('test_game_rewards.id'))
-    item_id = db.Column(db.Integer, db.ForeignKey('test_game_items.id'))
+    reward_id = db.Column(db.Integer, db.ForeignKey('quest_rewards.id'))
+    item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
     quantity = db.Column(db.Integer, default=1)
     
     # Relationships
-    reward = db.relationship("TestGameQuestRewards", backref="reward_items")
-    item = db.relationship("TestGameItem", backref="reward_items")
+    reward = db.relationship("QuestRewards", backref="reward_items")
+    item = db.relationship("Item", backref="reward_items")
 
 
 
-class TestGameItem(db.Model):
-    __tablename__ = 'test_game_items'
+class Item(db.Model):
+    __tablename__ = 'items'
 
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
@@ -179,35 +173,35 @@ class TestGameItem(db.Model):
     item_description = db.Column(db.String(256))
 
     # Relationships
-    inventory_items = db.relationship('TestGameInventoryItems', back_populates="item")
-    rewards = db.relationship('TestGameQuestRewards', secondary='reward_item_association', back_populates="items", overlaps="reward,reward_items, item")
+    inventory_items = db.relationship('InventoryItems', back_populates="item")
+    rewards = db.relationship('QuestRewards', secondary='reward_item_association', back_populates="items", overlaps="reward,reward_items, item")
     
 
     
 # Model association table to store inventory items
-class TestGameInventoryItems(db.Model):
-    __tablename__ = 'test_game_inventory_items'
+class InventoryItems(db.Model):
+    __tablename__ = 'inventory_items'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
     
     # Foreign keys
-    inventory_id = db.Column(db.Integer, db.ForeignKey('test_game_inventory_user.id'), nullable=False)
-    item_id = db.Column(db.Integer, db.ForeignKey('test_game_items.id'), nullable=False)
+    inventory_id = db.Column(db.Integer, db.ForeignKey('inventory_user.id'), nullable=False)
+    item_id = db.Column(db.Integer, db.ForeignKey('items.id'), nullable=False)
     
     # Item quantity
     quantity = db.Column(db.Integer, default=0)
 
     # Relationships
-    inventory = db.relationship("TestGameInventoryUser", back_populates="inventory_items")
-    item = db.relationship("TestGameItem", back_populates="inventory_items")
+    inventory = db.relationship("InventoryUser", back_populates="inventory_items")
+    item = db.relationship("Item", back_populates="inventory_items")
     
     
 
-## TEST GAME QUEST RELATED MODELS
+## GAME QUEST RELATED MODELS
 # Model to store quest types    
-class TestGameQuestType(db.Model):
-    __tablename__ = 'test_game_quest_types'
+class QuestType(db.Model):
+    __tablename__ = 'quest_types'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
@@ -217,12 +211,12 @@ class TestGameQuestType(db.Model):
     quest_type_description = db.Column(db.String(256))
     
     # Relationships
-    quests = db.relationship("TestGameQuest", back_populates="quest_type")
+    quests = db.relationship("Quest", back_populates="quest_type")
     
 
 # Model to store quest details    
-class TestGameQuest(db.Model):
-    __tablename__ = 'test_game_quests'
+class Quest(db.Model):
+    __tablename__ = 'quests'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
@@ -230,49 +224,49 @@ class TestGameQuest(db.Model):
     # Quest details
     quest_name = db.Column(db.String(64))
     quest_description = db.Column(db.String(256))
-    quest_type_id = db.Column(db.Integer, db.ForeignKey('test_game_quest_types.id', name='fk_quest_type_id'))
+    quest_type_id = db.Column(db.Integer, db.ForeignKey('quest_types.id', name='fk_quest_type_id'))
     
     # Relationships
-    quest_rewards = db.relationship("TestGameQuestRewards", back_populates="quest")
-    quest_type = db.relationship("TestGameQuestType", back_populates="quests")
-    quest_progress = db.relationship("TestGameQuestProgress", back_populates="quest_quest")
+    quest_rewards = db.relationship("QuestRewards", back_populates="quest")
+    quest_type = db.relationship("QuestType", back_populates="quests")
+    quest_progress = db.relationship("QuestProgress", back_populates="quest_quest")
     
 
 
 
 
 # Model to store quest rewards
-class TestGameQuestRewards(db.Model):
-    __tablename__ = 'test_game_rewards'
+class QuestRewards(db.Model):
+    __tablename__ = 'quest_rewards'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
     
     # Foreign keys
-    quest_id = db.Column(db.Integer, db.ForeignKey('test_game_quests.id'))
+    quest_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
     
     # Reward details
     quest_reward_name = db.Column(db.String(64))
     quest_reward_description = db.Column(db.String(256))
     quest_reward_xp = db.Column(db.Integer, default=0)
     quest_reward_cash = db.Column(db.Integer,default=0)
-    quest_reward_item_id = db.Column(db.Integer, db.ForeignKey('test_game_items.id'))
+    quest_reward_item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
     
     # Relationships
-    quest = db.relationship("TestGameQuest", back_populates="quest_rewards")
-    items = db.relationship("TestGameItem", secondary='reward_item_association', back_populates="rewards", overlaps="item,reward_items,reward")
+    quest = db.relationship("Quest", back_populates="quest_rewards")
+    items = db.relationship("Item", secondary='reward_item_association', back_populates="rewards", overlaps="item,reward_items,reward")
     
  
 # Model to store quest progress
-class TestGameQuestProgress(db.Model):
-    __tablename__ = 'test_game_quest_progress'
+class QuestProgress(db.Model):
+    __tablename__ = 'quest_progress'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
     
     # Foreign keys
-    quest_id = db.Column(db.Integer, db.ForeignKey('test_game_quests.id'))
-    game_id = db.Column(db.Integer, db.ForeignKey('test_game.id'))
+    quest_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
     
     # Quest progress details
     quest_progress = db.Column(db.Integer, default=0)
@@ -281,20 +275,21 @@ class TestGameQuestProgress(db.Model):
     quest_completed_date = db.Column(db.DateTime, nullable=True)
     
     # Relationships
-    quest_quest = db.relationship("TestGameQuest", back_populates="quest_progress")
-    quest_game = db.relationship("TestGame", back_populates="quest_progress")
+    quest_quest = db.relationship("Quest", back_populates="quest_progress")
+    game = db.relationship("Game", back_populates="quest_progress")
+
     
     
     
-## TESTGAME LOGS
-class TestGameResourceLog(db.Model):
-    __tablename__ = 'test_game_resource_log'
+## GAME LOGS
+class ResourceLog(db.Model):
+    __tablename__ = 'resource_log'
     
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
 
     # Foreign keys
-    test_game_id = db.Column(db.Integer, db.ForeignKey("test_game.id"))
+    game_id = db.Column(db.Integer, db.ForeignKey("game.id"))
 
     # Resource details
     cash = db.Column(db.Integer, default=0)
@@ -306,13 +301,13 @@ class TestGameResourceLog(db.Model):
     source = db.Column(db.String(64))
 
     # Relationships
-    testgame = db.relationship("TestGame", back_populates="test_game_resource_logs")
+    game = db.relationship("Game", back_populates="resource_logs")
     
 
-## TEST GAME BUILDING MODELS
+## GAME BUILDING MODELS
 # Model to store building types
-class TestGameBuildingType(db.Model):
-    __tablename__ = 'test_game_building_types'
+class BuildingType(db.Model):
+    __tablename__ = 'building_types'
 
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
@@ -322,17 +317,17 @@ class TestGameBuildingType(db.Model):
     building_type_description = db.Column(db.String(256))
 
     # Relationships
-    building = db.relationship("TestGameBuildings", back_populates="building_type")
+    building = db.relationship("Buildings", back_populates="building_type")
 
 # Model to store buildings
-class TestGameBuildings(db.Model):
-    __tablename__ = 'test_game_buildings'
+class Buildings(db.Model):
+    __tablename__ = 'buildings'
 
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
 
     # Foreign keys
-    building_type_id = db.Column(db.Integer, db.ForeignKey('test_game_building_types.id'))
+    building_type_id = db.Column(db.Integer, db.ForeignKey('building_types.id'))
 
     # Building details
     building_name = db.Column(db.String(64))
@@ -360,22 +355,22 @@ class TestGameBuildings(db.Model):
     
 
     # Relationships
-    building_type = db.relationship("TestGameBuildingType", back_populates="building")
-    building_progress = db.relationship("TestGameBuildingProgress", back_populates="building")
+    building_type = db.relationship("BuildingType", back_populates="building")
+    building_progress = db.relationship("BuildingProgress", back_populates="building")
 
 
 
     
 # Model to store building progress
-class TestGameBuildingProgress(db.Model):
-    __tablename__ = 'test_game_building_progress'
+class BuildingProgress(db.Model):
+    __tablename__ = 'building_progress'
 
     # Primary key
     id = db.Column(db.Integer, primary_key=True)
 
     # Foreign keys
-    building_id = db.Column(db.Integer, db.ForeignKey('test_game_buildings.id'))
-    game_id = db.Column(db.Integer, db.ForeignKey('test_game.id'))
+    building_id = db.Column(db.Integer, db.ForeignKey('buildings.id'))
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
 
     # Building progress details
     building_level = db.Column(db.Integer, default=0)
@@ -405,8 +400,8 @@ class TestGameBuildingProgress(db.Model):
     building_completed_date = db.Column(db.DateTime, nullable=True)
 
     # Relationships
-    building = db.relationship("TestGameBuildings", back_populates="building_progress")
-    game = db.relationship("TestGame", back_populates="building_progress")
+    building = db.relationship("Buildings", back_populates="building_progress")
+    game = db.relationship("Game", back_populates="building_progress")
 
     
         

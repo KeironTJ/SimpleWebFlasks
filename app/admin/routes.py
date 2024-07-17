@@ -1,12 +1,12 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user  # type: ignore
 from app import db
-from app.models import User, Role, UserRoles, TestGame, TestGameResourceLog
+from app.models import User, Role, UserRoles, Game, ResourceLog
 from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsForm
-from app.models import TestGameBuildingProgress, TestGameBuildingType, TestGameBuildings
-from app.models import TestGameQuest, TestGameQuestProgress, TestGameQuestType, TestGameQuestRewards, RewardItemAssociation
-from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems, TestGameInventoryUser, TestGameInventoryType
-from app.testgame.game_logic import GameService, GameCreation, GameBuildingService
+from app.models import BuildingProgress, BuildingType, Buildings
+from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation
+from app.models import Item, Inventory, InventoryItems, InventoryUser, InventoryType
+from app.game.game_logic import GameService, GameCreation, GameBuildingService
 from app.admin.decorators import admin_required
 from app.admin import bp
 
@@ -85,13 +85,10 @@ def activate_user(user_id):
     if user:
         user.active = True
 
-        # Create default GTNSettings for the user
-        gtnsettings = GTNSettings(user_id=user_id, startrange=1, endrange=100)
 
         # Assign the user the default role
         assign_user_role = UserRoles(user_id=user_id, role_id=2)
 
-        db.session.add(gtnsettings)
         db.session.add(assign_user_role)
         db.session.commit()
         flash("Account Reactivated")
@@ -122,77 +119,75 @@ def not_admin():
 
 
 
-## Test Game Admin Routes
-# This route is used to render the admin page for the test game users
-@bp.route('/admin_testgame_models', methods=['GET', 'POST'])
+## Game Admin Routes
+# This route is used to render the admin page for the game users
+@bp.route('/admin_models', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_testgame_models():
+def admin_models():
 
-    testgames = db.session.query(TestGame).all()
+    games = db.session.query(Game).all()
+
+    return render_template("admin/game/admin_models.html", 
+                           title='Admin Game Users', 
+                           games=games)
 
 
-    return render_template("admin/testgame/admin_testgame_models.html", 
-                           title='Admin Test Game Users', 
-                           testgames=testgames)
-
-
-# This route is used to render the admin page for the test game xp log
-@bp.route('/admin_testgame_resourceslog', methods=['GET', 'POST'])
+# This route is used to render the admin page for the game xp log
+@bp.route('/admin_resourceslog', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_testgame_resourceslog():
+def admin_resourceslog():
 
-    resourcelogs = db.session.query(TestGameResourceLog).all()
+    resourcelogs = db.session.query(ResourceLog).all()
 
 
-    return render_template("admin/testgame/admin_testgame_resourceslog.html", 
-                           title='Admin Test Game XP Log', 
+    return render_template("admin/game/admin_resourceslog.html", 
+                           title='Admin XP Log', 
                            resourcelogs=resourcelogs)
 
-# This route is used to render the admin page for for test game level requirements
-@bp.route('/admin_testgame_levelrequirements', methods=['GET', 'POST'])
+# This route is used to render the admin page for level requirements
+@bp.route('/admin_levelrequirements', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_testgame_levelrequirements():
+def admin_levelrequirements():
+
+    return render_template("admin/game/admin_levelrequirements.html", 
+                           title='Admin Level Requirements')
 
 
-    return render_template("admin/testgame/admin_testgame_levelrequirements.html", 
-                           title='Admin Test Game Level Requirements')
-
-
-# This route is used to render the admin page for the test game main quests
-@bp.route('/admin_testgame_mainquests', methods=['GET', 'POST'])
+# This route is used to render the admin page for the game main quests
+@bp.route('/admin_mainquests', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_testgame_mainquests():
+def admin_mainquests():
 
     # Queries
-    questtypes = db.session.query(TestGameQuestType).all()
-    quests = db.session.query(TestGameQuest).all()
-    questrewards  = db.session.query(TestGameQuestRewards).all()
-    questprogresses = db.session.query(TestGameQuestProgress).all()
+    questtypes = db.session.query(QuestType).all()
+    quests = db.session.query(Quest).all()
+    questrewards  = db.session.query(QuestRewards).all()
+    questprogresses = db.session.query(QuestProgress).all()
         
 
-    return render_template("admin/testgame/admin_testgame_mainquests.html", 
-                           title='Admin Test Game Main Quests',
+    return render_template("admin/game/admin_mainquests.html", 
+                           title='Admin Main Quests',
                            quests=quests,
                            questtypes=questtypes,
                            questrewards=questrewards,
                            questprogresses=questprogresses)
 
 
-# This route is used to render the admin page for the test game buildings
-@bp.route('/admin_testgame_buildings', methods=['GET', 'POST'])
+# This route is used to render the admin page for the game buildings
+@bp.route('/admin_buildings', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_testgame_buildings():
+def admin_buildings():
     
     # Queries
-    testgames = db.session.query(TestGame).all()
-    buildingtypes = db.session.query(TestGameBuildingType).all()
-    buildings = db.session.query(TestGameBuildings).all()
-    buildingprogress = db.session.query(TestGameBuildingProgress).all()
+    games = db.session.query(Game).all()
+    buildingtypes = db.session.query(BuildingType).all()
+    buildings = db.session.query(Buildings).all()
+    buildingprogress = db.session.query(BuildingProgress).all()
     
     # Calculate Accrued Resources
     for building in buildingprogress:
@@ -203,46 +198,46 @@ def admin_testgame_buildings():
     db.session.commit()   
         
 
-    return render_template("admin/testgame/admin_testgame_buildings.html", 
-                        title='Admin Test Game Buildings', 
-                        testgames=testgames,
+    return render_template("admin/game/admin_buildings.html", 
+                        title='Admin Game Buildings', 
+                        games=games,
                         buildingtypes=buildingtypes,
                         buildings=buildings,
                         buildingprogress=buildingprogress)
 
 
-# This route is used to render the admin page for the test game items
-@bp.route('/admin_testgame_items', methods=['GET', 'POST'])
+# This route is used to render the admin page for the game items
+@bp.route('/admin_items', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_testgame_items():
+def admin_items():
     
-    testgames = db.session.query(TestGame).all()
-    items = db.session.query(TestGameItem).all()
+    games = db.session.query(Game).all()
+    items = db.session.query(Item).all()
     
     
-    return render_template("admin/testgame/admin_testgame_items.html", 
-                           title='Admin Test Game Items',
-                           testgames=testgames,
+    return render_template("admin/game/admin_items.html", 
+                           title='Admin Game Items',
+                           games=games,
                            items=items)
 
-# This route is used to render the admin page for the test game inventories
+# This route is used to render the admin page for the game inventories
 
-@bp.route('/admin_testgame_inventories', methods=['GET', 'POST'])
+@bp.route('/admin_inventories', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def admin_testgame_inventories():
+def admin_inventories():
     
-    testgames = db.session.query(TestGame).all()
-    inventorytypes = db.session.query(TestGameInventoryType).all()
-    inventories = db.session.query(TestGameInventory).all()
-    game_inventories = db.session.query(TestGameInventoryUser).all()
-    inventoryitems = db.session.query(TestGameInventoryItems).all()
+    games = db.session.query(Game).all()
+    inventorytypes = db.session.query(InventoryType).all()
+    inventories = db.session.query(Inventory).all()
+    game_inventories = db.session.query(InventoryUser).all()
+    inventoryitems = db.session.query(InventoryItems).all()
     
     
-    return render_template("admin/testgame/admin_testgame_inventories.html", 
-                           title='Admin Test Game Inventories',
-                           testgames=testgames,
+    return render_template("admin/game/admin_inventories.html", 
+                           title='Admin Game Inventories',
+                           games=games,
                            inventorytypes=inventorytypes,
                            inventories=inventories,
                            game_inventories=game_inventories,

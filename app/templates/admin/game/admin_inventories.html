@@ -1,0 +1,126 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content2 %}
+
+<div class="Jumbotron">
+
+    <h1>Admin - Game Inventories</h1>
+
+</div>
+
+<hr />
+
+<div>
+	<h2>Game Inventory Types</h2>
+
+	<table class="table table-striped table-bordered">
+		<thead>
+			<tr>
+				<th>Inventory Type ID</th>
+				<th>Inventory Type Name</th>
+				<th>Inventory Type Description</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for inventorytype in inventorytypes %}
+			<tr>
+				<td>{{ inventorytype.id }}</td>
+				<td>{{ inventorytype.inventory_type_name }}</td>
+				<td>{{ inventorytype.inventory_type_description }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+<hr />
+
+<div>
+    <h2>Game Inventories</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+			<tr>
+				<th>Inventory ID</th>
+				<th>Inventory Name</th>
+				<th>Inventory Description</th>
+				<th>Inventory Type</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for inventory in inventories %}
+			<tr>
+				<td>{{ inventory.id }}</td>
+				<td>{{ inventory.inventory_name }}</td>
+				<td>{{ inventory.inventory_description }}</td>
+				<td>{{ inventory.inventory_type.inventory_type_name }}</td>
+			</tr>
+			{% endfor %}
+
+		</tbody>
+	</table>
+</div>
+
+<hr />
+
+<div>
+	<h2>User Game Inventories</h2>
+
+	<table class="table table-striped table-bordered">
+		<thead>
+			<tr>
+				<th>Game Inventory ID</th>
+				<th>Game ID</th>
+				<th>inventory ID</th>
+		</thead>
+		<tbody>
+			{% for inventory in game_inventories %}
+			<tr>
+				<td>{{ inventory.id }}</td>
+				<td>{{ inventory.game_id }}</td>
+				<td>{{ inventory.inventory_id }}</td>
+
+			</tr>
+			{% endfor %}
+
+		</tbody>
+	</table>
+
+</div>
+
+<hr
+
+<div>
+	<h2>Game Inventory Items</h2>
+
+	<table class="table table-striped table-bordered">
+		<thead>
+			<tr>
+				<th>Inventory ID</th>
+				<th>Inventory Item ID</th>
+				<th>Inventory Item Name</th>
+				<th>Inventory Item Description</th>
+				<th>Inventory Item Quantity</th>
+				<th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for inventoryitem in inventoryitems %}
+			<tr>
+				<td>{{ inventoryitem.inventory.id }}</td>
+				<td>{{ inventoryitem.id }}</td>
+				<td>{{ inventoryitem.item.item_name }}</td>
+				<td>{{ inventoryitem.item.item_description }}</td>
+				<td>{{ inventoryitem.quantity }}</td>
+			</tr>
+			{% endfor %}
+
+		</tbody>
+	</table>
+</div>
+
+
+
+
+
+{% endblock content2 %}

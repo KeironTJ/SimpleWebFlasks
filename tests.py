@@ -7,12 +7,12 @@ import subprocess
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy.sql import text
 from app.models import db, Role, User
-from app.models import TestGame
-from app.models import TestGameQuest, TestGameQuestType, TestGameQuestRewards,RewardItemAssociation, TestGameQuestProgress
-from app.models import TestGameItem, TestGameInventory, TestGameInventoryItems, TestGameInventoryType, TestGameInventoryUser
-from app.models import TestGameResourceLog
-from app.models import TestGameBuildings, TestGameBuildingProgress, TestGameBuildingType
-from app.testgame.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
+from app.models import Game
+from app.models import Quest, QuestType, QuestRewards,RewardItemAssociation, QuestProgress
+from app.models import Item, Inventory, InventoryItems, InventoryType, InventoryUser
+from app.models import ResourceLog
+from app.models import Buildings, BuildingProgress, BuildingType
+from app.game.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
 
 app = create_app()
 app_context = app.app_context()
@@ -70,23 +70,23 @@ def populate_database():
        
         
 
-## TEST GAME ADMIN CREATION TEST
-# Create a test game for the admin user
-def create_test_game_for_admin():
-    service = GameCreation(user_id=1, game_name="Test Game 1")
-    test_game = service.create_game()
+## GAME ADMIN CREATION
+# Create a game for the admin user
+def create_game_for_admin():
+    service = GameCreation(user_id=1, game_name="Game 1")
+    game = service.create_game()
     
     db.session.commit()
-    print("Test Game Created")
+    print("Game Created")
     
-    game_id = test_game.id
+    game_id = game.id
     
     service.create_all_startup(game_id)
     db.session.commit()
     
 def test_GameService():
     print("TESTING GameService")
-    service = GameService(test_game_id=1, notifier=PrintNotifier())
+    service = GameService(game_id=1, notifier=PrintNotifier())
     
     # Add XP and Cash
     try:
@@ -130,22 +130,21 @@ def delete_test_data():
     db.session.query(Role).delete()
     
     # Delete Game Data
-    db.session.query(TestGameResourceLog).delete()
-    db.session.query(TestGame).delete()
+    db.session.query(ResourceLog).delete()
+    db.session.query(Game).delete()
     
     # Delete game progress and game related data
-    db.session.query(TestGameQuestProgress).delete()
-    db.session.query(TestGameBuildingProgress).delete()
-    db.session.query(TestGameInventoryItems).delete()
-    db.session.query(TestGameInventoryUser).delete()
-    db.session.query(TestGameBuildingProgress).delete()
+    db.session.query(QuestProgress).delete()
+    db.session.query(BuildingProgress).delete()
+    db.session.query(InventoryItems).delete()
+    db.session.query(InventoryUser).delete()
     
     # Delete logs
-    db.session.query(TestGameResourceLog).delete()
+    db.session.query(ResourceLog).delete()
     
     
     db.session.commit()
-    print("All test data deleted")
+    print("All data deleted")
 
 
 # Run the script
@@ -156,7 +155,7 @@ if __name__ == "__main__":
 
    
     
-    create_test_game_for_admin()
+    create_game_for_admin()
     #test_GameService()
         
         
