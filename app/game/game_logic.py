@@ -258,30 +258,13 @@ class GameBuildingService:
         self.building.game.wood += self.building.accrued_wood
         self.building.game.stone += self.building.accrued_stone
         self.building.game.metal += self.building.accrued_metal
-        
-        #use game service to add xp as need to check if level up
-        game_service = GameService(game_id=self.building.game_id)
-        game_service.add_xp(self.building.accrued_xp,
-                            source = "Resource Collection. Building: " + str(self.building.building_id))
 
         # update log
-        resource_log = ResourceLog(
-            game_id=self.building.game_id,
-            cash=self.building.accrued_cash,
-            wood=self.building.accrued_wood,
-            stone=self.building.accrued_stone,
-            metal=self.building.accrued_metal,
-            source = "Resource Collection. Building: " + str(self.building.building_id)
-        )
-
-        db.session.add(resource_log)
-        db.session.commit()
+        self.update_resource_log()
 
         # Update building progress
         self.start_accrual()
         
-
-
 
     def show_accrual_time(self):
         if self.building.accrual_start_time is None:
@@ -306,7 +289,7 @@ class GameBuildingService:
 
         # Now that both datetimes are offset-aware, perform the subtraction
         time_difference = datetime.now(timezone.utc) - accrual_start_time
-        minutes = time_difference.total_seconds() / 60  # Calculate minutes for finer detail
+        minutes = time_difference.total_seconds() / 60 # Calculate minutes for finer detail
 
         # Calculate accrued resources and round to whole numbers
         self.building.accrued_cash = round(self.building.cash_per_minute * minutes)
@@ -400,3 +383,16 @@ class GameBuildingService:
             return False
         else:
             return True
+        
+    def update_resource_log(self):
+        resource_log = ResourceLog(
+            game_id=self.building.game_id,
+            cash=self.building.accrued_cash,
+            wood=self.building.accrued_wood,
+            stone=self.building.accrued_stone,
+            metal=self.building.accrued_metal,
+            source = "Resource Collection. Building: " + str(self.building.building_id)
+        )
+
+        db.session.add(resource_log)
+        db.session.commit()

@@ -4,7 +4,7 @@
 
 <div class="Jumbotron">
 
-    <h1>Admin - Test Game - Resources</h1>
+    <h1>{{ title }}</h1>
 
 </div>
 
@@ -32,8 +32,8 @@
         <tbody>
             {% for resourcelog in resourcelogs %}
             <tr>
-                <td>{{ resourcelog.testgame.user_id }}</td>
-                <td>{{ resourcelog.testgame.id }}</td>
+                <td>{{ resourcelog.game.user_id }}</td>
+                <td>{{ resourcelog.game.id }}</td>
                 <td>{{ resourcelog.xp }}</td>
                 <td>{{ resourcelog.cash }}</td>
                 <td>{{ resourcelog.wood }}</td>

@@ -4,7 +4,7 @@
 
 <div class="Jumbotron">
 
-    <h1>Admin - Game Buildings</h1>
+    <h1>{{ title }}</h1>
 
 </div>
 
@@ -116,11 +116,11 @@
                 <td>{{ buildingprogress.building_id }}</td>
                 <td>{{ buildingprogress.building_level }}</td>
                 <td>{{ buildingprogress.building_active }}</td>
-                <td>{{ buildingprogress.cash_per_hour }}</td>
-                <td>{{ buildingprogress.accrued_cash }}</td>
-                <td>{{ buildingprogress.accrued_wood }}</td>
-                <td>{{ buildingprogress.accrued_stone }}</td>
-                <td>{{ buildingprogress.accrued_metal }}</td>
+                <td>{{ buildingprogress.xp_per_minute }}</td>
+                <td>{{ buildingprogress.cash_per_minute }}</td>
+                <td>{{ buildingprogress.wood_per_minute }}</td>
+                <td>{{ buildingprogress.stone_per_minute }}</td>
+                <td>{{ buildingprogress.metal_per_minute }}</td>
                 <td>{{ buildingprogress.accrual_start_time|datetime|default('N/A', true) }}</td>
                 <td>{{ buildingprogress.max_accrual_duration }}</td>
                 <td>{{ buildingprogress.accrued_xp }}</td>
