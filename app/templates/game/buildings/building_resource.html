@@ -12,25 +12,25 @@
         <div class="resource-card">
             {% if building_progress.building.id == 3 %}
             <i class="fas fa-dollar-sign"></i> <!-- Example icon usage -->
-            <p>Cash per hour: {{ building_progress.cash_per_minute * 60}}</p>
+            <p>Cash per minute: {{ building_progress.cash_per_minute }}</p>
             <p>Cash to collect: {{ building_progress.accrued_cash }} </p>
             {% endif %}
 
             <!-- Lumber Mill -->
             {% if building_progress.building.id == 4 %}
-            <p>Wood per hour: {{ building_progress.wood_per_minute }}</p>
+            <p>Wood per minute: {{ building_progress.wood_per_minute }}</p>
             <p>Wood to collect: {{ building_progress.accrued_wood }} </p>
             {% endif %}
 
             <!-- Mine -->
             {% if building_progress.building.id == 5 %}
-            <p>Stone per hour: {{ building_progress.stone_per_minute }}</p>
+            <p>Stone per minute: {{ building_progress.stone_per_minute }}</p>
             <p>Stone to collect: {{ building_progress.accrued_stone }} </p>
             {% endif %}
 
             <!-- Forge -->
             {% if building_progress.building.id == 6 %}
-            <p>Metal per hour: {{ building_progress.metal_per_minute }}</p>
+            <p>Metal per minute: {{ building_progress.metal_per_minute }}</p>
             <p>Metal to collect: {{ building_progress.accrued_metal }} </p>
             {% endif %}
 

@@ -42,7 +42,7 @@ def admin_users():
         return redirect(url_for('admin.admin_users'))
 
     return render_template("admin/admin_users.html", 
-                           title='Admin Users', 
+                           title='Admin - Users', 
                            users=users, 
                            assign_role_form=assign_role_form, 
                            roles=roles,
@@ -62,7 +62,10 @@ def admin_roles():
         flash("Role Added")
         return redirect(url_for('admin.admin_roles'))
 
-    return render_template("admin/admin_roles.html", title='Admin Roles', roles=roles, roleform=roleform)
+    return render_template("admin/admin_roles.html", 
+                           title='Admin - Roles', 
+                           roles=roles, 
+                           roleform=roleform)
 
 @bp.route('/deactivate_user<user_id>', methods=['GET', 'POST'])
 @login_required
@@ -129,7 +132,7 @@ def admin_models():
     games = db.session.query(Game).all()
 
     return render_template("admin/game/admin_models.html", 
-                           title='Admin Game Users', 
+                           title='Admin - Game Users', 
                            games=games)
 
 
@@ -143,7 +146,7 @@ def admin_resourceslog():
 
 
     return render_template("admin/game/admin_resourceslog.html", 
-                           title='Admin XP Log', 
+                           title='Admin Resource Log', 
                            resourcelogs=resourcelogs)
 
 # This route is used to render the admin page for level requirements
@@ -153,7 +156,7 @@ def admin_resourceslog():
 def admin_levelrequirements():
 
     return render_template("admin/game/admin_levelrequirements.html", 
-                           title='Admin Level Requirements')
+                           title='Admin - Level Requirements')
 
 
 # This route is used to render the admin page for the game main quests
@@ -170,7 +173,7 @@ def admin_mainquests():
         
 
     return render_template("admin/game/admin_mainquests.html", 
-                           title='Admin Main Quests',
+                           title='Admin - Quests',
                            quests=quests,
                            questtypes=questtypes,
                            questrewards=questrewards,
@@ -199,7 +202,7 @@ def admin_buildings():
         
 
     return render_template("admin/game/admin_buildings.html", 
-                        title='Admin Game Buildings', 
+                        title='Admin - Buildings', 
                         games=games,
                         buildingtypes=buildingtypes,
                         buildings=buildings,
@@ -217,7 +220,7 @@ def admin_items():
     
     
     return render_template("admin/game/admin_items.html", 
-                           title='Admin Game Items',
+                           title='Admin - Items',
                            games=games,
                            items=items)
 
@@ -236,7 +239,7 @@ def admin_inventories():
     
     
     return render_template("admin/game/admin_inventories.html", 
-                           title='Admin Game Inventories',
+                           title='Admin - Inventories',
                            games=games,
                            inventorytypes=inventorytypes,
                            inventories=inventories,

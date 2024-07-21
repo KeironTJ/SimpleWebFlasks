@@ -33,17 +33,19 @@ def startmenu():
         game_id = game.id
         
     
-        return redirect(url_for('game.play', game_id=game_id))
+        return redirect(url_for('game.play', 
+                                game_id=game_id))
     
     if request.method == 'POST' and loadgameform.loadgame_button.data:
         game_id = loadgameform.game_id.data
         current_user.activegame = game_id
         db.session.commit()
-        return redirect(url_for('game.play', game_id=game_id))
+        return redirect(url_for('game.play', 
+                                game_id=game_id))
 
 
     return render_template("game/startmenu.html", 
-                           title='Game - Start Menu', 
+                           title='Start Menu', 
                            newgameform=newgameform,
                            loadgameform=loadgameform,
                            numberofgames=numberofgames)
@@ -71,6 +73,8 @@ def play(game_id):
         service.add_xp(xp, source="Add XP Function")
         db.session.commit()
         flash(f'{xp} xp added to {game.game_name}')
+        return redirect(url_for('game.play', 
+                                game_id=game_id))
 
 
     if request.method == 'POST' and addcashform.addcash_button.data:
@@ -79,11 +83,13 @@ def play(game_id):
         service.add_cash(cash, source="Add Cash Function")
         db.session.commit()
         flash(f'{cash} cash added to {game.game_name}')
+        return redirect(url_for('game.play', 
+                                game_id=game_id))
 
 
 
     return render_template("game/play.html", 
-                           title='Game - Play',
+                           title='Home',
                            game=game,
                            addxpform=addxpform,
                            addcashform=addcashform,
@@ -101,7 +107,7 @@ def building_quests(game_id):
     quests = QuestProgress.query.filter_by(game_id=game_id).all()
     
     return render_template("game/buildings/building_quests.html", 
-                           title='Game - Quests',
+                           title='Quests',
                            game=game,
                            quests=quests)
 
@@ -114,7 +120,7 @@ def building_inventory(game_id):
     userinventories = InventoryUser.query.filter_by(game_id=game_id).all()
     
     return render_template("game/buildings/building_inventory.html",
-                           title='Game - Inventory',
+                           title='Inventory',
                             game=game,
                             userinventories=userinventories)
 
