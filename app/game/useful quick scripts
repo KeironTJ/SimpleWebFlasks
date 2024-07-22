@@ -1,6 +1,6 @@
 -- SQLITE3 script to alter value in game building progress table, id 3 accrual_start_time @ 4 hours before now
-UPDATE building_progress
-SET accrual_start_time = datetime('now', '-10 hours')
-WHERE id = 3;
+--UPDATE building_progress
+--SET accrual_start_time = datetime('now', '-10 hours')
+--WHERE id = 3;
 
 
