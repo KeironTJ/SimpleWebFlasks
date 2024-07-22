@@ -230,6 +230,12 @@ class Quest(db.Model):
     quest_rewards = db.relationship("QuestRewards", back_populates="quest")
     quest_type = db.relationship("QuestType", back_populates="quests")
     quest_progress = db.relationship("QuestProgress", back_populates="quest_quest")
+
+    # Methods
+    def __repr__(self):
+        return f'<Quest {self.quest_name}>'
+    
+
     
 
 
@@ -303,6 +309,8 @@ class ResourceLog(db.Model):
     # Relationships
     game = db.relationship("Game", back_populates="resource_logs")
     
+
+
 
 ## GAME BUILDING MODELS
 # Model to store building types
@@ -386,14 +394,14 @@ class BuildingProgress(db.Model):
 
     # Building Resource Time Details
     accrual_start_time = db.Column(db.DateTime, nullable=True)
-    max_accrual_duration = db.Column(db.Integer, default=8) # in hours
+    max_accrual_duration = db.Column(db.Integer, default=240) # in minutes
 
     # Accrued Resources
     accrued_xp = db.Column(db.Integer, default=0)
     accrued_cash = db.Column(db.Integer, default=0)
     accrued_wood = db.Column(db.Integer, default=0)
     accrued_stone = db.Column(db.Integer, default=0)
-    accrued_metai = db.Column(db.Integer, default=0)
+    accrued_metal = db.Column(db.Integer, default=0)
     
     # Building Completion Details
     building_completed = db.Column(db.Boolean, default=False)

@@ -1,20 +1,6 @@
-# SQLITE3 script to alter value in game building progress table, id 3 accrual_start_time @ 4 hours before now
-UPDATE game_building_progress
-SET accrual_start_time = datetime('now', '-4 hours')
-
-# SQLITE script to alter value in game building progress table to set max level for id 3
-UPDATE game_building_progress
-SET max_building_level = 5
-WHERE id = 3
-
-# sqlite script to alter value in game building progress table to base cash required for id 3
-UPDATE game_building_progress
-SET base_building_cash_required = 1000
-WHERE id = 3
-
-# sqlite script to alter all values in game building progress table to accrual start time to now
-UPDATE game_building_progress
-SET accrual_start_time = datetime('now')
-
+-- SQLITE3 script to alter value in game building progress table, id 3 accrual_start_time @ 4 hours before now
+UPDATE building_progress
+SET accrual_start_time = datetime('now', '-10 hours')
+WHERE id = 3;
 
 

@@ -9,6 +9,7 @@ from app.models import Item, Inventory, InventoryItems, InventoryUser, Inventory
 from app.game.game_logic import GameService, GameCreation, GameBuildingService
 from app.admin.decorators import admin_required
 from app.admin import bp
+from sqlalchemy.exc import SQLAlchemyError
 
 
 ## Admin Routes
@@ -186,19 +187,24 @@ def admin_mainquests():
 @admin_required
 def admin_buildings():
     
-    # Queries
-    games = db.session.query(Game).all()
-    buildingtypes = db.session.query(BuildingType).all()
-    buildings = db.session.query(Buildings).all()
-    buildingprogress = db.session.query(BuildingProgress).all()
-    
-    # Calculate Accrued Resources
-    for building in buildingprogress:
-        service = GameBuildingService(building_progress_id=building.id)
-        accrued_resources = service.calculate_accrued_resources()
-        building.accrued_resources = accrued_resources
-    
-    db.session.commit()   
+    try:
+        # Queries
+        games = db.session.query(Game).all()
+        buildingtypes = db.session.query(BuildingType).all()
+        buildings = db.session.query(Buildings).all()
+        buildingprogress = db.session.query(BuildingProgress).all()
+                
+        # Calculate Accrued Resources
+
+        for building in buildingprogress:
+            service = GameBuildingService(building_progress_id=building.id)
+            service.calculate_accrued_resources()
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Database error occurred: {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}") 
         
 
     return render_template("admin/game/admin_buildings.html", 

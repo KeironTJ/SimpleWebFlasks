@@ -150,70 +150,27 @@ class GameService:
                                        cash=cash,
                                        source=source)
         db.session.add(cash_log)
-    
-    ## Quest related actions
-    def assign_quest(self, game_id: int, quest_id: int) -> None:
-        """Assigns a quest to a Game."""
-        quest_progress = QuestProgress(game_id=game_id, quest_id=quest_id)
+
+    def assign_quest(self, quest_id: int) -> None:
+        """Assigns a Quest to a Game."""
+        quest_progress = QuestProgress(game_id=self.game_id, 
+                                       quest_id=quest_id)
         db.session.add(quest_progress)
-        
-    def remove_quest(self, game_id: int, quest_id: int) -> None:
-        """Removes a quest from a Game."""
-        quest_progress = QuestProgress.query.filter_by(game_id=game_id, quest_id=quest_id).first()
-        db.session.delete(quest_progress)
-    
-    def add_quest_progress(self, quest_id: int, progress: int) -> None:
-        """Adds progress to a quest."""
-        quest_progress = QuestProgress.query.get(quest_id)
-        quest_progress.progress += progress
-        
-        if quest_progress.progress >= 100:
-            quest_progress.is_complete = True
-            quest_progress.completion_date = datetime.now()
-            
-    def complete_quest(self, game_id: int, quest_id: int) -> None:
-        """Marks a quest as complete."""
-        quest_progress = QuestProgress.query.filter_by(game_id=game_id, quest_id=quest_id).first()
-        quest_progress.is_complete = True
-        quest_progress.completion_date = datetime.now()
-        
+        db.session.commit()
 
-    ## Inventory / Item related actions
-    def add_game_inventory(self, game_id: int, inventory_id: int) -> None:
-        """Adds an inventory to a Game."""
-        inventory = InventoryUser(game_id=game_id, inventory_id=inventory_id)
+    def assign_building(self, building_id: int) -> None:
+        """Assigns a Building to a Game."""
+        building_progress = BuildingProgress(game_id=self.game_id, 
+                                             building_id=building_id)
+        db.session.add(building_progress)
+        db.session.commit()
+
+    def assign_inventory(self, inventory_id: int) -> None:
+        """Assigns an Inventory to a Game."""
+        inventory = InventoryUser(game_id=self.game_id, 
+                                  inventory_id=inventory_id)
         db.session.add(inventory)
-        
-    def remove_game_inventory(self, game_id: int, inventory_id: int) -> None:
-        """Removes an inventory from a Game."""
-        inventory = InventoryUser.query.filter_by(game_id=game_id, inventory_id=inventory_id).first()
-        db.session.delete(inventory)
-        
-    def add_inventory_item(self, inventory_id: int, item_id: int, quantity: int) -> None:
-        """Check if item already exists, if so, increase quantity, otherwise add item to inventory."""
-        item = InventoryItems.query.filter_by(inventory_id=inventory_id, item_id=item_id).first()
-        if item is not None:
-            item.quantity += quantity
-        else:
-            item = InventoryItems(inventory_id=inventory_id, item_id=item_id, quantity=quantity)
-            db.session.add(item)
-        
-    def remove_inventory_item(self, inventory_id: int, item_id: int, quantity: int) -> None:
-        """Check if item exists, if so, decrease quantity, if quantity is 0, remove item from inventory."""
-        item = InventoryItems.query.filter_by(inventory_id=inventory_id, item_id=item_id).first()
-        if item is not None:
-            item.quantity -= quantity
-            if item.quantity <= 0:
-                db.session.delete(item)
-
-
-    ## Building related actions
-    def add_building_level(self, building_id: int, level: int, cash_per_hour: int) -> None:
-        """Adds a level to a building."""
-        building = BuildingProgress.query.get(building_id)
-        building.level += level
-        building.cash_per_hour += cash_per_hour
-        
+        db.session.commit()
 
     ## Helper functions
     def _get_game(self) -> Game:
@@ -224,7 +181,48 @@ class GameService:
         return game
     
 
+    
 
+## Game Quest Service
+# Class to action against the QuestProgress instance
+class QuestService:
+    ''' Service for managing quest specific actions '''
+    def __init__(self, quest_progress_id: int, notifier=FlashNotifier()) -> None:
+        self.quest_progress_id = quest_progress_id
+        self.quest = self._get_quest_progress()
+        self.notifier = notifier
+
+    def _get_quest_progress(self) -> QuestProgress:
+        """Retrieves the QuestProgress instance or raises an error if not found."""
+        quest = QuestProgress.query.get(self.quest_progress_id)
+        if quest is None:
+            raise ValueError(f"QuestProgress with ID {self.quest_progress_id} not found.")
+        return quest
+
+    # Quest Methods:
+    def complete_quest(self):
+        self.quest.quest_completed = True
+        self.quest.quest_completed_date = datetime.now()
+
+    def add_progress(self, progress: int):
+        self.quest.quest_progress += progress
+        if self.quest.quest_progress >= 100:
+            self.complete_quest()
+            if self.notifier:
+                self.notifier.notify("Quest Completed!")
+        else:
+            if self.notifier:
+                self.notifier.notify(f"Quest Progress: {self.quest.progress}%")
+
+    def check_quest_active(self):
+        return self.quest.quest_active
+    
+    def check_quest_completed(self):
+        return self.quest.quest_completed
+    
+    def check_quest_progress(self):
+        return self.quest.quest_progress
+    
 ## GameBuildingService
 # Class to action against the GameBuilding instance
 class GameBuildingService:
@@ -277,9 +275,7 @@ class GameBuildingService:
     def calculate_accrued_resources(self):
         # Check if accrual_start_time is set
         if self.building.accrual_start_time is None:
-            # Handle the case where accrual_start_time is not set
-            # This could be logging an error, setting a default value, or skipping the calculation
-            accrual_start_time = datetime.now(timezone.utc)
+            return 0
         else:
             # Ensure accrual_start_time is offset-aware
             accrual_start_time = self.building.accrual_start_time
@@ -289,7 +285,16 @@ class GameBuildingService:
 
         # Now that both datetimes are offset-aware, perform the subtraction
         time_difference = datetime.now(timezone.utc) - accrual_start_time
-        minutes = time_difference.total_seconds() / 60 # Calculate minutes for finer detail
+        minutes = time_difference.total_seconds() / 60  # Calculate minutes for finer detail
+
+        print("Minutes before:  ", minutes)
+
+        # check if max accrual duration is reached
+        if minutes > self.building.max_accrual_duration:
+            minutes = round(self.building.max_accrual_duration)
+
+        print("Minutes after: ", minutes)
+
 
         # Calculate accrued resources and round to whole numbers
         self.building.accrued_cash = round(self.building.cash_per_minute * minutes)
@@ -328,7 +333,6 @@ class GameBuildingService:
             'stone': round(self.building.building.base_building_stone_required * level_factor),
             'metal': round(self.building.building.base_building_metal_required * level_factor),
         }
-        print(required_resources)
         return required_resources
 
     def upgrade_building(self):
@@ -351,11 +355,8 @@ class GameBuildingService:
                               source="Building Upgrade. Building: " + str(self.building.building_id))
         
         
-
-        ##TODO: Check if building is at level 0 and set rate
         # Check if building level is 0 and set rate
         if self.building.building_level == 0:
-            print(self.building.building.base_cash_per_minute)
             self.building.cash_per_minute = self.building.building.base_cash_per_minute
             self.building.xp_per_minute = self.building.building.base_xp_per_minute
             self.building.wood_per_minute = self.building.building.base_wood_per_minute
