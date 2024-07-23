@@ -4,8 +4,8 @@ from app.models import User, db, Game, Inventory
 from app.models import InventoryUser, InventoryItems, InventoryType
 from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation
 from app.models import BuildingProgress, Buildings
-from app.game.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, CollectResourcesForm, UpgradeBuildingForm
-from app.game.game_logic import GameService, GameCreation, GameBuildingService
+from app.game.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
+from app.game.game_logic import GameService, GameCreation, GameBuildingService, QuestService
 import sqlalchemy as sa
 
 from app.game import bp
@@ -98,18 +98,38 @@ def play(game_id):
 
 
 # Route to display quests
-@bp.route('/building_quests/<game_id>', methods=['GET', 'POST'])
+@bp.route('/building_quests/<building_progress_id>', methods=['GET', 'POST'])
 @login_required
-def building_quests(game_id):
+def building_quests(building_progress_id):
+
+    # Forms
+    completequestform = CompleteQuestForm(request.form)
     
-    # Query for game quest progress
-    game = Game.query.filter_by(id=game_id).first()
-    quests = QuestProgress.query.filter_by(game_id=game_id).all()
+    # Database Queries
+    building_progress = BuildingProgress.query.filter_by(id=building_progress_id).first()
+    game = Game.query.filter_by(id=building_progress.game_id).first()
+    quests = QuestProgress.query.filter_by(game_id=game.id).all()
+    active_quests = QuestProgress.query.filter_by(game_id=game.id, quest_active=True, quest_completed=False).all()
+    completed_quests = QuestProgress.query.filter_by(game_id=game.id, quest_completed=True).all()
+    inactive_quests = QuestProgress.query.filter_by(game_id=game.id, quest_completed=False).all()
+
+    if request.method == 'POST' and completequestform.complete_button.data:
+        quest_id = completequestform.quest_id.data
+        service = QuestService(quest_progress_id=quest_id)
+        service.complete_quest()
+        db.session.commit()
+        flash(f'Quest Completed')
+        return redirect(url_for('game.building_quests', building_progress_id=building_progress_id))
+
     
     return render_template("game/buildings/building_quests.html", 
                            title='Quests',
                            game=game,
-                           quests=quests)
+                           quests=quests,
+                           active_quests=active_quests,
+                           completed_quests=completed_quests,
+                           inactive_quests=inactive_quests,
+                           completequestform=completequestform)
 
 # Route to display inventory
 @bp.route('/building_inventory/<game_id>', methods=['GET', 'POST'])

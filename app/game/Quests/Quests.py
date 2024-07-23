@@ -41,11 +41,11 @@ class QuestCreator:
             self.quest = Quest(quest_name=self.quest_name, quest_description=self.quest_description, quest_type_id=self.quest_type_id)
             db.session.add(self.quest)
             db.session.commit()
-            print("Quest Created")
+            print("Quest Created: ", self.quest_name)
             return self.quest
         except Exception as e:
             db.session.rollback()
-            print(f"Failed to create quest: {e}")
+            print(f"Failed to create quest: {self.quest_name} {e}")
 
     def create_quest_rewards(self, xp, cash, wood, stone, metal):
         try:
@@ -57,11 +57,11 @@ class QuestCreator:
                                         quest_reward_metal=metal)
             db.session.add(quest_reward)
             db.session.commit()
-            print("Quest Reward Created")
+            print("Quest Reward Created: ", self.quest_name)
             return quest_reward
         except Exception as e:
             db.session.rollback()
-            print(f"Failed to create quest reward: {e}")
+            print(f"Failed to create quest reward: {self.quest_name} {e}")
 
     def create_reward_item_associate(self, reward, item_id, quantity):
         try:
@@ -70,11 +70,11 @@ class QuestCreator:
                                                 quantity=quantity)
             db.session.add(reward_item)
             db.session.commit()
-            print("Reward Item Associated")
+            print("Reward Item Associated: ", self.quest_name)
             return reward_item
         except Exception as e:
             db.session.rollback()
-            print(f"Failed to associate reward item: {e}")
+            print(f"Failed to associate reward item: {self.quest_name} {e}")
 
     def create_full_quest(self, rewards_info, items_info):
         try:
@@ -88,10 +88,10 @@ class QuestCreator:
                 self.create_reward_item_associate(rewards, 
                                                   item['item_id'], 
                                                   item['quantity'])
-            print("Full Quest Created")
+            print("Full Quest Created: ", self.quest_name)
         except Exception as e:
             db.session.rollback()
-            print(f"Failed to create full quest: {e}")
+            print(f"Failed to create full quest: {self.quest_name} {e}")
             
 # Create Quests
 def create_quests():
@@ -133,13 +133,11 @@ def delete_quest_data():
 
 
 # Create quests, rewards, and reward item associations
+'''
 delete_quest_data()
 
 create_QuestTypes()
 
 create_quests()
-
-
-
-
+'''
 # python -m app.game.Quests.Quests

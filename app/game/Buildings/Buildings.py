@@ -46,11 +46,11 @@ class BuildingCreator:
                                               building_link=self.building_link)
             db.session.add(self.building)
             db.session.commit()
-            print("Building Created")
+            print("Building Created: ", self.building_name)
             return self.building
         except Exception as e:
             db.session.rollback()
-            print(f"Failed to create building: {e}")
+            print(f"Failed to create building: {self.building_name} {e}")
     
     def set_building_requirements(self, cash=0, level=0, xp=0, wood=0, stone=0, metal=0):
         if not self.building:
@@ -65,10 +65,10 @@ class BuildingCreator:
             self.building.base_building_metal_required = metal
 
             db.session.commit()
-            print("Building requirements set")
+            print("Building requirements set: ", self.building_name)
         except Exception as e:
             db.session.rollback()
-            print(f"Failed to set building requirements: {e}")
+            print(f"Failed to set building requirements: {self.building_name} {e}")
             
     def set_base_collection_rates(self, cash=0, xp=0, wood=0, stone=0, metal=0):
         if not self.building:
@@ -82,10 +82,10 @@ class BuildingCreator:
             self.building.base_metal_per_minute = metal
 
             db.session.commit()
-            print("Building collection parameters set")
+            print("Building collection parameters set: ", self.building_name)
         except Exception as e:
             db.session.rollback()
-            print(f"Failed to set building collection parameters: {e}")
+            print(f"Failed to set building collection parameters: {self.building_name} {e}")
             
 
 def delete_building_data():
@@ -95,15 +95,8 @@ def delete_building_data():
     db.session.query(BuildingProgress).delete()
     print("Building Data Deleted")
     
-
-
-# Create buildings, requirements progress
-if __name__ == "__main__": 
-    delete_building_data()
-    
-    create_building_types()
-    
-    # Create Quest Building
+def create_buildings():
+     # Create Quest Building
     quest_building = BuildingCreator(building_name="Quest Building", 
                                  building_description="View All Quests", 
                                  building_type_id=1, 
@@ -156,5 +149,15 @@ if __name__ == "__main__":
     forge_building.create_building()
     forge_building.set_building_requirements(cash=5000, level=20, wood=1000, stone=500, metal=0)
     forge_building.set_base_collection_rates(metal=1)
+
+
+# Create buildings, requirements progress
+if __name__ == "__main__": 
+    '''
+        delete_building_data()
+        create_building_types()
+        create_buildings()
+    '''
+   
     
     # python -m app.game.Buildings.Buildings

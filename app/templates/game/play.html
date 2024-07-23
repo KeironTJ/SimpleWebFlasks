@@ -7,7 +7,7 @@
         {% for building in game.building_progress %}
         <div class="col-md-4 mb-4">
             <!-- Wrap the card with an <a> tag -->
-            {% if building.building.building_type.id != 3 %}
+            {% if building.building.building_type.id == 2 %}
                 <a href="{{  url_for(building.building.building_link, game_id=game.id) }}" class="card-link">
             {% else %}
                 <a href="{{  url_for(building.building.building_link, building_progress_id=building.id) }}" class="card-link">    

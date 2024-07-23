@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, IntegerField
+from wtforms import StringField, SubmitField, SelectField, IntegerField, HiddenField
 from wtforms.validators import DataRequired
 from app.models import Game
 from flask_login import current_user
@@ -34,6 +34,10 @@ class CollectResourcesForm(FlaskForm):
 
 class UpgradeBuildingForm(FlaskForm):
     upgrade_button = SubmitField('Upgrade')
+
+class CompleteQuestForm(FlaskForm):
+    quest_id = HiddenField('Quest ID')
+    complete_button = SubmitField('Complete Quest')
 
 
 

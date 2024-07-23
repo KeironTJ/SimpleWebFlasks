@@ -13,6 +13,8 @@ from app.models import Item, Inventory, InventoryItems, InventoryType, Inventory
 from app.models import ResourceLog
 from app.models import Buildings, BuildingProgress, BuildingType
 from app.game.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
+from app.game.Buildings.Buildings import delete_building_data, create_building_types, create_buildings
+from app.game.Quests.Quests import create_QuestTypes, create_quests, delete_quest_data
 
 app = create_app()
 app_context = app.app_context()
@@ -48,7 +50,7 @@ def add_user(username, email, password, role_name):
             db.session.rollback()
             print(f"Failed to add user: {username}")
 
-def populate_database():
+def create_roles_and_users():
     """Populate the database with predefined data."""
     # Your existing functions to add roles and users
     # Check if the roles are already in the database
@@ -69,7 +71,6 @@ def populate_database():
         print("User KeironTJ already exists")
        
         
-
 ## GAME ADMIN CREATION
 # Create a game for the admin user
 def create_game_for_admin():
@@ -84,46 +85,9 @@ def create_game_for_admin():
     service.create_all_startup(game_id)
     db.session.commit()
     
-def test_GameService():
-    print("TESTING GameService")
-    service = GameService(game_id=1, notifier=PrintNotifier())
-    
-    # Add XP and Cash
-    try:
-        service.add_xp(50, source="TEST ADD XP")
-        service.add_cash(100, source="TEST ADD Cash")
-        print("TEST XP and Cash - SUCCESS")
-    except Exception as e:
-        print(f"TEST XP and Cash - FAILED: {e}")
-    
-
-    # Add Sword to inventory      
-    try:
-        service.add_inventory_item(1, 1, 1)
-        print("TEST Add Sword to Inventory - SUCCESS")
-    except Exception as e:
-        print(f"TEST Add Sword to Inventory - FAILED: {e}")
-        
-        
-    # Add XP to increase Level
-    try:
-        service.add_xp(150, source="TEST ADD LEVEL")
-        print("TEST XP added to increase Level - SUCCESS")
-    except Exception as e:
-        print(f"XP added to increase Level - FAILED: {e}")
-        
-    # Attempt commit
-    try:
-        db.session.commit()
-        print("TEST PASSED")
-    except:
-        db.session.rollback()
-        print("TEST FAILED")
 
 
-
-
-def delete_test_data():
+def delete_game_data():
     
     # Delete User Data
     db.session.query(User).delete()
@@ -149,14 +113,27 @@ def delete_test_data():
 
 # Run the script
 if __name__ == "__main__":
-    delete_test_data()
-    populate_database()
+
+    # User and Role data
+    delete_game_data()
+    create_roles_and_users()
     
 
-   
-    
+    # Building Data
+    delete_building_data()
+    create_building_types()
+    create_buildings()
+
+    # Quest Data
+    delete_quest_data()
+    create_QuestTypes()
+    create_quests()
+
+    # Create new game for admin
     create_game_for_admin()
-    #test_GameService()
+
+
+
         
         
 

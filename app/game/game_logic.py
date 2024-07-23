@@ -43,7 +43,13 @@ class GameCreation:
         for quest in quests:
             quest_progress = QuestProgress(game_id=game_id,
                                            quest_id=quest.id)
+            # Set quest progress parameters for quests
+            if quest.id == 1:
+                quest_progress.quest_active = True
+                quest_progress.quest_progress = 100
+
             db.session.add(quest_progress)
+
 
     # function to assign all buildings to the Game instance    
     def assign_all_buildings(self, game_id: int) -> None:
@@ -116,11 +122,7 @@ class GameService:
     def add_xp(self, xp: int, source="") -> None:
         """Adds XP to a Game, logs the addition, and checks for level up."""
         self.game.xp += xp
-        resource_log= ResourceLog(game_id=self.game_id, 
-                                          xp=xp,
-                                          source=source)
-        db.session.add(resource_log)
-
+        
         self._check_and_update_level()
 
     # method to check and update the level to support add_xp
@@ -203,6 +205,9 @@ class QuestService:
     def complete_quest(self):
         self.quest.quest_completed = True
         self.quest.quest_completed_date = datetime.now()
+        self.collect_rewards()
+
+        self.notifier.notify("Quest: Completed!")
 
     def add_progress(self, progress: int):
         self.quest.quest_progress += progress
@@ -213,16 +218,40 @@ class QuestService:
         else:
             if self.notifier:
                 self.notifier.notify(f"Quest Progress: {self.quest.progress}%")
+                
+    def collect_rewards(self):
+        rewards = QuestRewards.query.filter_by(quest_id=self.quest.quest_id).first()
+        if rewards is None:
+            return
 
-    def check_quest_active(self):
-        return self.quest.quest_active
-    
-    def check_quest_completed(self):
-        return self.quest.quest_completed
-    
-    def check_quest_progress(self):
-        return self.quest.quest_progress
-    
+        game_service = GameService(self.quest.game_id)
+        game_service.add_xp(rewards.quest_reward_xp, source="Quest Reward")
+        game_service.game.cash += rewards.quest_reward_cash
+        game_service.game.wood += rewards.quest_reward_wood
+        game_service.game.stone += rewards.quest_reward_stone
+        game_service.game.metal += rewards.quest_reward_metal
+        self.update_resource_log()
+
+
+        if self.notifier:
+            self.notifier.notify("Quest Rewards Collected")
+
+    def update_resource_log(self):
+        rewards = QuestRewards.query.filter_by(quest_id=self.quest.quest_id).first()
+        resource_log = ResourceLog(
+            game_id=self.quest.game_id,
+            cash=rewards.quest_reward_cash,
+            wood=rewards.quest_reward_wood,
+            stone=rewards.quest_reward_stone,
+            metal=rewards.quest_reward_metal,
+            xp = rewards.quest_reward_xp,
+            source = "Quest Rewards. Quest: " + str(self.quest.quest_id)
+        )
+
+        db.session.add(resource_log)
+        db.session.commit()
+
+        
 
 
 ## GameBuildingService
@@ -353,15 +382,8 @@ class GameBuildingService:
                 continue
             setattr(self.building.game, resource, getattr(self.building.game, resource) - required_amount)
             
-        # Update resource log
-        resource_log = ResourceLog(
-            game_id=self.building.game_id,
-            cash=required_resources['cash'],
-            wood=required_resources['wood'],
-            stone=required_resources['stone'],
-            metal=required_resources['metal'],
-            source = "Building Upgrade. Building: " + str(self.building.building_id)
-        )
+
+        
         
         # Check if building level is 0 and set rate
         if self.building.building_level == 0:
@@ -382,6 +404,23 @@ class GameBuildingService:
         self.building.wood_per_minute = round(self.building.wood_per_minute * 1.1)
         self.building.stone_per_minute = round(self.building.stone_per_minute * 1.1)
         self.building.metal_per_minute = round(self.building.metal_per_minute * 1.1)
+
+        # Increase XP
+        game_service = GameService(self.building.game_id)
+        game_service.add_xp(10, source="Building Upgrade")
+
+        # Update resource log
+        resource_log = ResourceLog(
+            game_id=self.building.game_id,
+            cash= -required_resources['cash'],
+            wood= -required_resources['wood'],
+            stone= -required_resources['stone'],
+            metal= -required_resources['metal'],
+            xp = 10,
+            source = "Building Upgrade. Building: " + str(self.building.building_id)
+        )
+
+        db.session.add(resource_log)
         
         
         if self.notifier:

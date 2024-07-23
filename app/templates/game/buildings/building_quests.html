@@ -4,15 +4,104 @@
 
 
 
-<div>
-	<h2>Quests in Progress</h2>
-	<p>Here are the quests you have in progress:</p>
-	<ul>
-		{% for quest in quests %}
-			<li> {{ quest.quest_quest.quest_name }} - {{ quest.quest_quest.quest_description }} - Progress = {{ quest.quest_progress }} - Active = {{ quest.quest_active }} - Completed = {{ quest.quest_completed }} </li>
-		{% endfor %}
-	</ul>
-	</div>
+<div class="row">
+    <div class="col-md-12"> <!-- Adjusted for full width -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">Active Quests</div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Quest ID</th>
+                            <th scope="col">Quest Name</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">Actions</th> <!-- Column for the form if quest_progress == 100 -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quest in active_quests %}
+                        <tr>
+                            <td>{{ quest.id }}</td>
+                            <td>{{ quest.quest_quest.quest_name }}</td>
+                            <td>{{ quest.quest_quest.quest_description }}</td>
+                            <td>
+                                {% if quest.quest_progress == 100 %}
+                                <form action="" method="post">
+                                    {{ completequestform.csrf_token()  }}
+                                    {{ completequestform.quest_id(value=quest.id) }}
+                                    {{ completequestform.complete_button() }}
+                                </form>
+                                {% else %}
+                                In Progress
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="col-md-12">
+    <div class="card">
+        <div class="card-header bg-success text-white">Completed Quests</div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Quest ID</th>
+                        <th scope="col">Quest Name</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quest in completed_quests %}
+                    <tr>
+                        <td>{{ quest.id }}</td>
+                        <td>{{ quest.quest_quest.quest_name }}</td>
+                        <td>{{ quest.quest_quest.quest_description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<br>
+
+<div class="col-md-12">
+    <div class="card">
+        <div class="card-header bg-secondary text-white">Inactive Quests</div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Quest ID</th>
+                        <th scope="col">Quest Name</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for quest in inactive_quests %}
+                    <tr>
+                        <td>{{ quest.id }}</td>
+                        <td>{{ quest.quest_quest.quest_name }}</td>
+                        <td>{{ quest.quest_quest.quest_description }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
 
 
 
