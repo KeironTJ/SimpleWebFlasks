@@ -65,20 +65,22 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th>Reward Name</th>
-                                <th>Reward Description</th>
                                 <th>Reward XP</th>
                                 <th>Reward Cash</th>
+                                <th>Reward Wood</th>
+                                <th>Reward Stone</th>
+                                <th>Reward Metal</th>
                                 <th>Reward Items</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for reward in quest.quest_rewards %}
                             <tr>
-                                <td>{{ reward.quest_reward_name }}</td>
-                                <td>{{ reward.quest_reward_description }}</td>
                                 <td>{{ reward.quest_reward_xp }}</td>
                                 <td>{{ reward.quest_reward_cash }}</td>
+                                <td>{{ reward.quest_reward_wood }}</td>
+                                <td>{{ reward.quest_reward_stone }}</td>
+                                <td>{{ reward.quest_reward_metal }}</td>
                                 <td>
                                     <table class="table">
                                         <thead>

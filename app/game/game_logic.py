@@ -41,8 +41,8 @@ class GameCreation:
         """Assigns all quests to a Game."""
         quests = Quest.query.all()
         for quest in quests:
-            quest_progress = QuestProgress(game_id=game_id, 
-                                                   quest_id=quest.id)
+            quest_progress = QuestProgress(game_id=game_id,
+                                           quest_id=quest.id)
             db.session.add(quest_progress)
 
     # function to assign all buildings to the Game instance    
@@ -223,6 +223,8 @@ class QuestService:
     def check_quest_progress(self):
         return self.quest.quest_progress
     
+
+
 ## GameBuildingService
 # Class to action against the GameBuilding instance
 class GameBuildingService:
@@ -287,13 +289,9 @@ class GameBuildingService:
         time_difference = datetime.now(timezone.utc) - accrual_start_time
         minutes = time_difference.total_seconds() / 60  # Calculate minutes for finer detail
 
-        print("Minutes before:  ", minutes)
-
         # check if max accrual duration is reached
         if minutes > self.building.max_accrual_duration:
             minutes = round(self.building.max_accrual_duration)
-
-        print("Minutes after: ", minutes)
 
 
         # Calculate accrued resources and round to whole numbers
@@ -324,7 +322,7 @@ class GameBuildingService:
         if self.building.building_level == 0:
             level_factor = 1
         else:
-            level_factor = (1.1 * self.building.building_level)
+            level_factor = (1.5 ** self.building.building_level)
         
         required_resources = {
             'level': round(self.building.building.base_building_level_required),
@@ -348,12 +346,22 @@ class GameBuildingService:
                 self.notifier.notify("Insufficient resources to upgrade building.")
             return
         
-        
         # Deduct cash from user
-        game_service = GameService(game_id=self.building.game_id)
-        game_service.add_cash(-self.building.building.base_building_cash_required, 
-                              source="Building Upgrade. Building: " + str(self.building.building_id))
-        
+        required_resources = self._calculate_required_resources()
+        for resource, required_amount in required_resources.items():
+            if resource == 'level':
+                continue
+            setattr(self.building.game, resource, getattr(self.building.game, resource) - required_amount)
+            
+        # Update resource log
+        resource_log = ResourceLog(
+            game_id=self.building.game_id,
+            cash=required_resources['cash'],
+            wood=required_resources['wood'],
+            stone=required_resources['stone'],
+            metal=required_resources['metal'],
+            source = "Building Upgrade. Building: " + str(self.building.building_id)
+        )
         
         # Check if building level is 0 and set rate
         if self.building.building_level == 0:
@@ -369,11 +377,11 @@ class GameBuildingService:
         
         # Upgrade building
         self.building.building_level += 1
-        self.building.cash_per_minute += round(self.building.cash_per_minute * 1.1)
-        self.building.xp_per_minute += round(self.building.xp_per_minute * 1.1)
-        self.building.wood_per_minute += round(self.building.wood_per_minute * 1.1)
-        self.building.stone_per_minute += round(self.building.stone_per_minute * 1.1)
-        self.building.metal_per_minute += round(self.building.metal_per_minute * 1.1)
+        self.building.cash_per_minute = round(self.building.cash_per_minute * 1.1)
+        self.building.xp_per_minute = round(self.building.xp_per_minute * 1.1)
+        self.building.wood_per_minute = round(self.building.wood_per_minute * 1.1)
+        self.building.stone_per_minute = round(self.building.stone_per_minute * 1.1)
+        self.building.metal_per_minute = round(self.building.metal_per_minute * 1.1)
         
         
         if self.notifier:

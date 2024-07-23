@@ -252,10 +252,11 @@ class QuestRewards(db.Model):
     quest_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
     
     # Reward details
-    quest_reward_name = db.Column(db.String(64))
-    quest_reward_description = db.Column(db.String(256))
     quest_reward_xp = db.Column(db.Integer, default=0)
     quest_reward_cash = db.Column(db.Integer,default=0)
+    quest_reward_wood = db.Column(db.Integer, default=0)
+    quest_reward_stone = db.Column(db.Integer, default=0)
+    quest_reward_metal = db.Column(db.Integer, default=0)
     quest_reward_item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
     
     # Relationships

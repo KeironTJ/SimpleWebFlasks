@@ -127,7 +127,7 @@ if __name__ == "__main__":
                                 building_link="game.building_resource")
     farm_building.create_building()
     farm_building.set_building_requirements(cash=1000, level=1)
-    farm_building.set_base_collection_rates(cash=10)
+    farm_building.set_base_collection_rates(cash=500)
                                             
     
     # Create Lumber Mill Building

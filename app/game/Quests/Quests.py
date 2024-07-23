@@ -47,16 +47,14 @@ class QuestCreator:
             db.session.rollback()
             print(f"Failed to create quest: {e}")
 
-    def create_quest_rewards(self, quest_reward_name, quest_reward_description, quest_reward_xp, quest_reward_cash):
-        if self.quest is None:
-            print("Quest must be created before adding rewards.")
-            return
+    def create_quest_rewards(self, xp, cash, wood, stone, metal):
         try:
-            quest_reward = QuestRewards(quest=self.quest, 
-                                                quest_reward_name=quest_reward_name, 
-                                                quest_reward_description=quest_reward_description, 
-                                                quest_reward_xp=quest_reward_xp, 
-                                                quest_reward_cash=quest_reward_cash)
+            quest_reward = QuestRewards(quest_id=self.quest.id, 
+                                        quest_reward_xp=xp, 
+                                        quest_reward_cash=cash, 
+                                        quest_reward_wood=wood, 
+                                        quest_reward_stone=stone, 
+                                        quest_reward_metal=metal)
             db.session.add(quest_reward)
             db.session.commit()
             print("Quest Reward Created")
@@ -79,49 +77,50 @@ class QuestCreator:
             print(f"Failed to associate reward item: {e}")
 
     def create_full_quest(self, rewards_info, items_info):
-        """
-        Create a quest with rewards and associate items with those rewards.
-        
-        :param rewards_info: List of dictionaries with reward details.
-        :param items_info: Dictionary mapping reward names to lists of item associations.
-        """
-        self.create_quest()
-        for reward_info in rewards_info:
-            reward = self.create_quest_rewards(**reward_info)
-            for item_info in items_info.get(reward_info['quest_reward_name'], []):
-                self.create_reward_item_associate(reward, **item_info)
+        try:
+            self.create_quest()
+            rewards = self.create_quest_rewards(rewards_info['xp'], 
+                                                rewards_info['cash'], 
+                                                rewards_info['wood'], 
+                                                rewards_info['stone'], 
+                                                rewards_info['metal'])
+            for item in items_info:
+                self.create_reward_item_associate(rewards, 
+                                                  item['item_id'], 
+                                                  item['quantity'])
+            print("Full Quest Created")
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to create full quest: {e}")
+            
+# Create Quests
+def create_quests():
+    # Quest 1
+    quest1 = QuestCreator(quest_name="Welcome", 
+                          quest_description="Welcome to Outline!", 
+                          quest_type_id=1)
+    quest1.create_full_quest(
+        rewards_info={'xp': 110, 
+                      'cash': 1000, 
+                      'wood': 0, 
+                      'stone': 0, 
+                      'metal': 0},
+        items_info=[{'item_id': 1, 'quantity': 1},
+                    {'item_id': 2, 'quantity': 1}])
+   
+    # Quest 2
+    quest2 = QuestCreator(quest_name="First Building", 
+                          quest_description="Build your first building", 
+                          quest_type_id=2)
+    quest2.create_full_quest(
+        rewards_info={'xp': 50, 
+                      'cash': 1000, 
+                      'wood': 0, 
+                      'stone': 0, 
+                      'metal': 0},
+        items_info=[])
+    
 
-# Example usage
-Main_quest_1 = QuestCreator(quest_name="Main Quest 1", quest_description="Main Quest 1 Description", quest_type_id=1)
-rewards_info = [
-    {"quest_reward_name": "XP Reward", "quest_reward_description": "XP Reward Description", "quest_reward_xp": 100, "quest_reward_cash": 0},
-    {"quest_reward_name": "Cash Reward", "quest_reward_description": "Cash Reward Description", "quest_reward_xp": 0, "quest_reward_cash": 100}
-]
-items_info = {
-    "XP Reward": [
-        {"item_id": 1, "quantity": 1},
-        {"item_id": 2, "quantity": 2}
-    ],
-    "Cash Reward": [
-        {"item_id": 3, "quantity": 3}
-    ]
-}
-
-
-Main_quest_2 = QuestCreator(quest_name="Main Quest 2", quest_description="Main Quest 2 Description", quest_type_id=1)
-rewards_info = [
-    {"quest_reward_name": "XP Reward", "quest_reward_description": "XP Reward Description", "quest_reward_xp": 200, "quest_reward_cash": 0},
-    {"quest_reward_name": "Cash Reward", "quest_reward_description": "Cash Reward Description", "quest_reward_xp": 0, "quest_reward_cash": 200}
-]
-items_info = {
-    "XP Reward": [
-        {"item_id": 1, "quantity": 2},
-        {"item_id": 2, "quantity": 4}
-    ],
-    "Cash Reward": [
-        {"item_id": 3, "quantity": 6}
-    ]
-}
 
 def delete_quest_data():
     # Delete Game Quest Data
@@ -134,6 +133,13 @@ def delete_quest_data():
 
 
 # Create quests, rewards, and reward item associations
+delete_quest_data()
+
 create_QuestTypes()
-Main_quest_1.create_full_quest(rewards_info, items_info)
-Main_quest_2.create_full_quest(rewards_info, items_info)
+
+create_quests()
+
+
+
+
+# python -m app.game.Quests.Quests
