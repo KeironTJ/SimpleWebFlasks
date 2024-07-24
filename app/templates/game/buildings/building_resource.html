@@ -2,20 +2,6 @@
 
 {% block content2 %}
 
-
-<script>
-    socket.on('resource_update', function(data) {
-        console.log('Received data:', data); // Check the browser console to see this output
-        
-        // Corrected the typo from 'resrouce' to 'resource'
-        document.getElementById('resource').innerText = 'K: ' + data.accrued_resources;
-
-        // Update your webpage elements here
-    });
-</script>
-
-
-
 <div class="building-section">
     <h2>{{ building_progress.building.building_name }} - Level: {{ building_progress.building_level }}</h2>
 
@@ -28,7 +14,7 @@
             <i class="fas fa-dollar-sign"></i> <!-- Example icon usage -->
 
             <!--Placehoder testing websocket for resources-->
-            <div id="resource"></div>
+            <div id="testtext">PlaceHolder Text</div>
 
 
 
@@ -71,51 +57,52 @@
    
 <!-- UPGRADE SECTION FOR RESOURCE BUILDING-->
     <h2>Upgrade:</h2>
-        <div class="resource-info">
-            <div class="resource-card">
 
-                {% if building_progress.building_level >= building_progress.building.max_building_level %}
-                <p>Building Upgraded to Max Level</p>
-                {% else %}
+    <div class="resource-info">
+        <div class="resource-card">
 
-                <p>Game Level: {{ game.level }} / {{ required_resources.level }}</p>
-                <p>Cash: {{ game.cash }} / {{ required_resources.cash }}</p>
+            {% if building_progress.building_level >= building_progress.building.max_building_level %}
+            <p>Building Upgraded to Max Level</p>
+            {% else %}
 
-                <!-- Farm -->
-                {% if building_progress.building.id == 3 %}
-                {% endif %}
+            <p>Game Level: {{ game.level }} / {{ required_resources.level }}</p>
+            <p>Cash: {{ game.cash }} / {{ required_resources.cash }}</p>
 
-                <!-- Lumber Mill -->
-                {% if building_progress.building.id == 4 %}
-                {% endif %}
+            <!-- Farm -->
+            {% if building_progress.building.id == 3 %}
+            {% endif %}
 
-                <!-- Mine -->
-                {% if building_progress.building.id == 5 %}
-                <p>Wood: {{ game.wood }} / {{ required_resources.wood }}</p>
-                {% endif %}
+            <!-- Lumber Mill -->
+            {% if building_progress.building.id == 4 %}
+            {% endif %}
 
-
-                <!-- Forge -->
-                {% if building_progress.building.id == 6 %}
-                <p>Wood: {{ game.wood }} / {{ required_resources.wood }}</p>
-                <p>Stone: {{ game.stone }} / {{ required_resources.stone }}</p>
-                {% endif %}
-
-                {% if buildingservice.check_upgrade_requirements() %}
-                <form action="" method="post">
-                    {{ upgradebuildingform.hidden_tag() }}
-                    <p>{{ upgradebuildingform.upgrade_button() }}</p>
-                </form>
-                {% else %}
-                <p>Requirements not met</p>
-                {% endif %}
-                {% endif %}
+            <!-- Mine -->
+            {% if building_progress.building.id == 5 %}
+            <p>Wood: {{ game.wood }} / {{ required_resources.wood }}</p>
+            {% endif %}
 
 
-            </div>
+            <!-- Forge -->
+            {% if building_progress.building.id == 6 %}
+            <p>Wood: {{ game.wood }} / {{ required_resources.wood }}</p>
+            <p>Stone: {{ game.stone }} / {{ required_resources.stone }}</p>
+            {% endif %}
+
+            {% if buildingservice.check_upgrade_requirements() %}
+            <form action="" method="post">
+                {{ upgradebuildingform.hidden_tag() }}
+                <p>{{ upgradebuildingform.upgrade_button() }}</p>
+            </form>
+            {% else %}
+            <p>Requirements not met</p>
+            {% endif %}
+            {% endif %}
+
+
         </div>
     </div>
 </div>
+
 
 
 {% endblock content2 %}

@@ -6,7 +6,6 @@ from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItem
 from app.models import BuildingProgress, Buildings
 from app.game.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, AddResourcesForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
 from app.game.game_logic import GameService, GameCreation, GameBuildingService, QuestService
-from app import socketio
 import sqlalchemy as sa
 
 from app.game import bp
@@ -152,11 +151,6 @@ def building_resource(building_progress_id):
     # calculate accrued resources:
     buildingservice = GameBuildingService(building_progress_id=building_progress_id)
     buildingservice.calculate_accrued_resources()
-
-    # TODO SocketIO to send the accrued start time
-    accrued_resources = buildingservice.get_accrual_start_time()
-    accrued_resources_str = accrued_resources.isoformat() if accrued_resources else None
-    socketio.emit('accrued_resources', accrued_resources_str, room=current_user.id)
 
 
     # Calculate required resources

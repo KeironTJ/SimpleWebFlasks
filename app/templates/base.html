@@ -4,23 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-
-    <!--Socket-->
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-
-    <script type="text/javascript">
-        // Initialize the socket variable by connecting to the server
-        var socket = io.connect('https://' + document.domain + ':' + location.port);
-
-        socket.on('connect', function() {
-            console.log('Connected to the server');
-        });
-
-        socket.on('disconnect', function() {
-            console.log('Disconnected from the server');
-        });
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous">
     </script>
-
 
     <!-- App -->
     {% if title %}
@@ -106,10 +93,7 @@
     </div>
 
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous">
-    </script>
+    
     <script>
         $(document).ready(function () {
             setTimeout(function () {
