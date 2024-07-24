@@ -4,11 +4,11 @@
 
 
 <script>
-
     socket.on('resource_update', function(data) {
         console.log('Received data:', data); // Check the browser console to see this output
         
-        document.getElementById('resrouce').innerText = 'K: ' + data.accrued_resources;
+        // Corrected the typo from 'resrouce' to 'resource'
+        document.getElementById('resource').innerText = 'K: ' + data.accrued_resources;
 
         // Update your webpage elements here
     });
@@ -26,9 +26,9 @@
         <div class="resource-card">
             {% if building_progress.building.id == 3 %}
             <i class="fas fa-dollar-sign"></i> <!-- Example icon usage -->
-            
+
             <!--Placehoder testing websocket for resources-->
-            <p id="resrouce"></p>
+            <div id="resource"></div>
 
 
 
