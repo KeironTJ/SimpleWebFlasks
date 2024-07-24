@@ -35,13 +35,13 @@
 
 <div>
     <form action="" method="post">
-        {{ addxpform.hidden_tag() }}
-        <p>{{ addxpform.xp.label }} - {{ addxpform.xp }} - {{ addxpform.addxp_button() }}</p>
-    </form>
-
-    <form action="" method="post">
-        {{ addcashform.hidden_tag() }}
-        <p>{{ addcashform.cash.label }} - {{ addcashform.cash }} - {{ addcashform.addcash_button() }}</p>
+        {{ resourceform.hidden_tag() }}
+        <p>{{ resourceform.xp.label }} - {{ resourceform.xp }}</p>
+        <p>{{ resourceform.cash.label }} - {{ resourceform.cash }}</p>
+        <p>{{ resourceform.wood.label }} - {{ resourceform.wood }}</p>
+        <p>{{ resourceform.stone.label }} - {{ resourceform.stone }}</p>
+        <p>{{ resourceform.metal.label }} - {{ resourceform.metal }}</p>
+        <p>{{ resourceform.add_button() }}</p>
     </form>
 </div>
 

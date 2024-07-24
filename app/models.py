@@ -236,11 +236,6 @@ class Quest(db.Model):
         return f'<Quest {self.quest_name}>'
     
 
-    
-
-
-
-
 # Model to store quest rewards
 class QuestRewards(db.Model):
     __tablename__ = 'quest_rewards'

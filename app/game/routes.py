@@ -4,7 +4,7 @@ from app.models import User, db, Game, Inventory
 from app.models import InventoryUser, InventoryItems, InventoryType
 from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation
 from app.models import BuildingProgress, Buildings
-from app.game.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
+from app.game.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, AddResourcesForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
 from app.game.game_logic import GameService, GameCreation, GameBuildingService, QuestService
 import sqlalchemy as sa
 
@@ -63,22 +63,21 @@ def play(game_id):
         flash('Game not found.', 'error')
         return redirect(url_for('main.index'))
 
-    forms = {'addxpform': AddXPForm(), 'addcashform': AddCashForm()}
-    service = GameService(game_id=game_id)  # Initialize once
+    resourceform = AddResourcesForm()
+    service = GameService(game_id=game_id)
 
-    if request.method == 'POST':
-        for form_name, form in forms.items():
-            if form.validate_on_submit():
-                if form_name == 'addxpform':
-                    xp = form.xp.data
-                    service.add_xp(xp, source="Add XP Function")
-                elif form_name == 'addcashform':
-                    cash = form.cash.data
-                    service.add_cash(cash, source="Add Cash Function")
-                db.session.commit()
-                return redirect(url_for('game.play', game_id=game_id))
+    if request.method == 'POST' and resourceform.add_button.data:
+        service.update_resources(xp=resourceform.xp.data,
+                                    cash=resourceform.cash.data,
+                                    wood=resourceform.wood.data,
+                                    stone=resourceform.stone.data,
+                                    metal=resourceform.metal.data,
+                                    source="Manual Resource Form")
+        flash('Resources Added')
+        
+        return redirect(url_for('game.play', game_id=game_id))
 
-    return render_template("game/play.html", game=game, **forms)
+    return render_template("game/play.html", game=game, resourceform=resourceform)
     
 
 
@@ -156,14 +155,12 @@ def building_resource(building_progress_id):
 
     if request.method == 'POST' and collectresourcesform.collect_button.data:
         buildingservice.collect_resources()
-        db.session.commit()
-        flash(f'Resources Collected')
+        
         return redirect(url_for('game.building_resource', building_progress_id=building_progress_id))
 
     if request.method == 'POST' and upgradebuildingform.upgrade_button.data:
         buildingservice.upgrade_building()
-        db.session.commit()
-        flash(f'Building Upgraded')
+
         return redirect(url_for('game.building_resource', building_progress_id=building_progress_id))
 
 

@@ -28,6 +28,14 @@ class AddCashForm(FlaskForm):
     cash = IntegerField('Cash', validators=[DataRequired()])
     addcash_button = SubmitField('Add Cash')
 
+class AddResourcesForm(FlaskForm):
+    xp = IntegerField('XP', validators=[DataRequired()])
+    cash = IntegerField('Cash', validators=[DataRequired()])
+    wood = IntegerField('Wood', validators=[DataRequired()])
+    stone = IntegerField('Stone', validators=[DataRequired()])
+    metal = IntegerField('Iron', validators=[DataRequired()])
+    add_button = SubmitField('Add Resources')
+
 class CollectResourcesForm(FlaskForm):
     collect_button = SubmitField('Collect Resources')
     

@@ -118,12 +118,25 @@ class GameService:
         
     
     ## Game related actions
-    # functions to add XP to the Game instance
-    def add_xp(self, xp: int, source="") -> None:
-        """Adds XP to a Game, logs the addition, and checks for level up."""
-        self.game.xp += xp
-        
+    # Method to updated game resources
+    def update_resources(self,xp: int=0, cash: int=0, wood: int=0, stone: int=0, metal: int=0, source = "") -> None:
+        """Updates resources in a Game and logs the changes."""
+        game = self._get_game()
+        game.xp += xp
         self._check_and_update_level()
+        game.cash += cash
+        game.wood += wood
+        game.stone += stone
+        game.metal += metal
+        resource_log = ResourceLog(game_id=self.game_id, 
+                                xp=xp,
+                                cash=cash,
+                                wood=wood,
+                                stone=stone,
+                                metal=metal,
+                                source=source)
+        db.session.add(resource_log)
+        db.session.commit()
 
     # method to check and update the level to support add_xp
     def _check_and_update_level(self) -> None:
@@ -141,18 +154,10 @@ class GameService:
     # method to calculate the xp required for the next level
     def _xp_required_for_next_level(self, level: int) -> int:
         base_xp = 100
-        return floor(base_xp * (1.1 ** (level + 1)))
+        level_factor = 1.1
+        return floor(base_xp * (level_factor ** (level + 1)))
 
-    # function to add cash to the Game instance
-    def add_cash(self, cash: int, source = "") -> None:
-        """Adds cash to a Game and logs the addition."""
-        game = self._get_game()
-        game.cash += cash
-        cash_log = ResourceLog(game_id=self.game_id, 
-                                       cash=cash,
-                                       source=source)
-        db.session.add(cash_log)
-
+    
     def assign_quest(self, quest_id: int) -> None:
         """Assigns a Quest to a Game."""
         quest_progress = QuestProgress(game_id=self.game_id, 
@@ -182,6 +187,7 @@ class GameService:
             raise ValueError(f"Game with ID {self.game_id} not found.")
         return game
     
+    
 
     
 
@@ -206,54 +212,40 @@ class QuestService:
         self.quest.quest_completed = True
         self.quest.quest_completed_date = datetime.now()
         self.collect_rewards()
-
-        self.notifier.notify("Quest: Completed!")
+        self.notifier.notify(f"Quest: Completed!")
 
     def add_progress(self, progress: int):
+        if progress < 0:
+            raise ValueError("Progress must be a positive number.")
         self.quest.quest_progress += progress
         if self.quest.quest_progress >= 100:
             self.complete_quest()
-            if self.notifier:
-                self.notifier.notify("Quest Completed!")
         else:
-            if self.notifier:
-                self.notifier.notify(f"Quest Progress: {self.quest.progress}%")
+            self.notifier.notify(f"Quest Progress: {self.quest.quest_progress}%")
                 
     def collect_rewards(self):
         rewards = QuestRewards.query.filter_by(quest_id=self.quest.quest_id).first()
         if rewards is None:
             return
+        
+        
+
 
         game_service = GameService(self.quest.game_id)
-        game_service.add_xp(rewards.quest_reward_xp, source="Quest Reward")
-        game_service.game.cash += rewards.quest_reward_cash
-        game_service.game.wood += rewards.quest_reward_wood
-        game_service.game.stone += rewards.quest_reward_stone
-        game_service.game.metal += rewards.quest_reward_metal
-        self.update_resource_log()
+        game_service.update_resources(xp=rewards.quest_reward_xp,
+                                      cash=rewards.quest_reward_cash,
+                                      wood=rewards.quest_reward_wood,
+                                      stone=rewards.quest_reward_stone,
+                                      metal=rewards.quest_reward_metal,
+                                      source="Quest Rewards. Quest: " + str(self.quest.quest_id))
+        
+        ## TODO: Add rewards items to the Game Inventory
 
 
         if self.notifier:
             self.notifier.notify("Quest Rewards Collected")
 
-    def update_resource_log(self):
-        rewards = QuestRewards.query.filter_by(quest_id=self.quest.quest_id).first()
-        resource_log = ResourceLog(
-            game_id=self.quest.game_id,
-            cash=rewards.quest_reward_cash,
-            wood=rewards.quest_reward_wood,
-            stone=rewards.quest_reward_stone,
-            metal=rewards.quest_reward_metal,
-            xp = rewards.quest_reward_xp,
-            source = "Quest Rewards. Quest: " + str(self.quest.quest_id)
-        )
-
-        db.session.add(resource_log)
-        db.session.commit()
-
         
-
-
 ## GameBuildingService
 # Class to action against the GameBuilding instance
 class GameBuildingService:
@@ -283,17 +275,18 @@ class GameBuildingService:
         self.calculate_accrued_resources()
 
         # Add accrued resources to the Game
-        self.building.game.cash += self.building.accrued_cash
-        self.building.game.wood += self.building.accrued_wood
-        self.building.game.stone += self.building.accrued_stone
-        self.building.game.metal += self.building.accrued_metal
-
-        # update log
-        self.update_resource_log()
-
+        game_service = GameService(self.building.game_id)
+        game_service.update_resources(xp=self.building.accrued_xp,
+                                        cash=self.building.accrued_cash,
+                                        wood=self.building.accrued_wood,
+                                        stone=self.building.accrued_stone,
+                                        metal=self.building.accrued_metal,
+                                        source="Building Collection. Building: " + str(self.building.building_id))
+        
         # Update building progress
         self.start_accrual()
-        
+        db.session.commit()
+
 
     def show_accrual_time(self):
         if self.building.accrual_start_time is None:
@@ -321,7 +314,6 @@ class GameBuildingService:
         # check if max accrual duration is reached
         if minutes > self.building.max_accrual_duration:
             minutes = round(self.building.max_accrual_duration)
-
 
         # Calculate accrued resources and round to whole numbers
         self.building.accrued_cash = round(self.building.cash_per_minute * minutes)
@@ -365,82 +357,60 @@ class GameBuildingService:
     def upgrade_building(self):
         # Check if building is already at max level
         if self.building.building_level >= self.building.building.max_building_level:
-            if self.notifier:
-                self.notifier.notify("Building is already at max level.")
+            self.notifier.notify("Building is already at max level.")
             return
         
-        # Check if user has enough cash to upgrade
+        # Check if user has enough resources to upgrade
         if not self.check_upgrade_requirements():
-            if self.notifier:
-                self.notifier.notify("Insufficient resources to upgrade building.")
+            self.notifier.notify("Insufficient resources to upgrade building.")
             return
         
-        # Deduct resources from user
+        # Calculate required resources
         required_resources = self._calculate_required_resources()
-        for resource, required_amount in required_resources.items():
-            if resource == 'level':
-                continue
-            setattr(self.building.game, resource, getattr(self.building.game, resource) - required_amount)
-            
 
-        
-        
+        # Update Resources
+        game_service = GameService(self.building.game_id)
+        game_service.update_resources(xp=10,
+                                      cash= -required_resources['cash'],
+                                      wood= -required_resources['wood'],
+                                      stone= -required_resources['stone'],
+                                      metal= -required_resources['metal'],
+                                      source="Building Upgrade. Building: " + str(self.building.building_id))
+            
         # Check if building level is 0 and set rate
-        if self.building.building_level == 0:
-            self.building.cash_per_minute = self.building.building.base_cash_per_minute
-            self.building.xp_per_minute = self.building.building.base_xp_per_minute
-            self.building.wood_per_minute = self.building.building.base_wood_per_minute
-            self.building.stone_per_minute = self.building.building.base_stone_per_minute
-            self.building.metal_per_minute = self.building.building.base_metal_per_minute
-            self.building.building_active = True
+        self.initialize_building_production()
 
         # Collect current resources
         self.collect_resources()
         
         # Upgrade building
-        self.building.building_level += 1
-        self.building.cash_per_minute = round(self.building.cash_per_minute * 1.1)
-        self.building.xp_per_minute = round(self.building.xp_per_minute * 1.1)
-        self.building.wood_per_minute = round(self.building.wood_per_minute * 1.1)
-        self.building.stone_per_minute = round(self.building.stone_per_minute * 1.1)
-        self.building.metal_per_minute = round(self.building.metal_per_minute * 1.1)
+        self._update_resource_per_minute()
 
-        # Increase XP
-        game_service = GameService(self.building.game_id)
-        game_service.add_xp(10, source="Building Upgrade")
+        # Commit cahnges
+        db.session.commit()
+        self.notifier.notify(f"Building upgraded to level {self.building.building_level}.")
 
-        # Update resource log
-        resource_log = ResourceLog(
-            game_id=self.building.game_id,
-            cash= -required_resources['cash'],
-            wood= -required_resources['wood'],
-            stone= -required_resources['stone'],
-            metal= -required_resources['metal'],
-            xp = 10,
-            source = "Building Upgrade. Building: " + str(self.building.building_id)
-        )
-
-        db.session.add(resource_log)
         
+    def initialize_building_production(self):
+        if self.building.building_level == 0:
+            self._set_base_production_rates()
+            self.building.building_active = True
         
-        if self.notifier:
-            self.notifier.notify(f"Building upgraded to level {self.building.building_level}.")
+    def _set_base_production_rates(self):
+        self.building.cash_per_minute = self.building.building.base_cash_per_minute
+        self.building.xp_per_minute = self.building.building.base_xp_per_minute
+        self.building.wood_per_minute = self.building.building.base_wood_per_minute
+        self.building.stone_per_minute = self.building.building.base_stone_per_minute
+        self.building.metal_per_minute = self.building.building.base_metal_per_minute
+    
+
+    def _update_resource_per_minute(self):
+        upgrade_factor = 1.1
+        self.building.cash_per_minute = round(self.building.cash_per_minute * upgrade_factor)
+        self.building.xp_per_minute = round(self.building.xp_per_minute * upgrade_factor)
+        self.building.wood_per_minute = round(self.building.wood_per_minute * upgrade_factor)
+        self.building.stone_per_minute = round(self.building.stone_per_minute * upgrade_factor)
+        self.building.metal_per_minute = round(self.building.metal_per_minute * upgrade_factor)
             
     def check_resources_to_collect(self):
-        if self.building.accrual_start_time is None:
-            return False
-        else:
-            return True
-        
-    def update_resource_log(self):
-        resource_log = ResourceLog(
-            game_id=self.building.game_id,
-            cash=self.building.accrued_cash,
-            wood=self.building.accrued_wood,
-            stone=self.building.accrued_stone,
-            metal=self.building.accrued_metal,
-            source = "Resource Collection. Building: " + str(self.building.building_id)
-        )
-
-        db.session.add(resource_log)
-        db.session.commit()
+        return self.building.accrual_start_time is not None
