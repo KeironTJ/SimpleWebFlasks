@@ -375,7 +375,7 @@ class GameBuildingService:
                 self.notifier.notify("Insufficient resources to upgrade building.")
             return
         
-        # Deduct cash from user
+        # Deduct resources from user
         required_resources = self._calculate_required_resources()
         for resource, required_amount in required_resources.items():
             if resource == 'level':

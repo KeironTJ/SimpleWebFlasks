@@ -54,46 +54,31 @@ def startmenu():
 ## Route to display game play
 @bp.route('/play/<game_id>', methods=['GET', 'POST'])
 @login_required
-def play(game_id): 
-
-    # Check if current user is admin or the current user viewing their own profile
+def play(game_id):
     if not current_user.is_admin() and current_user.activegame != int(game_id):
         return redirect(url_for('admin.not_admin'))
 
-    # Forms
-    addxpform = AddXPForm()
-    addcashform = AddCashForm()
+    game = Game.query.get(game_id)  # Optimized query
+    if not game:
+        flash('Game not found.', 'error')
+        return redirect(url_for('main.index'))
 
-    # Database Queries
-    game = Game.query.filter_by(id=game_id).first()
-    
-    if request.method == 'POST' and addxpform.addxp_button.data:
-        xp = addxpform.xp.data
-        service = GameService(game_id=game_id)
-        service.add_xp(xp, source="Add XP Function")
-        db.session.commit()
-        flash(f'{xp} xp added to {game.game_name}')
-        return redirect(url_for('game.play', 
-                                game_id=game_id))
+    forms = {'addxpform': AddXPForm(), 'addcashform': AddCashForm()}
+    service = GameService(game_id=game_id)  # Initialize once
 
+    if request.method == 'POST':
+        for form_name, form in forms.items():
+            if form.validate_on_submit():
+                if form_name == 'addxpform':
+                    xp = form.xp.data
+                    service.add_xp(xp, source="Add XP Function")
+                elif form_name == 'addcashform':
+                    cash = form.cash.data
+                    service.add_cash(cash, source="Add Cash Function")
+                db.session.commit()
+                return redirect(url_for('game.play', game_id=game_id))
 
-    if request.method == 'POST' and addcashform.addcash_button.data:
-        cash = addcashform.cash.data
-        service = GameService(game_id=game_id)
-        service.add_cash(cash, source="Add Cash Function")
-        db.session.commit()
-        flash(f'{cash} cash added to {game.game_name}')
-        return redirect(url_for('game.play', 
-                                game_id=game_id))
-
-
-
-    return render_template("game/play.html", 
-                           title='Home',
-                           game=game,
-                           addxpform=addxpform,
-                           addcashform=addcashform,
-                           )
+    return render_template("game/play.html", game=game, **forms)
     
 
 
@@ -101,27 +86,34 @@ def play(game_id):
 @bp.route('/building_quests/<building_progress_id>', methods=['GET', 'POST'])
 @login_required
 def building_quests(building_progress_id):
-
     # Forms
     completequestform = CompleteQuestForm(request.form)
     
-    # Database Queries
-    building_progress = BuildingProgress.query.filter_by(id=building_progress_id).first()
-    game = Game.query.filter_by(id=building_progress.game_id).first()
-    quests = QuestProgress.query.filter_by(game_id=game.id).all()
-    active_quests = QuestProgress.query.filter_by(game_id=game.id, quest_active=True, quest_completed=False).all()
-    completed_quests = QuestProgress.query.filter_by(game_id=game.id, quest_completed=True).all()
-    inactive_quests = QuestProgress.query.filter_by(game_id=game.id, quest_completed=False).all()
+    # Optimized Database Queries
+    building_progress = BuildingProgress.query.get(building_progress_id)
+    if not building_progress:
+        flash('Building progress not found.', 'error')
+        return redirect(url_for('main.index'))
 
-    if request.method == 'POST' and completequestform.complete_button.data:
+    game = Game.query.get(building_progress.game_id)
+    if not game:
+        flash('Game not found.', 'error')
+        return redirect(url_for('main.index'))
+
+    quests = QuestProgress.query.filter_by(game_id=game.id).all()
+    # Categorize quests in Python to reduce database load
+    active_quests = [q for q in quests if q.quest_active and not q.quest_completed]
+    completed_quests = [q for q in quests if q.quest_completed]
+    inactive_quests = [q for q in quests if not q.quest_active and not q.quest_completed]
+
+    if request.method == 'POST' and completequestform.validate_on_submit():
         quest_id = completequestform.quest_id.data
         service = QuestService(quest_progress_id=quest_id)
         service.complete_quest()
         db.session.commit()
-        flash(f'Quest Completed')
+        flash('Quest Completed')
         return redirect(url_for('game.building_quests', building_progress_id=building_progress_id))
 
-    
     return render_template("game/buildings/building_quests.html", 
                            title='Quests',
                            game=game,
