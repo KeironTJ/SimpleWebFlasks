@@ -3,6 +3,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_socketio import SocketIO
 from config import Config
 
 
@@ -10,6 +11,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 login = LoginManager()
 login.login_view = 'auth.login'
+socketio = SocketIO()
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -17,6 +19,9 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     login.init_app(app)
+
+    socketio.init_app(app)
+    from app.events import game_events
 
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)

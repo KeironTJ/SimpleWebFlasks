@@ -1,13 +1,13 @@
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from app.models import User
-from app import create_app, db
+from app import create_app, db, socketio
 
 
 app = create_app()
 
 if __name__ == '__main__':
-    app.run()
+    socketio.run(app, debug=True)
 
 @app.shell_context_processor
 def make_shell_context():

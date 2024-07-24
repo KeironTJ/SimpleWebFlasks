@@ -3,15 +3,35 @@
 {% block content2 %}
 
 
+<script>
+
+    socket.on('resource_update', function(data) {
+        console.log('Received data:', data); // Check the browser console to see this output
+        
+        document.getElementById('resrouce').innerText = 'K: ' + data.accrued_resources;
+
+        // Update your webpage elements here
+    });
+</script>
+
+
 
 <div class="building-section">
     <h2>{{ building_progress.building.building_name }} - Level: {{ building_progress.building_level }}</h2>
 
+
+    <!-- RESOURCE SECTION FOR RESOURCE BUILDING-->
     <div class="resource-info">
         <!-- Farm -->
         <div class="resource-card">
             {% if building_progress.building.id == 3 %}
             <i class="fas fa-dollar-sign"></i> <!-- Example icon usage -->
+            
+            <!--Placehoder testing websocket for resources-->
+            <p id="resrouce"></p>
+
+
+
             <p>Cash per minute: {{ building_progress.cash_per_minute }}</p>
             <p>Cash to collect: {{ building_progress.accrued_cash }} </p>
             {% endif %}
@@ -49,7 +69,7 @@
 
 
    
-
+<!-- UPGRADE SECTION FOR RESOURCE BUILDING-->
     <h2>Upgrade:</h2>
         <div class="resource-info">
             <div class="resource-card">
@@ -75,7 +95,7 @@
                 {% endif %}
 
 
-                <!-- Foundry -->
+                <!-- Forge -->
                 {% if building_progress.building.id == 6 %}
                 <p>Wood: {{ game.wood }} / {{ required_resources.wood }}</p>
                 <p>Stone: {{ game.stone }} / {{ required_resources.stone }}</p>

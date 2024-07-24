@@ -414,3 +414,7 @@ class GameBuildingService:
             
     def check_resources_to_collect(self):
         return self.building.accrual_start_time is not None
+    
+    # Get accrual start time
+    def get_accrual_start_time(self):
+        return self.building.accrual_start_time
