@@ -241,10 +241,6 @@ class QuestService:
         
         ## TODO: Add rewards items to the Game Inventory
 
-
-        if self.notifier:
-            self.notifier.notify("Quest Rewards Collected")
-
         
 ## GameBuildingService
 # Class to action against the GameBuilding instance

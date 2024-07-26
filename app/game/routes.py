@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, g
 from flask_login import login_required, current_user
 from app.models import User, db, Game, Inventory
 from app.models import InventoryUser, InventoryItems, InventoryType
@@ -9,6 +9,8 @@ from app.game.game_logic import GameService, GameCreation, GameBuildingService, 
 import sqlalchemy as sa
 
 from app.game import bp
+
+ 
 
 
 @bp.route('/startmenu', methods=['GET', 'POST'])
@@ -55,10 +57,11 @@ def startmenu():
 @bp.route('/play/<game_id>', methods=['GET', 'POST'])
 @login_required
 def play(game_id):
+    # validate user
     if not current_user.is_admin() and current_user.activegame != int(game_id):
         return redirect(url_for('admin.not_admin'))
 
-    game = Game.query.get(game_id)  # Optimized query
+    game = g.game  # Optimized query
     if not game:
         flash('Game not found.', 'error')
         return redirect(url_for('main.index'))
@@ -85,20 +88,27 @@ def play(game_id):
 @bp.route('/building_quests/<building_progress_id>', methods=['GET', 'POST'])
 @login_required
 def building_quests(building_progress_id):
-    # Forms
-    completequestform = CompleteQuestForm(request.form)
-    
-    # Optimized Database Queries
+        
     building_progress = BuildingProgress.query.get(building_progress_id)
     if not building_progress:
         flash('Building progress not found.', 'error')
         return redirect(url_for('main.index'))
-
-    game = Game.query.get(building_progress.game_id)
+    
+    # Check if current user is admin or the current user viewing their own profile
+    if not current_user.is_admin() and current_user.activegame != int(building_progress.game_id):
+        return redirect(url_for('admin.not_admin'))
+    
+    game = g.game  # Optimized query
     if not game:
         flash('Game not found.', 'error')
         return redirect(url_for('main.index'))
 
+    if not current_user.is_admin() and current_user.activegame != int(game.id):
+        return redirect(url_for('admin.not_admin'))
+    
+    # Forms
+    completequestform = CompleteQuestForm(request.form)
+    
     quests = QuestProgress.query.filter_by(game_id=game.id).all()
     # Categorize quests in Python to reduce database load
     active_quests = [q for q in quests if q.quest_active and not q.quest_completed]
@@ -110,7 +120,6 @@ def building_quests(building_progress_id):
         service = QuestService(quest_progress_id=quest_id)
         service.complete_quest()
         db.session.commit()
-        flash('Quest Completed')
         return redirect(url_for('game.building_quests', building_progress_id=building_progress_id))
 
     return render_template("game/buildings/building_quests.html", 
@@ -127,7 +136,7 @@ def building_quests(building_progress_id):
 @login_required
 def building_inventory(game_id):
     # Query for game inventory items
-    game = Game.query.filter_by(id=game_id).first()
+    game = g.game  # Optimized query
     userinventories = InventoryUser.query.filter_by(game_id=game_id).all()
     
     return render_template("game/buildings/building_inventory.html",
@@ -140,9 +149,15 @@ def building_inventory(game_id):
 @bp.route('/building_resource/<building_progress_id>', methods=['GET', 'POST'])
 @login_required
 def building_resource(building_progress_id):
+    
     # Query for game inventory items
     building_progress = BuildingProgress.query.filter_by(id=building_progress_id).first()
-    game = Game.query.filter_by(id=building_progress.game_id).first()
+    game = g.game  # Optimized query
+    
+    if not current_user.is_admin() and current_user.activegame != int(game.id):
+        return redirect(url_for('admin.not_admin'))
+    
+
 
     # Forms
     collectresourcesform = CollectResourcesForm()
