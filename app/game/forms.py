@@ -29,11 +29,11 @@ class AddCashForm(FlaskForm):
     addcash_button = SubmitField('Add Cash')
 
 class AddResourcesForm(FlaskForm):
-    xp = IntegerField('XP', validators=[DataRequired()])
-    cash = IntegerField('Cash', validators=[DataRequired()])
-    wood = IntegerField('Wood', validators=[DataRequired()])
-    stone = IntegerField('Stone', validators=[DataRequired()])
-    metal = IntegerField('Iron', validators=[DataRequired()])
+    xp = IntegerField('XP')
+    cash = IntegerField('Cash')
+    wood = IntegerField('Wood')
+    stone = IntegerField('Stone')
+    metal = IntegerField('Iron')
     add_button = SubmitField('Add Resources')
 
 class CollectResourcesForm(FlaskForm):

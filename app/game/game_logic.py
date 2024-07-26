@@ -297,23 +297,7 @@ class GameBuildingService:
             return hours
         
     def calculate_accrued_resources(self):
-        # Check if accrual_start_time is set
-        if self.building.accrual_start_time is None:
-            return 0
-        else:
-            # Ensure accrual_start_time is offset-aware
-            accrual_start_time = self.building.accrual_start_time
-            if accrual_start_time.tzinfo is None:
-                # If accrual_start_time is offset-naive, make it offset-aware by assuming it's in UTC
-                accrual_start_time = accrual_start_time.replace(tzinfo=timezone.utc)
-
-        # Now that both datetimes are offset-aware, perform the subtraction
-        time_difference = datetime.now(timezone.utc) - accrual_start_time
-        minutes = time_difference.total_seconds() / 60  # Calculate minutes for finer detail
-
-        # check if max accrual duration is reached
-        if minutes > self.building.max_accrual_duration:
-            minutes = round(self.building.max_accrual_duration)
+        minutes = self.calculate_time_to_collect()
 
         # Calculate accrued resources and round to whole numbers
         self.building.accrued_cash = round(self.building.cash_per_minute * minutes)
@@ -386,6 +370,9 @@ class GameBuildingService:
         # Upgrade building
         self._update_resource_per_minute()
 
+        # Increment building level
+        self.building.building_level += 1
+
         # Commit cahnges
         db.session.commit()
         self.notifier.notify(f"Building upgraded to level {self.building.building_level}.")
@@ -418,3 +405,24 @@ class GameBuildingService:
     # Get accrual start time
     def get_accrual_start_time(self):
         return self.building.accrual_start_time
+    
+    def calculate_time_to_collect(self):
+
+        if self.building.accrual_start_time is None:
+            return 0
+        else:
+            # Ensure accrual_start_time is offset-aware
+            accrual_start_time = self.building.accrual_start_time
+            if accrual_start_time.tzinfo is None:
+                # If accrual_start_time is offset-naive, make it offset-aware by assuming it's in UTC
+                accrual_start_time = accrual_start_time.replace(tzinfo=timezone.utc)
+
+        # Now that both datetimes are offset-aware, perform the subtraction
+        time_difference = datetime.now(timezone.utc) - accrual_start_time
+        minutes = round(time_difference.total_seconds() / 60)  # Calculate minutes for finer detail
+
+        # check if max accrual duration is reached
+        if minutes > self.building.max_accrual_duration:
+            minutes = round(self.building.max_accrual_duration)
+
+        return minutes

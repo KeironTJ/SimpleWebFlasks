@@ -2,6 +2,59 @@
 
 {% block content2 %}
 
+<script type="text/javascript">
+    var loc = window.location;
+    var wsStart = loc.protocol === "https:" ? "wss://" : "ws://";
+    var wsUrl = wsStart + loc.host + "/ws/building_resource";
+    var buildingSocket = new WebSocket(wsUrl);
+
+    buildingSocket.onopen = function(event) {
+        console.log('Building resource WebSocket is open now.');
+        // Send a valid building_progress_id
+        requestResourceUpdate('{{ building_progress.id }}'); // Replace '3' with a valid ID
+    };
+
+    buildingSocket.onmessage = function(event) {
+        console.log('Received message from server: ' + event.data);
+        var data = JSON.parse(event.data);
+        if (data.event === 'resource_update') {
+            console.log('Resource update received:', data);
+
+            var accruedCashElement = document.getElementById('accrued_cash');
+            var accruedWoodElement = document.getElementById('accrued_wood');
+            var accruedStoneElement = document.getElementById('accrued_stone');
+            var accruedMetalElement = document.getElementById('accrued_metal');
+            
+            if (accruedCashElement) accruedCashElement.innerText = data.accrued_cash;
+            if (accruedWoodElement) accruedWoodElement.innerText = data.accrued_wood;
+            if (accruedStoneElement) accruedStoneElement.innerText = data.accrued_stone;
+            if (accruedMetalElement) accruedMetalElement.innerText = data.accrued_metal;
+
+        } else if (data.error) {
+            console.error('Error from server:', data.error);
+        } else {
+            console.log('Unexpected message type:', data.event);
+        }
+    };
+
+    buildingSocket.onclose = function(event) {
+        console.log('Building resource WebSocket is closed now.');
+    };
+
+    buildingSocket.onerror = function(error) {
+        console.log('Building resource WebSocket error: ' + error);
+    };
+
+    function requestResourceUpdate(buildingProgressId) {
+        var message = {
+            event: 'resource_update',
+            building_progress_id: buildingProgressId
+        };
+        console.log('Sending message to server:', message);
+        buildingSocket.send(JSON.stringify(message));
+    }
+</script>
+
 <div class="building-section">
     <h2>{{ building_progress.building.building_name }} - Level: {{ building_progress.building_level }}</h2>
 
@@ -13,31 +66,26 @@
             {% if building_progress.building.id == 3 %}
             <i class="fas fa-dollar-sign"></i> <!-- Example icon usage -->
 
-            <!--Placehoder testing websocket for resources-->
-            <div id="testtext">PlaceHolder Text</div>
-
-
-
             <p>Cash per minute: {{ building_progress.cash_per_minute }}</p>
-            <p>Cash to collect: {{ building_progress.accrued_cash }} </p>
+            <p>Accrued Cash: <span id="accrued_cash">0</span></p>
             {% endif %}
 
             <!-- Lumber Mill -->
             {% if building_progress.building.id == 4 %}
             <p>Wood per minute: {{ building_progress.wood_per_minute }}</p>
-            <p>Wood to collect: {{ building_progress.accrued_wood }} </p>
+            <p>Accrued Wood: <span id="accrued_wood">0</span></p>
             {% endif %}
 
             <!-- Mine -->
             {% if building_progress.building.id == 5 %}
             <p>Stone per minute: {{ building_progress.stone_per_minute }}</p>
-            <p>Stone to collect: {{ building_progress.accrued_stone }} </p>
+            <p>Accrued Stone: <span id="accrued_stone">0</span></p>
             {% endif %}
 
             <!-- Forge -->
             {% if building_progress.building.id == 6 %}
             <p>Metal per minute: {{ building_progress.metal_per_minute }}</p>
-            <p>Metal to collect: {{ building_progress.accrued_metal }} </p>
+            <p>Accrued Metal: <span id="accrued_metal">0</span></p>
             {% endif %}
 
             <!-- Check if any resources to collect before displaying button -->

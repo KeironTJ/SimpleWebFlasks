@@ -2,6 +2,25 @@
 
 {% block content %}
 
+<script>
+    var loc = window.location;
+    var wsStart = loc.protocol === "https:" ? "wss://" : "ws://";
+    var wsUrl = wsStart + loc.host + "/ws";
+    var socket = new WebSocket(wsUrl);
+
+    socket.onopen = function(event) {
+        console.log('WebSocket is open now.');
+    };
+
+    socket.onclose = function(event) {
+        console.log('WebSocket is closed now.');
+    };
+
+    socket.onerror = function(error) {
+        console.log('WebSocket error: ' + error);
+    };
+</script>
+
 <h1>  {{ game.user.username }} - {{ game.game_name }} - {{ title }}  </h1>
 
 <hr>

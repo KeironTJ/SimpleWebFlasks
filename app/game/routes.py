@@ -176,3 +176,4 @@ def building_resource(building_progress_id):
                             collectresourcesform=collectresourcesform,
                             upgradebuildingform=upgradebuildingform,
                             required_resources=required_resources)
+
