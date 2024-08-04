@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: eb2cffb2a32d
+Revision ID: b827da8d2c69
 Revises: 
-Create Date: 2024-07-17 21:20:04.515985
+Create Date: 2024-08-04 20:56:56.814492
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'eb2cffb2a32d'
+revision = 'b827da8d2c69'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -143,7 +143,7 @@ def upgrade():
     sa.Column('accrued_cash', sa.Integer(), nullable=True),
     sa.Column('accrued_wood', sa.Integer(), nullable=True),
     sa.Column('accrued_stone', sa.Integer(), nullable=True),
-    sa.Column('accrued_metai', sa.Integer(), nullable=True),
+    sa.Column('accrued_metal', sa.Integer(), nullable=True),
     sa.Column('building_completed', sa.Boolean(), nullable=True),
     sa.Column('building_completed_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['building_id'], ['buildings.id'], ),
@@ -156,6 +156,14 @@ def upgrade():
     sa.Column('inventory_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['game_id'], ['game.id'], ),
     sa.ForeignKeyConstraint(['inventory_id'], ['inventory.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('quest_prequisites',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('quest_id', sa.Integer(), nullable=True),
+    sa.Column('prequisite_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['prequisite_id'], ['quests.id'], ),
+    sa.ForeignKeyConstraint(['quest_id'], ['quests.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('quest_progress',
@@ -173,10 +181,11 @@ def upgrade():
     op.create_table('quest_rewards',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('quest_id', sa.Integer(), nullable=True),
-    sa.Column('quest_reward_name', sa.String(length=64), nullable=True),
-    sa.Column('quest_reward_description', sa.String(length=256), nullable=True),
     sa.Column('quest_reward_xp', sa.Integer(), nullable=True),
     sa.Column('quest_reward_cash', sa.Integer(), nullable=True),
+    sa.Column('quest_reward_wood', sa.Integer(), nullable=True),
+    sa.Column('quest_reward_stone', sa.Integer(), nullable=True),
+    sa.Column('quest_reward_metal', sa.Integer(), nullable=True),
     sa.Column('quest_reward_item_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['quest_id'], ['quests.id'], ),
     sa.ForeignKeyConstraint(['quest_reward_item_id'], ['items.id'], ),
@@ -223,6 +232,7 @@ def downgrade():
     op.drop_table('resource_log')
     op.drop_table('quest_rewards')
     op.drop_table('quest_progress')
+    op.drop_table('quest_prequisites')
     op.drop_table('inventory_user')
     op.drop_table('building_progress')
     op.drop_table('user_roles')

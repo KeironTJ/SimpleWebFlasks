@@ -230,11 +230,30 @@ class Quest(db.Model):
     quest_rewards = db.relationship("QuestRewards", back_populates="quest")
     quest_type = db.relationship("QuestType", back_populates="quests")
     quest_progress = db.relationship("QuestProgress", back_populates="quest_quest")
+    quest_prerequisites = db.relationship("QuestPrerequisites", foreign_keys="[QuestPrerequisites.quest_id]", back_populates="quest")
+    prerequisites_for = db.relationship("QuestPrerequisites", foreign_keys="[QuestPrerequisites.prerequisite_id]", back_populates="prerequisite")
 
     # Methods
     def __repr__(self):
         return f'<Quest {self.quest_name}>'
+
     
+
+# Model to store quest prequisites
+class QuestPrerequisites(db.Model):
+    __tablename__ = 'quest_prerequisites'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    quest_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
+    prerequisite_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
+    
+    # Relationships
+    quest = db.relationship("Quest", foreign_keys=[quest_id], back_populates="quest_prerequisites")
+    prerequisite = db.relationship("Quest", foreign_keys=[prerequisite_id], back_populates="prerequisites_for")
+
 
 # Model to store quest rewards
 class QuestRewards(db.Model):
@@ -252,7 +271,7 @@ class QuestRewards(db.Model):
     quest_reward_wood = db.Column(db.Integer, default=0)
     quest_reward_stone = db.Column(db.Integer, default=0)
     quest_reward_metal = db.Column(db.Integer, default=0)
-    quest_reward_item_id = db.Column(db.Integer, db.ForeignKey('items.id'))
+    quest_reward_item_id = db.Column(db.Integer, db.ForeignKey('items.id')) 
     
     # Relationships
     quest = db.relationship("Quest", back_populates="quest_rewards")

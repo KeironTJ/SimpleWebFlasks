@@ -3,9 +3,9 @@ import os
 import subprocess
 from sqlalchemy.exc import OperationalError, IntegrityError
 from sqlalchemy.sql import text
-from app.models import db, Role, User
+from app.models import QuestPrerequisites, db, Role, User
 from app.models import Game
-from app.models import Quest, QuestType, QuestRewards,RewardItemAssociation, QuestProgress
+from app.models import Quest, QuestType, QuestRewards,RewardItemAssociation, QuestProgress, QuestPrerequisites
 from app.models import Item, Inventory, InventoryItems, InventoryType, InventoryUser
 from app.models import ResourceLog
 from app.models import Buildings, BuildingProgress, BuildingType
@@ -28,7 +28,8 @@ def create_QuestTypes():
     db.session.commit()
     print("Quest Types Created")
     
- # Quest Creator Class   
+
+# Quest Creator Class   
 class QuestCreator:
     def __init__(self, quest_name, quest_description, quest_type_id):
         self.quest_name = quest_name
@@ -62,6 +63,17 @@ class QuestCreator:
         except Exception as e:
             db.session.rollback()
             print(f"Failed to create quest reward: {self.quest_name} {e}")
+            
+    def create_quest_prerequisites(self, quest_id, prerequisite_id):
+        try:
+            quest_prerequisite = QuestPrerequisites(quest_id=quest_id, prerequisite_id=prerequisite_id)
+            db.session.add(quest_prerequisite)
+            db.session.commit()
+            print("Quest Prerequisite Created: ", self.quest_name)
+            return quest_prerequisite
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to create quest prerequisite: {self.quest_name} {e}")
 
     def create_reward_item_associate(self, reward, item_id, quantity):
         try:
@@ -76,7 +88,7 @@ class QuestCreator:
             db.session.rollback()
             print(f"Failed to associate reward item: {self.quest_name} {e}")
 
-    def create_full_quest(self, rewards_info, items_info):
+    def create_full_quest(self, rewards_info, items_info, quest_prerequisite):
         try:
             self.create_quest()
             rewards = self.create_quest_rewards(rewards_info['xp'], 
@@ -88,6 +100,11 @@ class QuestCreator:
                 self.create_reward_item_associate(rewards, 
                                                   item['item_id'], 
                                                   item['quantity'])
+                
+            for quest in quest_prerequisite:
+                self.create_quest_prerequisites(self.quest.id, 
+                                                quest)
+                
             print("Full Quest Created: ", self.quest_name)
         except Exception as e:
             db.session.rollback()
@@ -106,7 +123,9 @@ def create_quests():
                       'stone': 0, 
                       'metal': 0},
         items_info=[{'item_id': 1, 'quantity': 1},
-                    {'item_id': 2, 'quantity': 1}])
+                    {'item_id': 2, 'quantity': 1}],
+        quest_prerequisite=[]
+    )
    
     # Quest 2
     quest2 = QuestCreator(quest_name="First Building", 
@@ -118,7 +137,10 @@ def create_quests():
                       'wood': 0, 
                       'stone': 0, 
                       'metal': 0},
-        items_info=[])
+        items_info=[],
+        quest_prerequisite=[1]
+    )
+
     
 
 

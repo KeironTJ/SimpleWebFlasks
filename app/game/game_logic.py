@@ -1,5 +1,5 @@
 from app.models import User, Game
-from app.models import Quest, QuestProgress, QuestRewards, QuestType
+from app.models import Quest, QuestProgress, QuestRewards, QuestType, QuestPrerequisites
 from app.models import Game, ResourceLog
 from app.models import BuildingType, BuildingProgress, Buildings
 from app.models import Inventory, InventoryItems, InventoryType, InventoryUser
@@ -188,7 +188,28 @@ class GameService:
         return game
     
     
+## Quest Manager
+class QuestManager:
+    def __init__(self, game_id, notifier=FlashNotifier()) -> None:
+        self.game_id = game_id
+        self.notifier = notifier
 
+    def check_and_activate_quests(self):
+        # Get all quests for the game
+        quests = QuestProgress.query.filter_by(game_id=self.game_id).all()
+        for quest in quests:
+            if not quest.quest_active and self._check_prerequisites_met(quest.quest_id):
+                quest.quest_active = True
+                db.session.commit()
+                self.notifier.notify(f"Quest: {quest.quest_id} activated.")
+
+    def _check_prerequisites_met(self, quest_id):
+        prerequisites = QuestPrerequisites.query.filter_by(quest_id=quest_id).all()
+        for prerequisite in prerequisites:
+            quest = QuestProgress.query.filter_by(game_id=self.game_id, quest_id=prerequisite.prerequisite_id).first()
+            if quest is None or not quest.quest_completed:
+                return False
+        return True
     
 
 ## Game Quest Service
@@ -198,6 +219,7 @@ class QuestService:
     def __init__(self, quest_progress_id: int, notifier=FlashNotifier()) -> None:
         self.quest_progress_id = quest_progress_id
         self.quest = self._get_quest_progress()
+        self.quest_manager = QuestManager(self.quest.game_id)
         self.notifier = notifier
 
     def _get_quest_progress(self) -> QuestProgress:
@@ -212,6 +234,10 @@ class QuestService:
         self.quest.quest_completed = True
         self.quest.quest_completed_date = datetime.now()
         self.collect_rewards()
+        
+        # activate all available quests where this quest is a pre-requisite and not already active, also check if they are ready to be activated
+        self.quest_manager.check_and_activate_quests()
+        
         self.notifier.notify(f"Quest: Completed!")
 
     def add_progress(self, progress: int):
@@ -228,9 +254,6 @@ class QuestService:
         if rewards is None:
             return
         
-        
-
-
         game_service = GameService(self.quest.game_id)
         game_service.update_resources(xp=rewards.quest_reward_xp,
                                       cash=rewards.quest_reward_cash,
@@ -238,9 +261,7 @@ class QuestService:
                                       stone=rewards.quest_reward_stone,
                                       metal=rewards.quest_reward_metal,
                                       source="Quest Rewards. Quest: " + str(self.quest.quest_id))
-        
-        ## TODO: Add rewards items to the Game Inventory
-
+ 
         
 ## GameBuildingService
 # Class to action against the GameBuilding instance
@@ -249,6 +270,7 @@ class GameBuildingService:
     def __init__(self, building_progress_id: int, notifier=FlashNotifier()) -> None:
         self.building_progress_id = building_progress_id
         self.building = self._get_building_progress()
+        self.quest_manager = QuestManager(self.building.game_id)
         self.notifier = notifier
 
     def _get_building_progress(self) -> BuildingProgress:
@@ -281,6 +303,7 @@ class GameBuildingService:
         
         # Update building progress
         self.start_accrual()
+        self.quest_manager.check_and_activate_quests()
         db.session.commit()
 
 
@@ -368,6 +391,9 @@ class GameBuildingService:
 
         # Increment building level
         self.building.building_level += 1
+        
+        # Check quest prerequisites
+        self.quest_manager.check_and_activate_quests()
 
         # Commit cahnges
         db.session.commit()
