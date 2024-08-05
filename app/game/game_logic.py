@@ -1,4 +1,5 @@
 from hmac import new
+from re import I
 from app.models import User, Game
 from app.models import Quest, QuestProgress, QuestRewards, QuestType, QuestPrerequisites, QuestPreRequisitesProgress, QuestRequirementProgress, QuestRequirements
 from app.models import Game, ResourceLog
@@ -48,7 +49,7 @@ class GameCreation:
                                            quest_id=quest.id) 
             
             # Set quest progress parameters for quests
-            if quest.id == 1:
+            if quest.id == 1001:
                 quest_progress.quest_active = True
                 quest_progress.quest_progress = 100
 
@@ -227,13 +228,14 @@ class GameService:
     
     
 ## Quest Manager
+## Quest Manager
 class QuestManager:
     def __init__(self, game_id, notifier=FlashNotifier()) -> None:
         self.game_id = game_id
         self.notifier = notifier
 
-    def check_and_activate_quests(self):
-        # Get all quests for the game
+    def update_quest_prerequisite_progress(self):
+         # Get all quests for the game
         quests = QuestProgress.query.filter_by(game_id=self.game_id).all()
         new_quest_available = False
         for quest in quests:
@@ -241,20 +243,34 @@ class QuestManager:
                 quest.quest_active = True
                 db.session.commit()
                 new_quest_available = True
+                
         if new_quest_available:
             self.notifier.notify("New Quests Available!")
 
     def _check_prerequisites_met(self, quest_id):
+        # Get all prerequisites for the quest
         prerequisites = QuestPrerequisites.query.filter_by(quest_id=quest_id).all()
         for prerequisite in prerequisites:
             quest = QuestProgress.query.filter_by(game_id=self.game_id, quest_id=prerequisite.prerequisite_id).first()
+
+            # Check if quest is completed
             if quest is None or not quest.quest_completed:
+                return False
+            
+            if quest.game.level < prerequisite.game_level:
                 return False
         
         return True
+
+
+
+ 
     
     def update_quest_requirement_progress(self):
         quests = QuestProgress.query.filter_by(game_id=self.game_id).all()
+        requirement_met = False
+
+        # Loop through all quests and check if requirements are met
         for quest in quests:
             requirements = QuestRequirementProgress.query.filter_by(quest_progress_id=quest.id).all()
             quest_req_met = True
@@ -279,7 +295,14 @@ class QuestManager:
                     break
 
             if quest_req_met:
+                for requirement in requirements:
+                    requirement.requirement_completed = True
                 quest.quest_progress = 100
+                requirement_met = True
+        
+        if requirement_met:
+            self.notifier.notify("A quest has been completed")
+
                
 
 
@@ -309,11 +332,11 @@ class QuestService:
         self.collect_rewards()
         
         # activate all available quests where this quest is a pre-requisite and not already active, also check if they are ready to be activated
-        self.quest_manager.check_and_activate_quests()
+        self.quest_manager.update_quest_prerequisite_progress()
         self.quest_manager.update_quest_requirement_progress()
         
         
-        self.notifier.notify(f"Quest: Completed!")
+        self.notifier.notify(f"Rewards collected")
 
     def add_progress(self, progress: int):
         if progress < 0:
@@ -379,7 +402,7 @@ class GameBuildingService:
         # Update building progress
         self.start_accrual()
         
-        self.quest_manager.check_and_activate_quests()
+        self.quest_manager.update_quest_prerequisite_progress()
         self.quest_manager.update_quest_requirement_progress()
         
         db.session.commit()
@@ -471,7 +494,7 @@ class GameBuildingService:
         self.building.building_level += 1
         
         # Check quest prerequisites
-        self.quest_manager.check_and_activate_quests()
+        self.quest_manager.update_quest_prerequisite_progress()
         self.quest_manager.update_quest_requirement_progress()
 
         # Commit cahnges
