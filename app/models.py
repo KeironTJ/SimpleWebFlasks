@@ -232,11 +232,37 @@ class Quest(db.Model):
     quest_progress = db.relationship("QuestProgress", back_populates="quest_quest")
     quest_prerequisites = db.relationship("QuestPrerequisites", foreign_keys="[QuestPrerequisites.quest_id]", back_populates="quest")
     prerequisites_for = db.relationship("QuestPrerequisites", foreign_keys="[QuestPrerequisites.prerequisite_id]", back_populates="prerequisite")
+    quest_requirements = db.relationship("QuestRequirements", back_populates="quest")
+    
 
     # Methods
     def __repr__(self):
         return f'<Quest {self.quest_name}>'
+    
 
+# Model to store quest progress
+class QuestProgress(db.Model):
+    __tablename__ = 'quest_progress'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    quest_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
+    
+    # Quest progress details
+    quest_active = db.Column(db.Boolean, default=False)
+    quest_progress = db.Column(db.Integer, default=0)
+    quest_completed = db.Column(db.Boolean, default=False)
+    quest_completed_date = db.Column(db.DateTime, nullable=True)
+    
+    # Relationships
+    quest_quest = db.relationship("Quest", back_populates="quest_progress")
+    game = db.relationship("Game", back_populates="quest_progress")
+    quest_prerequisites_progress = db.relationship("QuestPreRequisitesProgress", back_populates="quest_progress")
+    quest_requirements_progress = db.relationship("QuestRequirementProgress", back_populates="quest_progress")
+    
     
 
 # Model to store quest prequisites
@@ -250,10 +276,74 @@ class QuestPrerequisites(db.Model):
     quest_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
     prerequisite_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
     
+    # Requirements
+    game_level = db.Column(db.Integer, default=0)
+    
+    
     # Relationships
     quest = db.relationship("Quest", foreign_keys=[quest_id], back_populates="quest_prerequisites")
     prerequisite = db.relationship("Quest", foreign_keys=[prerequisite_id], back_populates="prerequisites_for")
+    quest_progress = db.relationship("QuestPreRequisitesProgress", back_populates="quest_prerequisite")
+    
 
+class QuestPreRequisitesProgress(db.Model):
+    __tablename__ = 'quest_prerequisites_progress'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    quest_progress_id = db.Column(db.Integer, db.ForeignKey('quest_progress.id'))
+    quest_prerequisite_id = db.Column(db.Integer, db.ForeignKey('quest_prerequisites.id'))
+    
+    # Progress
+    prerequisite_completed = db.Column(db.Boolean, default=False)
+    
+    # Relationships
+    quest_progress = db.relationship("QuestProgress", back_populates="quest_prerequisites_progress")
+    quest_prerequisite = db.relationship("QuestPrerequisites", back_populates="quest_progress")
+    
+
+class QuestRequirements(db.Model):
+    __tablename__ = 'quest_requirements'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    quest_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
+    
+    # Requirements
+    game_level_required = db.Column(db.Integer, default=0)
+    cash_required = db.Column(db.Integer, default=0)
+    wood_required = db.Column(db.Integer, default=0)
+    stone_required = db.Column(db.Integer, default=0)
+    metal_required = db.Column(db.Integer, default=0)
+    building_required = db.Column(db.Integer, nullable=True)
+    building_level_required = db.Column(db.Integer, nullable=True)
+    
+    # Relationships
+    quest = db.relationship("Quest", back_populates="quest_requirements")
+    quest_progress = db.relationship("QuestRequirementProgress", back_populates="quest_requirement")
+    
+    
+class QuestRequirementProgress(db.Model):
+    __tablename__ = 'quest_requirements_progress'
+    
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+    
+    # Foreign keys
+    quest_progress_id = db.Column(db.Integer, db.ForeignKey('quest_progress.id'))
+    quest_requirement_id = db.Column(db.Integer, db.ForeignKey('quest_requirements.id'))
+    
+    # Progress
+    requirement_completed = db.Column(db.Boolean, default=False)
+    
+    # Relationships
+    quest_progress = db.relationship("QuestProgress", back_populates="quest_requirements_progress")
+    quest_requirement = db.relationship("QuestRequirements", back_populates="quest_progress")
+    
 
 # Model to store quest rewards
 class QuestRewards(db.Model):
@@ -278,26 +368,7 @@ class QuestRewards(db.Model):
     items = db.relationship("Item", secondary='reward_item_association', back_populates="rewards", overlaps="item,reward_items,reward")
     
  
-# Model to store quest progress
-class QuestProgress(db.Model):
-    __tablename__ = 'quest_progress'
-    
-    # Primary key
-    id = db.Column(db.Integer, primary_key=True)
-    
-    # Foreign keys
-    quest_id = db.Column(db.Integer, db.ForeignKey('quests.id'))
-    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
-    
-    # Quest progress details
-    quest_progress = db.Column(db.Integer, default=0)
-    quest_active = db.Column(db.Boolean, default=False)
-    quest_completed = db.Column(db.Boolean, default=False)
-    quest_completed_date = db.Column(db.DateTime, nullable=True)
-    
-    # Relationships
-    quest_quest = db.relationship("Quest", back_populates="quest_progress")
-    game = db.relationship("Game", back_populates="quest_progress")
+
 
     
     

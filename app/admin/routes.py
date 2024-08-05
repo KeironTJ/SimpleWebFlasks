@@ -4,7 +4,7 @@ from app import db
 from app.models import User, Role, UserRoles, Game, ResourceLog
 from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsForm
 from app.models import BuildingProgress, BuildingType, Buildings
-from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation
+from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation, QuestRequirements, QuestPrerequisites, QuestPreRequisitesProgress, QuestRequirementProgress
 from app.models import Item, Inventory, InventoryItems, InventoryUser, InventoryType
 from app.game.game_logic import GameService, GameCreation, GameBuildingService
 from app.admin.decorators import admin_required
@@ -171,6 +171,10 @@ def admin_mainquests():
     quests = db.session.query(Quest).all()
     questrewards  = db.session.query(QuestRewards).all()
     questprogresses = db.session.query(QuestProgress).all()
+    quest_prerequisites = db.session.query(QuestPrerequisites).all()
+    quest_requirements = db.session.query(QuestRequirements).all()
+    quest_prerequisite_progress = db.session.query(QuestPreRequisitesProgress).all()
+    quest_requirement_progress = db.session.query(QuestRequirementProgress).all()
         
 
     return render_template("admin/game/admin_mainquests.html", 
@@ -178,7 +182,11 @@ def admin_mainquests():
                            quests=quests,
                            questtypes=questtypes,
                            questrewards=questrewards,
-                           questprogresses=questprogresses)
+                           questprogresses=questprogresses,
+                           quest_prerequisites=quest_prerequisites,
+                           quest_requirements=quest_requirements,
+                           quest_prerequisite_progress=quest_prerequisite_progress,
+                           quest_requirement_progress=quest_requirement_progress)
 
 
 # This route is used to render the admin page for the game buildings

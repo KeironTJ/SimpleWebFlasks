@@ -1,5 +1,5 @@
 from app.models import User, Game
-from app.models import Quest, QuestProgress, QuestRewards, QuestType, QuestPrerequisites
+from app.models import Quest, QuestProgress, QuestRewards, QuestType, QuestPrerequisites, QuestPreRequisitesProgress, QuestRequirementProgress, QuestRequirements
 from app.models import Game, ResourceLog
 from app.models import BuildingType, BuildingProgress, Buildings
 from app.models import Inventory, InventoryItems, InventoryType, InventoryUser
@@ -40,16 +40,47 @@ class GameCreation:
     def assign_all_quests(self, game_id: int) -> None:
         """Assigns all quests to a Game."""
         quests = Quest.query.all()
+        
+        # Loop through all quests and assign them to the game
         for quest in quests:
             quest_progress = QuestProgress(game_id=game_id,
-                                           quest_id=quest.id)
+                                           quest_id=quest.id) 
+            
             # Set quest progress parameters for quests
             if quest.id == 1:
                 quest_progress.quest_active = True
                 quest_progress.quest_progress = 100
 
             db.session.add(quest_progress)
+            db.session.commit()
+            
+            # Assign quest pre-requisites
+            self.assign_quest_pre_requisites(quest_progress.id)
 
+            # Assign quest requirements
+            self.assign_quest_requirements(quest_progress.id)
+            
+    def assign_quest_pre_requisites(self, quest_progress_id: int) -> None:
+        """Assigns all quest pre-requisites to a QuestProgress."""
+        quest_progress = QuestProgress.query.get(quest_progress_id)
+        prerequisites = QuestPrerequisites.query.filter_by(quest_id=quest_progress.quest_id).all()
+        for prerequisite in prerequisites:
+            prerequisite_progress = QuestPreRequisitesProgress(quest_progress_id=quest_progress_id,
+                                                               quest_prerequisite_id=prerequisite.prerequisite_id)
+            db.session.add(prerequisite_progress)
+            db.session.commit()
+            
+    def assign_quest_requirements(self, quest_progress_id: int) -> None:
+        """Assigns all quest requirements to a QuestProgress."""
+        quest_progress = QuestProgress.query.get(quest_progress_id)
+        requirements = QuestRequirements.query.filter_by(quest_id=quest_progress.quest_id).all()
+        for requirement in requirements:
+            requirement_progress = QuestRequirementProgress(quest_progress_id=quest_progress_id,
+                                                            quest_requirement_id=requirement.id
+                                                            )
+            db.session.add(requirement_progress)
+            db.session.commit()
+            
 
     # function to assign all buildings to the Game instance    
     def assign_all_buildings(self, game_id: int) -> None:
@@ -122,12 +153,18 @@ class GameService:
     def update_resources(self,xp: int=0, cash: int=0, wood: int=0, stone: int=0, metal: int=0, source = "") -> None:
         """Updates resources in a Game and logs the changes."""
         game = self._get_game()
-        game.xp += xp
-        self._check_and_update_level()
-        game.cash += cash
-        game.wood += wood
-        game.stone += stone
-        game.metal += metal
+        if xp:
+            game.xp += xp
+            self._check_and_update_level()
+        if cash:
+            game.cash += cash
+        if wood:
+            game.wood += wood
+        if stone:
+            game.stone += stone
+        if metal: 
+            game.metal += metal
+            
         resource_log = ResourceLog(game_id=self.game_id, 
                                 xp=xp,
                                 cash=cash,
@@ -209,8 +246,40 @@ class QuestManager:
             quest = QuestProgress.query.filter_by(game_id=self.game_id, quest_id=prerequisite.prerequisite_id).first()
             if quest is None or not quest.quest_completed:
                 return False
+        
         return True
     
+    def update_quest_requirement_progress(self):
+        quests = QuestProgress.query.filter_by(game_id=self.game_id).all()
+        for quest in quests:
+            requirements = QuestRequirementProgress.query.filter_by(quest_progress_id=quest.id).all()
+            quest_req_met = True
+        
+            for requirement in requirements:
+                if quest.game.level < requirement.quest_requirement.game_level_required:
+                    quest_req_met = False
+                elif quest.game.cash < requirement.quest_requirement.cash_required:
+                    quest_req_met = False
+                elif quest.game.wood < requirement.quest_requirement.wood_required:
+                    quest_req_met = False
+                elif quest.game.stone < requirement.quest_requirement.stone_required:
+                    quest_req_met = False
+                elif quest.game.metal < requirement.quest_requirement.metal_required:
+                    quest_req_met = False
+                elif requirement.quest_requirement.building_required is not None:
+                    building = BuildingProgress.query.filter_by(game_id=self.game_id, building_id=requirement.quest_requirement.building_required).first()
+                    if building is None or building.building_level < requirement.quest_requirement.building_level_required:
+                        quest_req_met = False
+
+                if not quest_req_met:
+                    break
+
+            if quest_req_met:
+                quest.quest_progress = 100
+               
+
+
+                   
 
 ## Game Quest Service
 # Class to action against the QuestProgress instance
@@ -237,6 +306,8 @@ class QuestService:
         
         # activate all available quests where this quest is a pre-requisite and not already active, also check if they are ready to be activated
         self.quest_manager.check_and_activate_quests()
+        self.quest_manager.update_quest_requirement_progress()
+        
         
         self.notifier.notify(f"Quest: Completed!")
 
@@ -303,7 +374,10 @@ class GameBuildingService:
         
         # Update building progress
         self.start_accrual()
+        
         self.quest_manager.check_and_activate_quests()
+        self.quest_manager.update_quest_requirement_progress()
+        
         db.session.commit()
 
 
@@ -394,6 +468,7 @@ class GameBuildingService:
         
         # Check quest prerequisites
         self.quest_manager.check_and_activate_quests()
+        self.quest_manager.update_quest_requirement_progress()
 
         # Commit cahnges
         db.session.commit()

@@ -16,7 +16,7 @@
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
-                <th>Quest Type ID</th>
+                <th>ID</th>
                 <th>Quest Type Name</th>
                 <th>Quest Type Description</th>
             </tr>
@@ -45,7 +45,7 @@
 
         <thead>
             <tr>
-                <th>Quest ID</th>
+                <th>ID</th>
                 <th>Quest Name</th>
                 <th>Quest Description</th>
                 <th>Quest Type ID</th>
@@ -110,6 +110,71 @@
     </table>
 </div>
 
+
+<hr />
+
+<div>
+    <h2>Quest Pre-Requisites</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Quest ID</th>
+                <th>Pre-Requisite Quest ID</th>
+                <th>Game Level Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quest_prerequisite in quest_prerequisites %}
+            <tr>
+                <td>{{ quest_prerequisite.id }}</td>
+                <td>{{ quest_prerequisite.quest_id }}</td>
+                <td>{{ quest_prerequisite.prerequisite_id }}</td>
+                <td>{{ quest_prerequisite.game_level }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<hr />
+
+<div>
+    <h2>Quest Requirements</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Quest ID</th>
+                <th>Level Required</th>
+                <th>Cash Required</th>
+                <th>Wood Required</th>
+                <th>Stone Required</th>
+                <th>Metal Required</th>
+                <th>Building Required ID</th>
+                <th>Building Level Required</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for quest_requirement in quest_requirements %}
+            <tr>
+                <td>{{ quest_requirement.id }}</td>
+                <td>{{ quest_requirement.quest_id }}</td>
+                <td>{{ quest_requirement.game_level_required }}</td>
+                <td>{{ quest_requirement.cash_required }}</td>
+                <td>{{ quest_requirement.wood_required }}</td>
+                <td>{{ quest_requirement.stone_required }}</td>
+                <td>{{ quest_requirement.metal_required }}</td>
+                <td>{{ quest_requirement.building_required }}</td>
+                <td>{{ quest_requirement.building_level_required }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
 <hr />
 
 <div>
@@ -146,33 +211,63 @@
 <hr />
 
 <div>
-    <h2>Quest Rewards </h2>
+    <h2>Quest Pre-Requisites Progress</h2>
 
     <table class="table table-striped table-bordered">
         <thead>
             <tr>
-                <th>Quest Reward ID</th>
-                <th>Quest ID</th>
-                <th>Quest Reward Name</th>
-                <th>Quest Reward Description</th>
-                <th>Quest Reward XP</th>
-                <th>Quest Reward Cash</th>
+                <th>ID</th>
+                <th>Quest Progress Id</th>
+                <th>Quest Pre-Requisite ID</th>
+                <th>Prerequisite Completed?</th>
+
             </tr>
         </thead>
         <tbody>
-            {% for questreward in questrewards %}
+            {% for q_p_progress in quest_prerequisite_progress %}
             <tr>
-                <td>{{ questreward.id }}</td>
-                <td>{{ questreward.quest_id }}</td>
-                <td>{{ questreward.quest_reward_name }}</td>
-                <td>{{ questreward.quest_reward_description }}</td>
-                <td>{{ questreward.quest_reward_xp }}</td>
-                <td>{{ questreward.quest_reward_cash }}</td>
+                <td>{{ q_p_progress.id }}</td>
+                <td>{{ q_p_progress.quest_progress_id }}</td>
+                <td>{{ q_p_progress.quest_prerequisite_id }}</td>
+                <td>{{ q_p_progress.prerequisite_completed }}</td>
+
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
+
+<hr />
+
+<div>
+    <h2>Quest Requirements Progress</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Quest Progress ID</th>
+                <th>Quest Requirement ID</th>
+                <th>Requirement Completed?</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for progress in quest_requirement_progress %}
+            <tr>
+                <td>{{ progress.id }}</td>
+                <td>{{ progress.quest_progress_id }}</td>
+                <td>{{ progress.quest_requirement_id }}</td>
+                <td>{{ progress.requirement_completed }}</td>
+
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
 
 
 {% endblock %}
