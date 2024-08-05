@@ -26,7 +26,6 @@ def create_QuestTypes():
     db.session.add(quest_type2)
     db.session.add(quest_type3)
     db.session.commit()
-    print("Quest Types Created")
     
 
 # Quest Creator Class   
@@ -42,7 +41,6 @@ class QuestCreator:
             self.quest = Quest(quest_name=self.quest_name, quest_description=self.quest_description, quest_type_id=self.quest_type_id)
             db.session.add(self.quest)
             db.session.commit()
-            print("Quest Created: ", self.quest_name)
             return self.quest
         except Exception as e:
             db.session.rollback()
@@ -58,7 +56,6 @@ class QuestCreator:
                                         quest_reward_metal=metal)
             db.session.add(quest_reward)
             db.session.commit()
-            print("Quest Reward Created: ", self.quest_name)
             return quest_reward
         except Exception as e:
             db.session.rollback()
@@ -69,7 +66,6 @@ class QuestCreator:
             quest_prerequisite = QuestPrerequisites(quest_id=quest_id, prerequisite_id=prerequisite_id, game_level=game_level)
             db.session.add(quest_prerequisite)
             db.session.commit()
-            print("Quest Prerequisite Created: ", self.quest_name)
             return quest_prerequisite
         except Exception as e:
             db.session.rollback()
@@ -87,7 +83,6 @@ class QuestCreator:
                                                   building_level_required=building_level_required)
             db.session.add(quest_requirement)
             db.session.commit()
-            print("Quest Requirement Created: ", self.quest_name)
             return quest_requirement
         except Exception as e:
             db.session.rollback()
@@ -100,7 +95,6 @@ class QuestCreator:
                                                 quantity=quantity)
             db.session.add(reward_item)
             db.session.commit()
-            print("Reward Item Associated: ", self.quest_name)
             return reward_item
         except Exception as e:
             db.session.rollback()
@@ -125,8 +119,6 @@ class QuestCreator:
         if reward_items:
             for item in reward_items:
                 self._create_reward_item_associate(self.quest.id, item['item_id'], item['quantity'])
-            
-        print("Quest Created: ", self.quest_name)
         
         return self.quest
 
@@ -185,7 +177,7 @@ def create_quests():
     levelquest1 = QuestCreator(quest_name="Level Up 1", quest_description="Reach Level 5", quest_type_id=3)
     levelquest1.create_full_quest(
         rewards=[{'xp': 20, 'cash': 200, 'wood': 30, 'stone': 10, 'metal': 5}],
-        prerequisites=[{'prerequisite_id': 2, 'game_level': 0}], 
+        prerequisites=[{'prerequisite_id': 1, 'game_level': 0}], 
         requirements=[{'game_level': 5, 'cash': 0, 'wood': 0, 'stone': 0, 'metal': 0}], 
         reward_items=[]
     )
@@ -193,7 +185,7 @@ def create_quests():
     levelquest2 = QuestCreator(quest_name="Level Up 2", quest_description="Reach Level 10", quest_type_id=3)
     levelquest2.create_full_quest(
         rewards=[{'xp': 25, 'cash': 250, 'wood': 50, 'stone': 25, 'metal': 10}],
-        prerequisites=[{'prerequisite_id': 3, 'game_level': 0}], 
+        prerequisites=[{'prerequisite_id': 6, 'game_level': 0}], 
         requirements=[{'game_level': 10, 'cash': 0, 'wood': 0, 'stone': 0, 'metal': 0}], 
         reward_items=[]
     )

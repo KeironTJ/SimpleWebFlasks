@@ -1,3 +1,4 @@
+from hmac import new
 from app.models import User, Game
 from app.models import Quest, QuestProgress, QuestRewards, QuestType, QuestPrerequisites, QuestPreRequisitesProgress, QuestRequirementProgress, QuestRequirements
 from app.models import Game, ResourceLog
@@ -234,11 +235,14 @@ class QuestManager:
     def check_and_activate_quests(self):
         # Get all quests for the game
         quests = QuestProgress.query.filter_by(game_id=self.game_id).all()
+        new_quest_available = False
         for quest in quests:
             if not quest.quest_active and self._check_prerequisites_met(quest.quest_id):
                 quest.quest_active = True
                 db.session.commit()
-                self.notifier.notify(f"Quest: {quest.quest_id} activated.")
+                new_quest_available = True
+        if new_quest_available:
+            self.notifier.notify("New Quests Available!")
 
     def _check_prerequisites_met(self, quest_id):
         prerequisites = QuestPrerequisites.query.filter_by(quest_id=quest_id).all()
