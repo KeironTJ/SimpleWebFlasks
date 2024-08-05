@@ -5,7 +5,7 @@ from app.models import InventoryUser, InventoryItems, InventoryType
 from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation
 from app.models import BuildingProgress, Buildings
 from app.game.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, AddResourcesForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
-from app.game.game_logic import GameService, GameCreation, GameBuildingService, QuestService
+from app.game.game_logic import GameService, GameCreation, GameBuildingService, QuestService, QuestManager
 import sqlalchemy as sa
 
 from app.game import bp
@@ -78,6 +78,11 @@ def play(game_id):
                                     source="Manual Resource Form")
         flash('Resources Added')
         
+        # Quest Manager
+        questmanager = QuestManager(game_id=game.id)
+        questmanager.update_quest_prerequisite_progress()
+        questmanager.update_quest_requirement_progress()
+        
         return redirect(url_for('game.play', game_id=game_id))
 
     return render_template("game/play.html", game=game, resourceform=resourceform)
@@ -88,7 +93,8 @@ def play(game_id):
 @bp.route('/building_quests/<building_progress_id>', methods=['GET', 'POST'])
 @login_required
 def building_quests(building_progress_id):
-        
+    
+       
     building_progress = BuildingProgress.query.get(building_progress_id)
     if not building_progress:
         flash('Building progress not found.', 'error')
@@ -105,6 +111,7 @@ def building_quests(building_progress_id):
 
     if not current_user.is_admin() and current_user.activegame != int(game.id):
         return redirect(url_for('admin.not_admin'))
+   
     
     # Forms
     completequestform = CompleteQuestForm(request.form)

@@ -125,7 +125,7 @@ def create_buildings():
                                        building_link="game.building_resource")
     lumber_mill_building.create_building()
     lumber_mill_building.set_building_requirements(cash=1500, level=5)
-    lumber_mill_building.set_base_collection_rates(wood=5)
+    lumber_mill_building.set_base_collection_rates(wood=20)
     
     # Create Mine Quilding
     mine_building = BuildingCreator(building_name="Mine", 
@@ -134,7 +134,7 @@ def create_buildings():
                                 building_link="game.building_resource")
     mine_building.create_building()
     mine_building.set_building_requirements(cash=2500, level=10, wood=500)
-    mine_building.set_base_collection_rates(stone=2)
+    mine_building.set_base_collection_rates(stone=10)
     
     # Create Forge Building
     forge_building = BuildingCreator(building_name="Forge", 
@@ -143,7 +143,7 @@ def create_buildings():
                                  building_link="game.building_resource")
     forge_building.create_building()
     forge_building.set_building_requirements(cash=5000, level=20, wood=1000, stone=500, metal=0)
-    forge_building.set_base_collection_rates(metal=1)
+    forge_building.set_base_collection_rates(metal=5)
 
 
 # Create buildings, requirements progress

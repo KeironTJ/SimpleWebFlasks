@@ -262,12 +262,8 @@ class QuestManager:
         
         return True
 
-
-
- 
-    
     def update_quest_requirement_progress(self):
-        quests = QuestProgress.query.filter_by(game_id=self.game_id).all()
+        quests = QuestProgress.query.filter_by(game_id=self.game_id).filter(QuestProgress.quest_completed == False).all()
         requirement_met = False
 
         # Loop through all quests and check if requirements are met
