@@ -234,18 +234,25 @@ class QuestManager:
         self.game_id = game_id
         self.notifier = notifier
 
+
     def update_quest_prerequisite_progress(self):
-         # Get all quests for the game
+        # Get all quests for the game
         quests = QuestProgress.query.filter_by(game_id=self.game_id).all()
         new_quest_available = False
+        quests_to_activate = []
+
         for quest in quests:
             if not quest.quest_active and self._check_prerequisites_met(quest.quest_id):
                 quest.quest_active = True
-                db.session.commit()
+                quests_to_activate.append(quest)
                 new_quest_available = True
-                
+
+        if quests_to_activate:
+            db.session.bulk_save_objects(quests_to_activate)
+            db.session.commit()
+
         if new_quest_available:
-            self.notifier.notify("New Quests Available!")
+            self.notifier.notify(f"{len(quests_to_activate)} New Quests Available!")
 
     def _check_prerequisites_met(self, quest_id):
         # Get all prerequisites for the quest
@@ -256,25 +263,23 @@ class QuestManager:
             # Check if quest is completed
             if quest is None or not quest.quest_completed:
                 return False
-            
+
             if quest.game.level < prerequisite.game_level:
                 return False
-        
+
         return True
 
-
-
- 
-    
     def update_quest_requirement_progress(self):
-        quests = QuestProgress.query.filter_by(game_id=self.game_id).all()
+        quests = QuestProgress.query.filter_by(game_id=self.game_id, quest_completed=False).all()
         requirement_met = False
+        quests_to_update = []
+        requirements_to_update = []
 
         # Loop through all quests and check if requirements are met
         for quest in quests:
             requirements = QuestRequirementProgress.query.filter_by(quest_progress_id=quest.id).all()
             quest_req_met = True
-        
+
             for requirement in requirements:
                 if quest.game.level < requirement.quest_requirement.game_level_required:
                     quest_req_met = False
@@ -297,11 +302,20 @@ class QuestManager:
             if quest_req_met:
                 for requirement in requirements:
                     requirement.requirement_completed = True
+                    requirements_to_update.append(requirement)
                 quest.quest_progress = 100
+                quests_to_update.append(quest)
                 requirement_met = True
-        
+
+        if requirements_to_update:
+            db.session.bulk_save_objects(requirements_to_update)
+        if quests_to_update:
+            db.session.bulk_save_objects(quests_to_update)
+        if requirements_to_update or quests_to_update:
+            db.session.commit()
+
         if requirement_met:
-            self.notifier.notify("A quest has been completed")
+            self.notifier.notify(f"{len(quests_to_update)} quests have been completed")
 
                
 
