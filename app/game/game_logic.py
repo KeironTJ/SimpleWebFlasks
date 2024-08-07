@@ -252,11 +252,15 @@ class QuestManager:
             db.session.commit()
 
         if new_quest_available:
-            self.notifier.notify(f"{len(quests_to_activate)} New Quests Available!")
+            if len(quests_to_activate) == 1: 
+                self.notifier.notify(f"{len(quests_to_activate)} new quest Available!")
+            else:
+                self.notifier.notify(f"{len(quests_to_activate)} new quests Available!")
 
     def _check_prerequisites_met(self, quest_id):
         # Get all prerequisites for the quest
         prerequisites = QuestPrerequisites.query.filter_by(quest_id=quest_id).all()
+        
         for prerequisite in prerequisites:
             quest = QuestProgress.query.filter_by(game_id=self.game_id, quest_id=prerequisite.prerequisite_id).first()
 
@@ -267,10 +271,24 @@ class QuestManager:
             if quest.game.level < prerequisite.game_level:
                 return False
 
+            # update quest prerequisite progress
+            print(quest.id)
+            ## TODO: This is not working as intended - NEEDS TO ONLY UPDATE THE RELEVANT PREREQUISITE FOR THE USER/GAME - Currently updating all
+            prerequisite_progress = QuestPreRequisitesProgress.query.filter_by(quest_prerequisite_id=prerequisite.prerequisite_id
+                                                                               ).all()
+            
+            
+            print(prerequisite_progress)
+            for progress in prerequisite_progress:
+                if progress:
+                    progress.prerequisite_completed = True
+        
+        db.session.commit()
+
         return True
 
     def update_quest_requirement_progress(self):
-        quests = QuestProgress.query.filter_by(game_id=self.game_id, quest_completed=False).all()
+        quests = QuestProgress.query.filter_by(game_id=self.game_id, quest_completed=False, quest_active=True).all()
         requirement_met = False
         quests_to_update = []
         requirements_to_update = []
@@ -315,7 +333,10 @@ class QuestManager:
             db.session.commit()
 
         if requirement_met:
-            self.notifier.notify(f"{len(quests_to_update)} quests have been completed")
+            if len(quests_to_update) == 1:
+                self.notifier.notify(f"{len(quests_to_update)} quest has been completed")
+            else:
+                self.notifier.notify(f"{len(quests_to_update)} quests have been completed")
 
                
 
