@@ -89,6 +89,8 @@ class Game(db.Model):
     quest_progress = db.relationship("QuestProgress", back_populates="game")
     building_progress = db.relationship("BuildingProgress", back_populates="game")
     resource_logs = db.relationship("ResourceLog", back_populates="game")
+    hero_progress = db.relationship("HeroProgress", back_populates="game")
+    
     
     
 class InventoryType(db.Model):
@@ -370,9 +372,7 @@ class QuestRewards(db.Model):
  
 
 
-    
-    
-    
+
 ## GAME LOGS
 class ResourceLog(db.Model):
     __tablename__ = 'resource_log'
@@ -498,7 +498,97 @@ class BuildingProgress(db.Model):
     game = db.relationship("Game", back_populates="building_progress")
 
     
-        
+
+
+## Game Hero Models
+# Model to store hero types
+class HeroType(db.Model):
+    __tablename__ = 'hero_types'
+
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Hero type details
+    hero_type_name = db.Column(db.String(64))
+    hero_type_description = db.Column(db.String(256))
+
+    # Relationships
+    hero = db.relationship("Hero", back_populates="hero_type")
+
+
+# Model to store rarirty types
+class RarityType(db.Model):
+    __tablename__ = 'rarity_types'
+
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Rarity type details
+    rarity_type_name = db.Column(db.String(64))
+    rarity_type_description = db.Column(db.String(256))
+
+    # Relationships
+    hero = db.relationship("Hero", back_populates="rarity")
+
+
+
+# Model to store heroes
+class Hero(db.Model):
+    __tablename__ = 'heroes'
+
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Foreign keys
+    hero_type_id = db.Column(db.Integer, db.ForeignKey('hero_types.id'))
+
+    # Hero details
+    hero_name = db.Column(db.String(64))
+    hero_description = db.Column(db.String(256))
+    hero_link = db.Column(db.String(256))
+
+    # Hero Basic Stats
+    xp = db.Column(db.Integer, default=0)
+    level = db.Column(db.Integer, default=0)
+    rarity_id = db.Column(db.Integer, db.ForeignKey('rarity_types.id'))
+
+    # Hero Stats
+    health = db.Column(db.Integer, default=0)
+    attack = db.Column(db.Integer, default=0)
+    defense = db.Column(db.Integer, default=0)
+    speed = db.Column(db.Integer, default=0)
+
+    # Relationships
+    hero_type = db.relationship("HeroType", back_populates="hero")
+    rarity = db.relationship("RarityType", back_populates="hero")
+    hero_progress = db.relationship("HeroProgress", back_populates="hero")
+    
+# Hero Progress
+class HeroProgress(db.Model):
+    __tablename__ = 'hero_progress'
+
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Foreign keys
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
+    hero_id = db.Column(db.Integer, db.ForeignKey('heroes.id'))
+    
+    # Hero progress details
+    hero_level = db.Column(db.Integer, default=0)
+    hero_active = db.Column(db.Boolean, default=False)
+
+    hero_xp = db.Column(db.Integer, default=0)
+    hero_health = db.Column(db.Integer, default=0)
+    hero_attack = db.Column(db.Integer, default=0)
+    hero_defense = db.Column(db.Integer, default=0)
+    hero_speed = db.Column(db.Integer, default=0)
+    
+    # Relationships
+    hero = db.relationship("Hero", back_populates="hero_progress")
+    game = db.relationship("Game", back_populates="hero_progress")
+
+
     
 
 
