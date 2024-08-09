@@ -69,8 +69,14 @@ def create_roles_and_users():
         add_user(username="KeironTJ", email="abc123@abc.com", password="abc123", role_name="admin")
     else:
         print("User KeironTJ already exists")
-       
-        
+
+    # Create a user for testing
+    if User.query.filter_by(username="test").first() is None:
+        add_user(username="test", email="test@test.com", password="test", role_name="user")
+    else:
+        print("User test already exists")
+
+
 ## GAME ADMIN CREATION
 # Create a game for the admin user
 def create_game_for_admin():
@@ -84,6 +90,19 @@ def create_game_for_admin():
     
     service.create_all_startup(game_id)
     db.session.commit()
+
+def create_game_for_user():
+    service = GameCreation(user_id=2, game_name="Game 2")
+    game = service.create_game()
+    
+    db.session.commit()
+    print("Game Created")
+    
+    game_id = game.id
+    
+    service.create_all_startup(game_id)
+    db.session.commit()
+
     
 
 
@@ -131,6 +150,7 @@ if __name__ == "__main__":
 
     # Create new game for admin
     create_game_for_admin()
+    create_game_for_user()
 
 
 

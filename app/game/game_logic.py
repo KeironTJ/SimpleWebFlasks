@@ -68,7 +68,7 @@ class GameCreation:
         prerequisites = QuestPrerequisites.query.filter_by(quest_id=quest_progress.quest_id).all()
         for prerequisite in prerequisites:
             prerequisite_progress = QuestPreRequisitesProgress(quest_progress_id=quest_progress_id,
-                                                               quest_prerequisite_id=prerequisite.prerequisite_id)
+                                                               quest_prerequisite_id=prerequisite.id)
             db.session.add(prerequisite_progress)
             db.session.commit()
             
@@ -230,6 +230,7 @@ class GameService:
 ## Quest Manager
 ## Quest Manager
 class QuestManager:
+
     def __init__(self, game_id, notifier=FlashNotifier()) -> None:
         self.game_id = game_id
         self.notifier = notifier
@@ -242,13 +243,12 @@ class QuestManager:
         quests_to_activate = []
 
         for quest in quests:
-            if not quest.quest_active and self._check_prerequisites_met(quest.quest_id):
+            if not quest.quest_active and self._check_prerequisites_met(quest.id):
                 quest.quest_active = True
                 quests_to_activate.append(quest)
                 new_quest_available = True
 
         if quests_to_activate:
-            db.session.bulk_save_objects(quests_to_activate)
             db.session.commit()
 
         if new_quest_available:
@@ -257,35 +257,43 @@ class QuestManager:
             else:
                 self.notifier.notify(f"{len(quests_to_activate)} new quests Available!")
 
-    def _check_prerequisites_met(self, quest_id):
-        # Get all prerequisites for the quest
-        prerequisites = QuestPrerequisites.query.filter_by(quest_id=quest_id).all()
-        
-        for prerequisite in prerequisites:
-            quest = QuestProgress.query.filter_by(game_id=self.game_id, quest_id=prerequisite.prerequisite_id).first()
 
-            # Check if quest is completed
-            if quest is None or not quest.quest_completed:
-                return False
+    def _check_prerequisites_met(self, quest_progress_id):
 
-            if quest.game.level < prerequisite.game_level:
-                return False
+        # Get all quests prerequisites progress
+        prerequisites_progress = QuestPreRequisitesProgress.query.filter_by(quest_progress_id=quest_progress_id).all()
+        print("Prerequisites Progress", prerequisites_progress)
 
-            # update quest prerequisite progress
-            print(quest.id)
-            ## TODO: This is not working as intended - NEEDS TO ONLY UPDATE THE RELEVANT PREREQUISITE FOR THE USER/GAME - Currently updating all
-            prerequisite_progress = QuestPreRequisitesProgress.query.filter_by(quest_prerequisite_id=prerequisite.prerequisite_id
-                                                                               ).all()
+        #Get all quests progress
+        for progress in prerequisites_progress:
+            # Query the prerequisite quests
+            prerequisite = QuestPrerequisites.query.filter_by(id=progress.quest_prerequisite_id).first()
             
+            # Check if the prerequisite quest is completed
+            prerequisite_quest = QuestProgress.query.filter_by(game_id=self.game_id, quest_id=prerequisite.prerequisite_id).first()
+            if prerequisite_quest is None or not prerequisite_quest.quest_completed:
+                return False
             
-            print(prerequisite_progress)
-            for progress in prerequisite_progress:
-                if progress:
-                    progress.prerequisite_completed = True
-        
-        db.session.commit()
+            # Check if the game level is met
+            if prerequisite_quest.game.level < prerequisite.game_level:
+                return False
+            
+            # Check if the prerequisite is already completed
+            if progress.prerequisite_completed:
+                return False
+            
+            # Set the prerequisite as completed
+            progress.prerequisite_completed = True
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error committing to the database: {e}")
+            return False
 
         return True
+
 
     def update_quest_requirement_progress(self):
         quests = QuestProgress.query.filter_by(game_id=self.game_id, quest_completed=False, quest_active=True).all()
