@@ -1,15 +1,6 @@
 from app import create_app
-import os
-import subprocess
-from sqlalchemy.exc import OperationalError, IntegrityError
-from sqlalchemy.sql import text
-from app.models import db, Role, User
-from app.models import Game
-from app.models import Quest, QuestType, QuestRewards,RewardItemAssociation, QuestProgress
-from app.models import Item, Inventory, InventoryItems, InventoryType, InventoryUser
-from app.models import ResourceLog
-from app.models import Buildings, BuildingProgress, BuildingType
-from app.game.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
+from app.models import db
+from app.models import Inventory, InventoryItems, InventoryType, InventoryUser
 
 app = create_app()
 app_context = app.app_context()

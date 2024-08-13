@@ -90,7 +90,7 @@ class Game(db.Model):
     building_progress = db.relationship("BuildingProgress", back_populates="game")
     resource_logs = db.relationship("ResourceLog", back_populates="game")
     hero_progress = db.relationship("HeroProgress", back_populates="game")
-    
+    hero_slots = db.relationship("HeroSlots", back_populates="game")
     
     
 class InventoryType(db.Model):
@@ -550,7 +550,7 @@ class Hero(db.Model):
     # Hero Basic Stats
     xp = db.Column(db.Integer, default=0)
     level = db.Column(db.Integer, default=0)
-    rarity_id = db.Column(db.Integer, db.ForeignKey('rarity_types.id'))
+    rarity_type_id = db.Column(db.Integer, db.ForeignKey('rarity_types.id'))
 
     # Hero Stats
     health = db.Column(db.Integer, default=0)
@@ -562,6 +562,8 @@ class Hero(db.Model):
     hero_type = db.relationship("HeroType", back_populates="hero")
     rarity = db.relationship("RarityType", back_populates="hero")
     hero_progress = db.relationship("HeroProgress", back_populates="hero")
+
+
     
 # Hero Progress
 class HeroProgress(db.Model):
@@ -587,6 +589,40 @@ class HeroProgress(db.Model):
     # Relationships
     hero = db.relationship("Hero", back_populates="hero_progress")
     game = db.relationship("Game", back_populates="hero_progress")
+
+
+# Model to store hero slots
+class HeroSlots(db.Model):
+    __tablename__ = 'hero_slots'
+
+    # Primary key
+    id = db.Column(db.Integer, primary_key=True)
+
+    # Foreign keys
+    game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
+    slot_group_name = db.Column(db.String(64))
+
+    slot_one = db.Column(db.Integer, default=0)
+    slot_two = db.Column(db.Integer, default=0)
+    slot_three = db.Column(db.Integer, default=0)
+    slot_four = db.Column(db.Integer, default=0)
+
+    # Relationships
+    game = db.relationship("Game", back_populates="hero_slots")
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
 
 
     

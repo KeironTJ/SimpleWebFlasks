@@ -1,0 +1,26 @@
+{% extends "game/game_base.html" %}
+
+{% block content2 %}
+
+<div>
+    <h2> Active Squad</h2>
+
+    <p>Slot 1: </p>
+    <p>Slot 2: </p>
+    <p>Slot 3: </p>
+    <p>Slot 4: </p>
+    <p>Slot 5: </p>
+    <p>Slot 6: </p>
+</div>
+
+<div>
+    <h2> Heroes </h2>
+
+    {% for hero in heroes %}
+        <p>{{hero.id}} - {{ hero.name }}</p>
+    {% endfor %}
+</div>
+
+
+
+{% endblock content2 %}

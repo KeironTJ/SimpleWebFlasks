@@ -4,6 +4,7 @@ from app.models import User, db, Game, Inventory
 from app.models import InventoryUser, InventoryItems, InventoryType
 from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation
 from app.models import BuildingProgress, Buildings
+from app.models import Hero, HeroProgress, HeroType, HeroSlots
 from app.game.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, AddResourcesForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
 from app.game.game_logic import GameService, GameCreation, GameBuildingService, QuestService, QuestManager
 import sqlalchemy as sa
@@ -199,3 +200,19 @@ def building_resource(building_progress_id):
                             upgradebuildingform=upgradebuildingform,
                             required_resources=required_resources)
 
+
+# Route to display barracks building
+@bp.route('/building_barracks/<building_progress_id>', methods=['GET', 'POST'])
+@login_required
+def building_barracks(building_progress_id):
+
+    building_progress = BuildingProgress.query.filter_by(id=building_progress_id).first()
+    game = g.game
+
+    heroes = HeroProgress.query.filter_by(game_id=game.id).all()
+    
+    return render_template("game/buildings/building_barracks.html",
+                            title='Barracks',
+                            game=game,
+                            building_progress=building_progress,
+                            heroes=heroes)

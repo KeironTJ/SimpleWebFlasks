@@ -5,6 +5,7 @@ from app.models import Quest, QuestProgress, QuestRewards, QuestType, QuestPrere
 from app.models import Game, ResourceLog
 from app.models import BuildingType, BuildingProgress, Buildings
 from app.models import Inventory, InventoryItems, InventoryType, InventoryUser
+from app.models import Hero, HeroProgress, HeroType, HeroSlots
 from datetime import datetime, timezone, timedelta
 from app import db
 from flask import flash
@@ -115,6 +116,16 @@ class GameCreation:
             inventory = InventoryUser(game_id=game_id, 
                                               inventory_id=inventory.id)
             db.session.add(inventory)
+
+    def assign_all_heroes(self, game_id: int) -> None:
+        """Assigns all heroes to a Game."""
+        heroes = Hero.query.all()
+        for hero in heroes:
+            hero_progress = HeroProgress(game_id=game_id, 
+                                        hero_id=hero.id)
+            db.session.add(hero_progress)
+            db.session.commit()
+            
         
     # function to create all startup items for the Game instance
     def create_all_startup(self, game_id: int) -> None:
@@ -124,6 +135,7 @@ class GameCreation:
         self.assign_all_quests(game_id)
         self.assign_all_buildings(game_id)
         self.assign_all_inventories(game_id)
+        self.assign_all_heroes(game_id)
         db.session.commit()
             
 
@@ -227,6 +239,7 @@ class GameService:
         return game
     
     
+
 ## Quest Manager
 ## Quest Manager
 class QuestManager:
@@ -593,3 +606,6 @@ class GameBuildingService:
             minutes = round(self.building.max_accrual_duration)
 
         return minutes
+    
+
+

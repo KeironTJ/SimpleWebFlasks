@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b827da8d2c69
+Revision ID: c5f0be1c0ab9
 Revises: 
-Create Date: 2024-08-04 20:56:56.814492
+Create Date: 2024-08-13 13:34:58.383725
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b827da8d2c69'
+revision = 'c5f0be1c0ab9'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,6 +22,12 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('building_type_name', sa.String(length=64), nullable=True),
     sa.Column('building_type_description', sa.String(length=256), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('hero_types',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('hero_type_name', sa.String(length=64), nullable=True),
+    sa.Column('hero_type_description', sa.String(length=256), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('inventory_types',
@@ -44,6 +50,12 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('quest_type_name', sa.String(length=64), nullable=True),
     sa.Column('quest_type_description', sa.String(length=256), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('rarity_types',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('rarity_type_name', sa.String(length=64), nullable=True),
+    sa.Column('rarity_type_description', sa.String(length=256), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('roles',
@@ -102,6 +114,23 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('heroes',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('hero_type_id', sa.Integer(), nullable=True),
+    sa.Column('hero_name', sa.String(length=64), nullable=True),
+    sa.Column('hero_description', sa.String(length=256), nullable=True),
+    sa.Column('hero_link', sa.String(length=256), nullable=True),
+    sa.Column('xp', sa.Integer(), nullable=True),
+    sa.Column('level', sa.Integer(), nullable=True),
+    sa.Column('rarity_type_id', sa.Integer(), nullable=True),
+    sa.Column('health', sa.Integer(), nullable=True),
+    sa.Column('attack', sa.Integer(), nullable=True),
+    sa.Column('defense', sa.Integer(), nullable=True),
+    sa.Column('speed', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['hero_type_id'], ['hero_types.id'], ),
+    sa.ForeignKeyConstraint(['rarity_type_id'], ['rarity_types.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('inventory',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('inventory_name', sa.String(length=64), nullable=True),
@@ -150,6 +179,32 @@ def upgrade():
     sa.ForeignKeyConstraint(['game_id'], ['game.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('hero_progress',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('game_id', sa.Integer(), nullable=True),
+    sa.Column('hero_id', sa.Integer(), nullable=True),
+    sa.Column('hero_level', sa.Integer(), nullable=True),
+    sa.Column('hero_active', sa.Boolean(), nullable=True),
+    sa.Column('hero_xp', sa.Integer(), nullable=True),
+    sa.Column('hero_health', sa.Integer(), nullable=True),
+    sa.Column('hero_attack', sa.Integer(), nullable=True),
+    sa.Column('hero_defense', sa.Integer(), nullable=True),
+    sa.Column('hero_speed', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['game_id'], ['game.id'], ),
+    sa.ForeignKeyConstraint(['hero_id'], ['heroes.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('hero_slots',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('game_id', sa.Integer(), nullable=True),
+    sa.Column('slot_group_name', sa.String(length=64), nullable=True),
+    sa.Column('slot_one', sa.Integer(), nullable=True),
+    sa.Column('slot_two', sa.Integer(), nullable=True),
+    sa.Column('slot_three', sa.Integer(), nullable=True),
+    sa.Column('slot_four', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['game_id'], ['game.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('inventory_user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('game_id', sa.Integer(), nullable=True),
@@ -158,11 +213,12 @@ def upgrade():
     sa.ForeignKeyConstraint(['inventory_id'], ['inventory.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('quest_prequisites',
+    op.create_table('quest_prerequisites',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('quest_id', sa.Integer(), nullable=True),
-    sa.Column('prequisite_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['prequisite_id'], ['quests.id'], ),
+    sa.Column('prerequisite_id', sa.Integer(), nullable=True),
+    sa.Column('game_level', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['prerequisite_id'], ['quests.id'], ),
     sa.ForeignKeyConstraint(['quest_id'], ['quests.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -170,11 +226,24 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('quest_id', sa.Integer(), nullable=True),
     sa.Column('game_id', sa.Integer(), nullable=True),
-    sa.Column('quest_progress', sa.Integer(), nullable=True),
     sa.Column('quest_active', sa.Boolean(), nullable=True),
+    sa.Column('quest_progress', sa.Integer(), nullable=True),
     sa.Column('quest_completed', sa.Boolean(), nullable=True),
     sa.Column('quest_completed_date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['game_id'], ['game.id'], ),
+    sa.ForeignKeyConstraint(['quest_id'], ['quests.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('quest_requirements',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('quest_id', sa.Integer(), nullable=True),
+    sa.Column('game_level_required', sa.Integer(), nullable=True),
+    sa.Column('cash_required', sa.Integer(), nullable=True),
+    sa.Column('wood_required', sa.Integer(), nullable=True),
+    sa.Column('stone_required', sa.Integer(), nullable=True),
+    sa.Column('metal_required', sa.Integer(), nullable=True),
+    sa.Column('building_required', sa.Integer(), nullable=True),
+    sa.Column('building_level_required', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['quest_id'], ['quests.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -213,6 +282,24 @@ def upgrade():
     sa.ForeignKeyConstraint(['item_id'], ['items.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('quest_prerequisites_progress',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('quest_progress_id', sa.Integer(), nullable=True),
+    sa.Column('quest_prerequisite_id', sa.Integer(), nullable=True),
+    sa.Column('prerequisite_completed', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['quest_prerequisite_id'], ['quest_prerequisites.id'], ),
+    sa.ForeignKeyConstraint(['quest_progress_id'], ['quest_progress.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('quest_requirements_progress',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('quest_progress_id', sa.Integer(), nullable=True),
+    sa.Column('quest_requirement_id', sa.Integer(), nullable=True),
+    sa.Column('requirement_completed', sa.Boolean(), nullable=True),
+    sa.ForeignKeyConstraint(['quest_progress_id'], ['quest_progress.id'], ),
+    sa.ForeignKeyConstraint(['quest_requirement_id'], ['quest_requirements.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('reward_item_association',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('reward_id', sa.Integer(), nullable=True),
@@ -228,16 +315,22 @@ def upgrade():
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
     op.drop_table('reward_item_association')
+    op.drop_table('quest_requirements_progress')
+    op.drop_table('quest_prerequisites_progress')
     op.drop_table('inventory_items')
     op.drop_table('resource_log')
     op.drop_table('quest_rewards')
+    op.drop_table('quest_requirements')
     op.drop_table('quest_progress')
-    op.drop_table('quest_prequisites')
+    op.drop_table('quest_prerequisites')
     op.drop_table('inventory_user')
+    op.drop_table('hero_slots')
+    op.drop_table('hero_progress')
     op.drop_table('building_progress')
     op.drop_table('user_roles')
     op.drop_table('quests')
     op.drop_table('inventory')
+    op.drop_table('heroes')
     op.drop_table('game')
     op.drop_table('buildings')
     with op.batch_alter_table('user', schema=None) as batch_op:
@@ -246,8 +339,10 @@ def downgrade():
 
     op.drop_table('user')
     op.drop_table('roles')
+    op.drop_table('rarity_types')
     op.drop_table('quest_types')
     op.drop_table('items')
     op.drop_table('inventory_types')
+    op.drop_table('hero_types')
     op.drop_table('building_types')
     # ### end Alembic commands ###

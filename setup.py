@@ -2,10 +2,7 @@
 
 # Assuming your Flask app and models are defined in app.py and app/models.py respectively
 from app import create_app
-import os
-import subprocess
-from sqlalchemy.exc import OperationalError, IntegrityError
-from sqlalchemy.sql import text
+from sqlalchemy.exc import IntegrityError
 from app.models import db, Role, User
 from app.models import Game
 from app.models import Quest, QuestType, QuestRewards,RewardItemAssociation, QuestProgress
@@ -15,6 +12,7 @@ from app.models import Buildings, BuildingProgress, BuildingType
 from app.game.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
 from app.game.Buildings.Buildings import delete_building_data, create_building_types, create_buildings
 from app.game.Quests.Quests import create_QuestTypes, create_quests, delete_quest_data
+from app.game.Heroes.heroes import create_hero_types, create_heroes, delete_hero_data
 
 app = create_app()
 app_context = app.app_context()
@@ -121,6 +119,8 @@ def delete_game_data():
     db.session.query(BuildingProgress).delete()
     db.session.query(InventoryItems).delete()
     db.session.query(InventoryUser).delete()
+
+    
     
     # Delete logs
     db.session.query(ResourceLog).delete()
@@ -147,6 +147,12 @@ if __name__ == "__main__":
     delete_quest_data()
     create_QuestTypes()
     create_quests()
+
+    # Hero Data
+    delete_hero_data()
+    create_heroes()
+    
+
 
     # Create new game for admin
     create_game_for_admin()

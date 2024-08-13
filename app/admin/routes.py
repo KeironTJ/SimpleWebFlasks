@@ -6,6 +6,7 @@ from app.admin.forms import AssignRoleForm, CreateRoleForm, LevelRequirementsFor
 from app.models import BuildingProgress, BuildingType, Buildings
 from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation, QuestRequirements, QuestPrerequisites, QuestPreRequisitesProgress, QuestRequirementProgress
 from app.models import Item, Inventory, InventoryItems, InventoryUser, InventoryType
+from app.models import Hero, HeroProgress, HeroType, HeroSlots, RarityType
 from app.game.game_logic import GameService, GameCreation, GameBuildingService
 from app.admin.decorators import admin_required
 from app.admin import bp
@@ -259,3 +260,28 @@ def admin_inventories():
                            inventories=inventories,
                            game_inventories=game_inventories,
                            inventoryitems=inventoryitems)
+
+
+# This route is used to render the admin page for the game heroes
+
+@bp.route('/admin_heroes', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def admin_heroes():
+    
+    games = db.session.query(Game).all()
+    herotypes = db.session.query(HeroType).all()
+    heroes = db.session.query(Hero).all()
+    heroprogresses = db.session.query(HeroProgress).all()
+    heroslots = db.session.query(HeroSlots).all()
+    raritytypes = db.session.query(RarityType).all()
+    
+    
+    return render_template("admin/game/admin_heroes.html", 
+                           title='Admin - Heroes',
+                           games=games,
+                           herotypes=herotypes,
+                           heroes=heroes,
+                           heroprogresses=heroprogresses,
+                           heroslots=heroslots,
+                           raritytypes=raritytypes)

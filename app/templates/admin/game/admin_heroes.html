@@ -1,0 +1,139 @@
+{% extends "admin/admin_base.html" %}
+
+{% block content2 %}
+
+<div class="Jumbotron">
+
+    <h1>{{ title }}</h1>
+
+</div>
+
+<hr />
+
+<div>
+    <h2>Rarity Types</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Rarity Type ID</th>
+                <th>Rarity Type Name</th>
+                <th>Rarity Type Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for raritytype in raritytypes %}
+            <tr>
+                <td>{{ raritytype.id }}</td>
+                <td>{{ raritytype.rarity_type_name }}</td>
+                <td>{{ raritytype.rarity_type_description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</div>
+
+<div>
+    <h2>Hero Types</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Hero Type ID</th>
+                <th>Hero Type Name</th>
+                <th>Hero Type Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for herotype in herotypes %}
+            <tr>
+                <td>{{ herotype.id }}</td>
+                <td>{{ herotype.hero_type_name }}</td>
+                <td>{{ herotype.hero_type_description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <h2>Heroes</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Hero ID</th>
+                <th>Hero Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for hero in heroes %}
+            <tr>
+                <td>{{ hero.id }}</td>
+                <td>{{ hero.hero_name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div>
+    <h2>Hero Progress</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Hero Progress ID</th>
+                <th>Hero ID</th>
+                <th>Hero Level</th>
+                <th>Hero Experience</th>
+                <th>Hero Health</th>
+                <th>Hero Attack</th>
+                <th>Hero Defense</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for heroprogress in heroprogresses %}
+            <tr>
+                <td>{{ heroprogress.id }}</td>
+                <td>{{ heroprogress.hero_id }}</td>
+                <td>{{ heroprogress.hero_level }}</td>
+                <td>{{ heroprogress.hero_experience }}</td>
+                <td>{{ heroprogress.hero_health }}</td>
+                <td>{{ heroprogress.hero_attack }}</td>
+                <td>{{ heroprogress.hero_defense }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>    
+</div>
+
+
+<div>
+    <h2>Hero SLots</h2>
+
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Hero Slot ID</th>
+                <th>Hero Slot Number</th>
+                <th>Hero Slot Hero ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for heroslot in heroslots %}
+            <tr>
+                <td>{{ heroslot.id }}</td>
+                <td>{{ heroslot.hero_slot_number }}</td>
+                <td>{{ heroslot.hero_slot_hero_id }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+</div>
+
+
+
+
+
+{% endblock content2 %}

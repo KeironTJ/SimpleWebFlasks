@@ -1,15 +1,7 @@
 from app import create_app
-import os
-import subprocess
-from sqlalchemy.exc import OperationalError, IntegrityError
-from sqlalchemy.sql import text
-from app.models import db, Role, User
-from app.models import Game
-from app.models import Quest, QuestType, QuestRewards,RewardItemAssociation, QuestProgress
-from app.models import Item, Inventory, InventoryItems, InventoryType, InventoryUser
-from app.models import ResourceLog
+
+from app.models import db
 from app.models import Buildings, BuildingProgress, BuildingType
-from app.game.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
 
 app = create_app()
 app_context = app.app_context()
@@ -144,6 +136,14 @@ def create_buildings():
     forge_building.create_building()
     forge_building.set_building_requirements(cash=5000, level=20, wood=1000, stone=500, metal=0)
     forge_building.set_base_collection_rates(metal=5)
+
+    # Create Barracks Building
+    barracks_building = BuildingCreator(building_name="Barracks",
+                                    building_description="Recruit Heroes",
+                                    building_type_id=1,
+                                    building_link="game.building_barracks")
+    barracks_building.create_building()
+    barracks_building.set_building_requirements(cash=500, level=1, wood=0, stone=0, metal=0)
 
 
 # Create buildings, requirements progress
