@@ -2,7 +2,7 @@ from flask import redirect, url_for
 from functools import wraps
 from app.models import Role, UserRoles
 from app import db
-from flask_login import current_user
+from flask_login import current_user                # type:ignore
 
 
 

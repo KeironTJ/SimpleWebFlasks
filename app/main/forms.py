@@ -1,5 +1,5 @@
-from flask_wtf import FlaskForm
-from wtforms import StringField, DateField, SubmitField
+from flask_wtf import FlaskForm                             # type:ignore
+from wtforms import StringField, DateField, SubmitField     # type:ignore
 
 
 class ProfileForm(FlaskForm):

@@ -1,6 +1,6 @@
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, SelectField, IntegerField
-from wtforms.validators import DataRequired
+from flask_wtf import FlaskForm                                                     # type:ignore
+from wtforms import StringField, SubmitField, SelectField, IntegerField             # type:ignore
+from wtforms.validators import DataRequired                                         # type:ignore
 from app.models import User, Role
 
 

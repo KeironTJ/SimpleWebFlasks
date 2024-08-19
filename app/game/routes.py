@@ -1,13 +1,14 @@
 from flask import render_template, redirect, url_for, flash, request, g
-from flask_login import login_required, current_user
-from app.models import User, db, Game, Inventory
-from app.models import InventoryUser, InventoryItems, InventoryType
-from app.models import Quest, QuestProgress, QuestType, QuestRewards, RewardItemAssociation
-from app.models import BuildingProgress, Buildings
-from app.models import Hero, HeroProgress, HeroType, HeroSlots
-from app.game.forms import NewGameForm, LoadGameForm, AddXPForm, AddCashForm, AddResourcesForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
-from app.game.game_logic import GameService, GameCreation, GameBuildingService, QuestService, QuestManager
-import sqlalchemy as sa
+from flask_login import login_required, current_user            # type:ignore
+from app.models import db, Game
+from app.models import InventoryUser
+from app.models import QuestProgress
+from app.models import BuildingProgress
+from app.models import HeroProgress
+from app.game.forms import NewGameForm, LoadGameForm, AddResourcesForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
+from app.game.GameServices import GameService, GameCreation
+from app.game.Buildings.BuildingServices import GameBuildingService
+from app.game.Quests.QuestServices import QuestService, QuestManager
 
 from app.game import bp
 

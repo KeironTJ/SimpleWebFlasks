@@ -1,6 +1,5 @@
-from datetime import datetime, timezone, timedelta
-from typing import Optional
-from sqlalchemy import Column, Integer, String, DateTime # type: ignore
+from datetime import datetime, timezone
+from sqlalchemy import Integer, String # type: ignore
 import sqlalchemy.orm as so # type: ignore
 from app import db, login
 from flask_login import UserMixin # type: ignore
@@ -609,23 +608,4 @@ class HeroSlots(db.Model):
 
     # Relationships
     game = db.relationship("Game", back_populates="hero_slots")
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-    
-
-
 

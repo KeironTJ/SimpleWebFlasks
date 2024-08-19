@@ -17,7 +17,7 @@
     <h2> Heroes </h2>
 
     {% for hero in heroes %}
-        <p>{{hero.id}} - {{ hero.name }}</p>
+        <p>{{hero.id}} - {{ hero.hero.hero_name }} - {{hero.hero_level}}</p>
     {% endfor %}
 </div>
 

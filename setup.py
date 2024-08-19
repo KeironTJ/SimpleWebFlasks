@@ -1,18 +1,15 @@
-
-
-# Assuming your Flask app and models are defined in app.py and app/models.py respectively
 from app import create_app
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError       # type:ignore
 from app.models import db, Role, User
 from app.models import Game
-from app.models import Quest, QuestType, QuestRewards,RewardItemAssociation, QuestProgress
-from app.models import Item, Inventory, InventoryItems, InventoryType, InventoryUser
+from app.models import QuestProgress
+from app.models import InventoryItems, InventoryUser
 from app.models import ResourceLog
-from app.models import Buildings, BuildingProgress, BuildingType
-from app.game.game_logic import GameCreation, GameService, PrintNotifier, GameBuildingService
-from app.game.Buildings.Buildings import delete_building_data, create_building_types, create_buildings
+from app.models import BuildingProgress
+from app.game.GameServices import GameCreation
+from app.game.Buildings.Buildings import create_building_types, create_buildings, delete_building_data
 from app.game.Quests.Quests import create_QuestTypes, create_quests, delete_quest_data
-from app.game.Heroes.heroes import create_hero_types, create_heroes, delete_hero_data
+from app.game.Heroes.heroes import create_heroes, delete_hero_data
 
 app = create_app()
 app_context = app.app_context()

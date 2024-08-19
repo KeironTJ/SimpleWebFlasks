@@ -1,5 +1,5 @@
-import sqlalchemy as sa
-import sqlalchemy.orm as so
+import sqlalchemy as sa         # type:ignore
+import sqlalchemy.orm as so     # type:ignore
 from app.models import User
 from app import create_app, db
 

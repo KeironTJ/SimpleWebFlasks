@@ -1,9 +1,7 @@
-from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_required, current_user
+from flask import render_template, redirect, url_for
+from flask_login import login_required, current_user # type:ignore
 
-from app.main.forms import ProfileForm
-from app.models import User, db
-import sqlalchemy as sa
+from app.models import User
 
 from app.main import bp
 

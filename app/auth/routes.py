@@ -1,10 +1,10 @@
 from flask import render_template, flash, redirect, url_for, request
-from flask_login import current_user, login_user, logout_user, login_required
+from flask_login import current_user, login_user, logout_user               # type:ignore
 from werkzeug.urls import urlsplit
 from app import db
 from app.auth.forms import LoginForm, RegistrationForm
 from app.models import User, UserRoles
-import sqlalchemy as sa
+import sqlalchemy as sa                                                     # type:ignore
 from app.auth import bp
 
 

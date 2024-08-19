@@ -1,5 +1,5 @@
-from flask import g
-from flask_login import current_user
+from flask import g, flash
+from flask_login import current_user # type: ignore
 from app.models import Game
 
 def load_game():
@@ -11,3 +11,14 @@ def load_game():
             g.game = None
     else:
         g.game = None
+
+## Context Related Service
+class FlashNotifier:
+    @staticmethod
+    def notify(message):
+        flash(message)
+
+class PrintNotifier: 
+    @staticmethod
+    def notify(message):
+        print(message)
