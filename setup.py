@@ -6,10 +6,10 @@ from app.models import QuestProgress
 from app.models import InventoryItems, InventoryUser
 from app.models import ResourceLog
 from app.models import BuildingProgress
-from app.game.GameServices import GameCreation
-from app.game.Buildings.Buildings import create_building_types, create_buildings, delete_building_data
-from app.game.Quests.Quests import create_QuestTypes, create_quests, delete_quest_data
-from app.game.Heroes.heroes import create_heroes, delete_hero_data
+from app.game.game_services import GameCreation
+from app.game.buildings.buildings import create_building_types, create_buildings, delete_building_data
+from app.game.quests.quests import create_QuestTypes, create_quests, delete_quest_data
+from app.game.heroes.heroes import create_heroes, delete_hero_data
 
 app = create_app()
 app_context = app.app_context()

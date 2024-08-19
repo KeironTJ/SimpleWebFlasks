@@ -1,11 +1,10 @@
-from app.models import BuildingProgress
-from app.game.Quests.QuestServices import QuestManager
-from app.game.context_processor import FlashNotifier
-from app.game.GameServices import GameService
-
-from app.models import BuildingProgress
 from datetime import datetime, timezone
+
 from app import db
+from app.game.context_processor import FlashNotifier
+from app.game.game_services import GameService
+from app.game.quests.quest_manager import QuestManager
+from app.models import BuildingProgress
 
 ## GameBuildingService
 # Class to action against the GameBuilding instance
@@ -48,8 +47,8 @@ class GameBuildingService:
         # Update building progress
         self.start_accrual()
         
-        self.quest_manager.update_quest_prerequisite_progress()
-        self.quest_manager.update_quest_requirement_progress()
+        # Update quest Progress
+        self.quest_manager.update_quests()
         
         db.session.commit()
 
@@ -139,9 +138,8 @@ class GameBuildingService:
         # Increment building level
         self.building.building_level += 1
         
-        # Check quest prerequisites
-        self.quest_manager.update_quest_prerequisite_progress()
-        self.quest_manager.update_quest_requirement_progress()
+        # Update quest progress
+        self.quest_manager.update_quests()
 
         # Commit cahnges
         db.session.commit()

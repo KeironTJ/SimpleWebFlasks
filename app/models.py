@@ -545,10 +545,9 @@ class Hero(db.Model):
     hero_name = db.Column(db.String(64))
     hero_description = db.Column(db.String(256))
     hero_link = db.Column(db.String(256))
+    hero_image = db.Column(db.String(256))
 
     # Hero Basic Stats
-    xp = db.Column(db.Integer, default=0)
-    level = db.Column(db.Integer, default=0)
     rarity_type_id = db.Column(db.Integer, db.ForeignKey('rarity_types.id'))
 
     # Hero Stats
@@ -590,6 +589,20 @@ class HeroProgress(db.Model):
     game = db.relationship("Game", back_populates="hero_progress")
 
 
+# Model to store slot groups
+class HeroSlotGroups(db.Model):
+    __tablename__ = 'hero_slot_groups'
+
+    # Primary Key
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(64))
+    size = db.Column(db.Integer, default=4)
+
+    # Relationships
+    hero_slots = db.relationship("HeroSlots", back_populates="hero_slot_group")
+
+
 # Model to store hero slots
 class HeroSlots(db.Model):
     __tablename__ = 'hero_slots'
@@ -599,7 +612,7 @@ class HeroSlots(db.Model):
 
     # Foreign keys
     game_id = db.Column(db.Integer, db.ForeignKey('game.id'))
-    slot_group_name = db.Column(db.String(64))
+    hero_slot_group_id = db.Column(db.Integer, db.ForeignKey('hero_slot_groups.id'))
 
     slot_one = db.Column(db.Integer, default=0)
     slot_two = db.Column(db.Integer, default=0)
@@ -608,4 +621,5 @@ class HeroSlots(db.Model):
 
     # Relationships
     game = db.relationship("Game", back_populates="hero_slots")
+    hero_slot_group = db.relationship("HeroSlotGroups", back_populates="hero_slots")
 

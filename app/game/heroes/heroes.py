@@ -1,5 +1,5 @@
 from app import create_app
-from app.models import db, Hero, HeroProgress, HeroType, HeroSlots, RarityType
+from app.models import db, Hero, HeroProgress, HeroType, HeroSlots, RarityType, HeroSlotGroups
 
 
 ## Create rarity types
@@ -20,6 +20,15 @@ def create_rarity_types():
     except Exception as e:
         db.session.rollback()
         print(f"Failed to create rarity types: {e}")
+
+def create_slot_groups():
+    try: 
+        main = HeroSlotGroups(name="Main", size=4)
+        db .session.add(main)
+        print("Slot Groups Created")
+    except Exception as e:
+        db.session.rollback()
+        print(f"Failed to create slot groups: {e}")
 
 ## Create Hero Types
 def create_hero_types():
@@ -91,8 +100,10 @@ def delete_hero_data():
 
 ## Create Heroes
 def create_heroes():
+
     create_rarity_types()
     create_hero_types()
+    create_slot_groups()
 
     Warrior.create_hero()
     Mage.create_hero()

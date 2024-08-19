@@ -1,18 +1,16 @@
 from flask import render_template, redirect, url_for, flash, request, g
 from flask_login import login_required, current_user            # type:ignore
+
+from app.game.forms import NewGameForm, LoadGameForm, AddResourcesForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
+from app.game.game_services import GameService, GameCreation
+from app.game.buildings.building_services import GameBuildingService
+from app.game.quests.quest_services import QuestService, QuestManager
+from app.game import bp
 from app.models import db, Game
 from app.models import InventoryUser
 from app.models import QuestProgress
 from app.models import BuildingProgress
 from app.models import HeroProgress
-from app.game.forms import NewGameForm, LoadGameForm, AddResourcesForm, CollectResourcesForm, UpgradeBuildingForm, CompleteQuestForm
-from app.game.GameServices import GameService, GameCreation
-from app.game.Buildings.BuildingServices import GameBuildingService
-from app.game.Quests.QuestServices import QuestService, QuestManager
-
-from app.game import bp
-
- 
 
 
 @bp.route('/startmenu', methods=['GET', 'POST'])
@@ -82,8 +80,7 @@ def play(game_id):
         
         # Quest Manager
         questmanager = QuestManager(game_id=game.id)
-        questmanager.update_quest_prerequisite_progress()
-        questmanager.update_quest_requirement_progress()
+        questmanager.update_quests()
         
         return redirect(url_for('game.play', game_id=game_id))
 

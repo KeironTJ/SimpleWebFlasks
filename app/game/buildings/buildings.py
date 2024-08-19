@@ -1,5 +1,4 @@
 from app import create_app
-
 from app.models import db
 from app.models import Buildings, BuildingProgress, BuildingType
 

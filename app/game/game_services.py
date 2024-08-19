@@ -1,13 +1,12 @@
-from app.models import User, Game
-from app.models import Quest, QuestProgress, QuestPrerequisites, QuestPreRequisitesProgress, QuestRequirementProgress, QuestRequirements
-from app.models import Game, ResourceLog
-from app.models import BuildingProgress, Buildings
-from app.models import Inventory, InventoryUser
-from app.models import Hero, HeroProgress
-from app import db
 from math import floor
 
+from app import db
 from app.game.context_processor import FlashNotifier
+from app.models import (
+    BuildingProgress, Buildings, Game, Hero, HeroProgress, Inventory, InventoryUser,
+    Quest, QuestProgress, QuestPrerequisites, QuestPreRequisitesProgress,
+    QuestRequirementProgress, QuestRequirements, ResourceLog, User
+)
 
 
 ## Game Setup related Service
@@ -19,6 +18,7 @@ class GameCreation:
         self.user_id = user_id
         self.game_name = game_name
         self.game_id = None # game_id is set after game creation
+
 
     # function to create a new Game instance
     def create_game(self) -> Game:
@@ -57,8 +57,6 @@ class GameCreation:
             
             # Assign quest pre-requisites
             self.assign_quest_pre_requisites(quest_progress.id)
-
-            # Assign quest requirements
             self.assign_quest_requirements(quest_progress.id)
             
     def assign_quest_pre_requisites(self, quest_progress_id: int) -> None:
@@ -119,10 +117,11 @@ class GameCreation:
         """Assigns all heroes to a Game."""
         heroes = Hero.query.all()
         for hero in heroes:
-            hero_progress = HeroProgress(game_id=game_id, 
-                                        hero_id=hero.id)
-            db.session.add(hero_progress)
-            db.session.commit()
+            new_hero = HeroProgress(game_id=self.game_id,
+                                    hero_id=hero.id)
+            db.session.add(new_hero)
+            
+
             
         
     # function to create all startup items for the Game instance
@@ -135,11 +134,10 @@ class GameCreation:
         self.assign_all_inventories(game_id)
         self.assign_all_heroes(game_id)
         db.session.commit()
-            
 
 
 
-
+        
 ## Game Related Service
 # Class to action against the Game instance
 class GameService:
@@ -217,6 +215,13 @@ class GameService:
         inventory = InventoryUser(game_id=self.game_id, 
                                   inventory_id=inventory_id)
         db.session.add(inventory)
+        db.session.commit()
+
+    def assign_hero(self, hero_id: int) -> None:
+        ''' Assings a hero to the game '''
+        hero = HeroProgress(game_id = self.game_id,
+                            hero_id = hero_id)
+        db.session.add(hero)
         db.session.commit()
 
     ## Helper functions

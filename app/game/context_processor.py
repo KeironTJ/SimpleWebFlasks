@@ -1,5 +1,6 @@
-from flask import g, flash
-from flask_login import current_user # type: ignore
+from flask import flash, g
+from flask_login import current_user  # type: ignore
+
 from app.models import Game
 
 def load_game():

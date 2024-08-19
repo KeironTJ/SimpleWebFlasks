@@ -85,6 +85,7 @@
         <thead>
             <tr>
                 <th>Hero Progress ID</th>
+                <th>Game ID</th>
                 <th>Hero ID</th>
                 <th>Hero Level</th>
                 <th>Hero Experience</th>
@@ -97,6 +98,7 @@
             {% for heroprogress in heroprogresses %}
             <tr>
                 <td>{{ heroprogress.id }}</td>
+                <td>{{ heroprogress.game.id }}</td>
                 <td>{{ heroprogress.hero_id }}</td>
                 <td>{{ heroprogress.hero_level }}</td>
                 <td>{{ heroprogress.hero_experience }}</td>

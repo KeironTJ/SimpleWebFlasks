@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm                                                             # type:ignore
 from wtforms import StringField, SubmitField, SelectField, IntegerField, HiddenField        # type:ignore
-from wtforms.validators import DataRequired                                                 # type:ignore
+from wtforms.validators import DataRequired                                                 # type:ignore 
+from flask_login import current_user                                                        # type:ignore                                             # type:ignore
 from app.models import Game 
-from flask_login import current_user                                                        # type:ignore
 
 
 ## Game Setup related Forms

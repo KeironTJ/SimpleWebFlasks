@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: c5f0be1c0ab9
+Revision ID: 117cbaeedb03
 Revises: 
-Create Date: 2024-08-13 13:34:58.383725
+Create Date: 2024-08-19 13:55:14.730392
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c5f0be1c0ab9'
+revision = '117cbaeedb03'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,6 +22,12 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('building_type_name', sa.String(length=64), nullable=True),
     sa.Column('building_type_description', sa.String(length=256), nullable=True),
+    sa.PrimaryKeyConstraint('id')
+    )
+    op.create_table('hero_slot_groups',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=64), nullable=True),
+    sa.Column('size', sa.Integer(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('hero_types',
@@ -120,8 +126,7 @@ def upgrade():
     sa.Column('hero_name', sa.String(length=64), nullable=True),
     sa.Column('hero_description', sa.String(length=256), nullable=True),
     sa.Column('hero_link', sa.String(length=256), nullable=True),
-    sa.Column('xp', sa.Integer(), nullable=True),
-    sa.Column('level', sa.Integer(), nullable=True),
+    sa.Column('hero_image', sa.String(length=256), nullable=True),
     sa.Column('rarity_type_id', sa.Integer(), nullable=True),
     sa.Column('health', sa.Integer(), nullable=True),
     sa.Column('attack', sa.Integer(), nullable=True),
@@ -197,12 +202,13 @@ def upgrade():
     op.create_table('hero_slots',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('game_id', sa.Integer(), nullable=True),
-    sa.Column('slot_group_name', sa.String(length=64), nullable=True),
+    sa.Column('hero_slot_group_id', sa.Integer(), nullable=True),
     sa.Column('slot_one', sa.Integer(), nullable=True),
     sa.Column('slot_two', sa.Integer(), nullable=True),
     sa.Column('slot_three', sa.Integer(), nullable=True),
     sa.Column('slot_four', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['game_id'], ['game.id'], ),
+    sa.ForeignKeyConstraint(['hero_slot_group_id'], ['hero_slot_groups.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('inventory_user',
@@ -344,5 +350,6 @@ def downgrade():
     op.drop_table('items')
     op.drop_table('inventory_types')
     op.drop_table('hero_types')
+    op.drop_table('hero_slot_groups')
     op.drop_table('building_types')
     # ### end Alembic commands ###

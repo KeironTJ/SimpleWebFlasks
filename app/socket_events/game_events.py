@@ -1,6 +1,6 @@
 from app.socket_events import bp
 from app import sock
-from app.game.Buildings.BuildingServices import GameBuildingService
+from app.game.buildings.building_services import GameBuildingService
 import json
 import time
 import logging

@@ -7,7 +7,7 @@ from app.models import BuildingProgress, BuildingType, Buildings
 from app.models import Quest, QuestProgress, QuestType, QuestRewards, QuestRequirements, QuestPrerequisites, QuestPreRequisitesProgress, QuestRequirementProgress
 from app.models import Item, Inventory, InventoryItems, InventoryUser, InventoryType
 from app.models import Hero, HeroProgress, HeroType, HeroSlots, RarityType
-from app.game.Buildings.BuildingServices import GameBuildingService
+from app.game.buildings.building_services import GameBuildingService
 from app.admin.decorators import admin_required
 from app.admin import bp
 from sqlalchemy.exc import SQLAlchemyError          # type:ignore
@@ -134,7 +134,7 @@ def admin_models():
     games = db.session.query(Game).all()
 
     return render_template("admin/game/admin_models.html", 
-                           title='Admin - Game Users', 
+                           title='Admin - All Games', 
                            games=games)
 
 

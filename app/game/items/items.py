@@ -1,6 +1,6 @@
 from app import create_app
 from app.models import db
-from app.models import Item, Inventory, InventoryItems, InventoryType, InventoryUser
+from app.models import Item
 
 
 app = create_app()
