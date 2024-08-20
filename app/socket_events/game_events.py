@@ -40,11 +40,9 @@ def building_resource_ws(ws):
     while True:
         message = ws.receive()
         if message:
-            logging.debug(f"Received message: {message}")
             data = json.loads(message)
             if data['event'] == 'resource_update':
                 building_progress_id = data.get('building_progress_id')
-                logging.debug(f"Building progress ID: {building_progress_id}")
                 if building_progress_id:
                     try:
                         buildingservice = GameBuildingService(building_progress_id=building_progress_id)
@@ -58,7 +56,6 @@ def building_resource_ws(ws):
                                 'accrued_metal': buildingservice.building.accrued_metal
                             }
                             ws.send(json.dumps(response))
-                            logging.debug("Building service processed successfully")
                             time.sleep(60)  # Send updates every 5 seconds
                     except ValueError as e:
                         error_message = {'error': str(e)}

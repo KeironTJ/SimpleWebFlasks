@@ -36,7 +36,6 @@ class QuestManager:
 
         # Get all quests prerequisites progress
         prerequisites_progress = QuestPreRequisitesProgress.query.filter_by(quest_progress_id=quest_progress_id).all()
-        print("Prerequisites Progress", prerequisites_progress)
 
         #Get all quests progress
         for progress in prerequisites_progress:
@@ -80,6 +79,7 @@ class QuestManager:
             requirements = QuestRequirementProgress.query.filter_by(quest_progress_id=quest.id).all()
             quest_req_met = True
 
+            
             for requirement in requirements:
                 if quest.game.level < requirement.quest_requirement.game_level_required:
                     quest_req_met = False
