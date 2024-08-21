@@ -3,9 +3,27 @@
 {% block content2 %}
 
 <div>
-    Hi I am a hero!
+    {{hero_progress.hero.hero_name}}
 </div>
 
+<div class="container text-center">
+    <div class="row align-items-start">
 
+      <div class="col">
+        <h2>HERO IMAGE BELOW</h2>
+        <p> Hero Image</p>
+      </div>
+
+      <div class="col">
+        <h2>Hero Information:</h2>
+        <p>{{hero_progress.hero.hero_description}}</p>
+      </div>
+
+      <div class="col">
+        <h2>Hero Stats</h2>
+        <p>Attack: {{hero_progress.hero_attack}}</p>
+      </div>
+    </div>
+  </div>
 
 {% endblock content2 %}
