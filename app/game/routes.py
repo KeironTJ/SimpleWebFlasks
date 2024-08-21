@@ -214,3 +214,16 @@ def building_barracks(building_progress_id):
                             game=game,
                             building_progress=building_progress,
                             heroes=heroes)
+
+
+
+@bp.route('/hero/<hero_progress_id>', methods=['GET','POST'])
+@login_required
+def hero(hero_progress_id):
+    hero_progress = HeroProgress.query.filter_by(id=hero_progress_id).first()
+    game = g.game
+
+    return render_template("game/hero.html",
+                           title=f"Hero: {hero_progress.hero.hero_name}",
+                           hero_progress=hero_progress,
+                           game=game)

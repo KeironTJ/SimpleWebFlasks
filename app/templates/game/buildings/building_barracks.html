@@ -13,12 +13,34 @@
     <p>Slot 6: </p>
 </div>
 
-<div>
-    <h2> Heroes </h2>
 
-    {% for hero in heroes %}
-        <p>{{hero.id}} - {{ hero.hero.hero_name }} - {{hero.hero_level}}</p>
-    {% endfor %}
+<div>
+    <h2> All Heroes </h2>
+
+
+    <div class="container mt-3">
+        <div class="row">
+            {% for hero in heroes %}
+            <div class="col-md-4 mb-4">
+                <!-- Wrap the card with an <a> tag -->
+                <a href="{{ url_for('game.hero', hero_progress_id=hero.id)}}" class="card-link">
+
+
+                    <div class="card hero-active">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ hero.hero.hero_name }}</h5>
+                            <p class="card-text">{{ hero.hero.hero_description }}</p>
+                            <p class="card-text">Level: {{ hero.hero_level }}</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            {% if loop.index % 2 == 0 %}
+        </div><div class="row">
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
 

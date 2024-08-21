@@ -83,3 +83,24 @@
         width: 100%;
     }
 }
+
+.hero-inactive { 
+    background-color: #979797;
+    color: #ffffff;
+}
+
+
+.hero-inactive:hover {
+    background-color: #686868;
+    color: #ffffff;
+}
+
+.hero-active {
+    background-color: #8dbeff;
+    color: #151f57;
+}
+
+.hero-active:hover {
+    background-color: #9ea7dd;
+    color: #151f57;
+}
