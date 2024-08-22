@@ -1,5 +1,5 @@
 from app import create_app
-from sqlalchemy.exc import IntegrityError       # type:ignore
+from sqlalchemy.exc import IntegrityError       
 from app.models import db, Role, User
 from app.models import Game
 from app.models import QuestProgress
@@ -7,9 +7,9 @@ from app.models import InventoryItems, InventoryUser
 from app.models import ResourceLog
 from app.models import BuildingProgress
 from app.game.game_services import GameCreation
-from app.game.buildings.buildings import create_building_types, create_buildings, delete_building_data
+from app.game.buildings.buildings import update_buildings
 from app.game.quests.quests import create_QuestTypes, create_quests, delete_quest_data
-from app.game.heroes.heroes import create_heroes, delete_hero_data
+from app.game.heroes.heroes import update_heroes
 
 app = create_app()
 app_context = app.app_context()
@@ -131,29 +131,23 @@ def delete_game_data():
 if __name__ == "__main__":
 
     # User and Role data
-    delete_game_data()
-    create_roles_and_users()
+    #delete_game_data()
+    #create_roles_and_users()
     
-
     # Building Data
-    delete_building_data()
-    create_building_types()
-    create_buildings()
+    update_buildings()
 
     # Quest Data
-    delete_quest_data()
-    create_QuestTypes()
-    create_quests()
+    #delete_quest_data()
+    #create_QuestTypes()
+    #create_quests()
 
     # Hero Data
-    delete_hero_data()
-    create_heroes()
+    #update_heroes()
     
-
-
     # Create new game for admin
-    create_game_for_admin()
-    create_game_for_user()
+    #create_game_for_admin()
+    #create_game_for_user()
 
 
 
