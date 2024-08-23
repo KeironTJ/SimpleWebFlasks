@@ -6,6 +6,7 @@ from app.models import QuestProgress
 from app.models import InventoryItems, InventoryUser
 from app.models import ResourceLog
 from app.models import BuildingProgress
+from app.models import HeroProgress
 from app.game.game_services import GameCreation
 from app.game.buildings.buildings import update_buildings
 from app.game.quests.quests import create_QuestTypes, create_quests, delete_quest_data
@@ -116,12 +117,12 @@ def delete_game_data():
     db.session.query(BuildingProgress).delete()
     db.session.query(InventoryItems).delete()
     db.session.query(InventoryUser).delete()
+    db.session.query(HeroProgress).delete()
 
-    
     
     # Delete logs
     db.session.query(ResourceLog).delete()
-    
+        
     
     db.session.commit()
     print("All data deleted")
@@ -131,23 +132,23 @@ def delete_game_data():
 if __name__ == "__main__":
 
     # User and Role data
-    #delete_game_data()
-    #create_roles_and_users()
+    delete_game_data()
+    create_roles_and_users()
     
     # Building Data
     update_buildings()
 
     # Quest Data
-    #delete_quest_data()
-    #create_QuestTypes()
-    #create_quests()
+    delete_quest_data()
+    create_QuestTypes()
+    create_quests()
 
     # Hero Data
-    #update_heroes()
+    update_heroes()
     
     # Create new game for admin
-    #create_game_for_admin()
-    #create_game_for_user()
+    create_game_for_admin()
+    create_game_for_user()
 
 
 

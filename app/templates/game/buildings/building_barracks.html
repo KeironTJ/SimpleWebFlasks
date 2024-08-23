@@ -3,18 +3,6 @@
 {% block content2 %}
 
 <div>
-    <h2> Active Squad</h2>
-
-    <p>Slot 1: </p>
-    <p>Slot 2: </p>
-    <p>Slot 3: </p>
-    <p>Slot 4: </p>
-    <p>Slot 5: </p>
-    <p>Slot 6: </p>
-</div>
-
-
-<div>
     <h2> All Heroes </h2>
 
 
@@ -23,7 +11,7 @@
             {% for hero in heroes %}
             <div class="col-md-4 mb-4">
                 <!-- Wrap the card with an <a> tag -->
-                <a href="{{ url_for('game.hero', hero_progress_id=hero.id)}}" class="card-link">
+                
 
 
                     <div class="card hero-active">
@@ -31,9 +19,9 @@
                             <h5 class="card-title">{{ hero.hero.hero_name }}</h5>
                             <p class="card-text">{{ hero.hero.hero_description }}</p>
                             <p class="card-text">Level: {{ hero.hero_level }}</p>
+                            <a href="{{ url_for('game.hero', hero_progress_id=hero.id)}}" class="card-link">View Hero</a>
                         </div>
                     </div>
-                </a>
             </div>
             {% if loop.index % 2 == 0 %}
         </div><div class="row">
