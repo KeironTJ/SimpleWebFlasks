@@ -98,7 +98,7 @@ class BuildingCreator:
 
    
 def sync_buildings():
-     # Create Quest Building
+    
     buildings = [
         {"building_name":"Quests", "building_description": "View All Quests", "building_type_id":1, "building_link": "game.building_quests", "max_building_level":1,
          "requirements": {"cash":0, "wood":0, "stone":0, "metal": 0, "level":0, "xp":0},
@@ -126,6 +126,10 @@ def sync_buildings():
 
         {"building_name":"Barracks", "building_description": "Recruit Heroes", "building_type_id":1, "building_link": "game.building_barracks", "max_building_level":1, 
         "requirements": {"cash":500, "wood":0, "stone":0, "metal": 0, "level":1,"xp":0},
+        "collection": {"xp":0,"cash":0,"wood":0,"stone":0,"metal":0}},
+        
+        {"building_name":"Campaign", "building_description": "Complete Missions to earn XP and rewards", "building_type_id":1, "building_link": "game.building_campaign", "max_building_level":1, 
+        "requirements": {"cash":0, "wood":0, "stone":0, "metal": 0, "level":1,"xp":0},
         "collection": {"xp":0,"cash":0,"wood":0,"stone":0,"metal":0}},
     ]
 

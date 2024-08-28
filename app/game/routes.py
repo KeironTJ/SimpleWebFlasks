@@ -227,3 +227,26 @@ def hero(hero_progress_id):
                            title=f"Hero: {hero_progress.hero.hero_name}",
                            hero_progress=hero_progress,
                            game=game)
+    
+@bp.route('/building_campaign/<building_progress_id>', methods=['GET','POST'])
+@login_required
+def building_campaign(building_progress_id):
+    
+    building_progress = BuildingProgress.query.filter_by(id=building_progress_id).first()
+    game=g.game
+    
+    return render_template("game/buildings/building_campaign.html",
+                           title="Campaign",
+                           game=game,
+                           building_progress=building_progress)
+    
+    
+@bp.route('/battle', methods=['GET','POST'])
+@login_required
+def battle():
+    
+    game=g.game
+    
+    return render_template("game/battle.html",
+                           title="Campaign",
+                           game=game)
